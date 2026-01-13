@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Dark mode (default) */
+  html.dark {
+    --bg-primary: #0d0d1a;
+    --bg-secondary: #1a1a2e;
+    --bg-tertiary: #16213e;
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --border-color: rgba(255, 255, 255, 0.05);
+    --code-bg: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+    --scrollbar-track: #1a1a2e;
+    --scrollbar-thumb: #374151;
+    --scrollbar-thumb-hover: #4b5563;
+  }
+
+  /* Light mode */
+  html.light {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --code-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    --scrollbar-track: #f1f5f9;
+    --scrollbar-thumb: #cbd5e1;
+    --scrollbar-thumb-hover: #94a3b8;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  code, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  .gradient-text {
+    @apply bg-gradient-to-r from-harbor-400 via-harbor-600 to-purple-600 bg-clip-text text-transparent;
+  }
+
+  .gradient-border {
+    @apply bg-gradient-to-br from-harbor-400 via-harbor-600 to-purple-600;
+  }
+
+  .code-block {
+    background: var(--code-bg);
+  }
+
+  .glow {
+    box-shadow: 0 0 60px rgba(192, 38, 211, 0.3);
+  }
+
+  .glow-sm {
+    box-shadow: 0 0 30px rgba(192, 38, 211, 0.2);
+  }
+
+  /* Theme-aware backgrounds */
+  .bg-theme-primary {
+    background-color: var(--bg-primary);
+  }
+
+  .bg-theme-secondary {
+    background-color: var(--bg-secondary);
+  }
+
+  .bg-theme-tertiary {
+    background-color: var(--bg-tertiary);
+  }
+
+  .text-theme-primary {
+    color: var(--text-primary);
+  }
+
+  .text-theme-secondary {
+    color: var(--text-secondary);
+  }
+
+  .text-theme-muted {
+    color: var(--text-muted);
+  }
+
+  .border-theme {
+    border-color: var(--border-color);
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Light mode specific overrides */
+html.light .bg-jet-900,
+html.light .bg-jet-950 {
+  background-color: var(--bg-primary);
+}
+
+html.light .text-white {
+  color: var(--text-primary);
+}
+
+html.light .text-gray-100 {
+  color: var(--text-primary);
+}
+
+html.light .text-gray-300 {
+  color: var(--text-secondary);
+}
+
+html.light .text-gray-400 {
+  color: var(--text-secondary);
+}
+
+html.light .text-gray-500 {
+  color: var(--text-muted);
+}
+
+html.light .border-white\/5,
+html.light .border-white\/10 {
+  border-color: var(--border-color);
+}
+
+html.light .bg-white\/5,
+html.light .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+html.light .hover\:bg-white\/5:hover,
+html.light .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}

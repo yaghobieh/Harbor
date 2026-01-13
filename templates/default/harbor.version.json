@@ -1,0 +1,7 @@
+{
+  "harborVersion": "1.3.0",
+  "templateVersion": "1.0.0",
+  "createdAt": "{{CREATED_AT}}",
+  "templateName": "default"
+}
+

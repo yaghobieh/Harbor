@@ -1,0 +1,72 @@
+{
+  "server": {
+    "port": 3000,
+    "host": "localhost",
+    "cors": {
+      "enabled": true,
+      "origin": "*",
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      "allowedHeaders": ["Content-Type", "Authorization"],
+      "credentials": false
+    },
+    "bodyParser": {
+      "json": true,
+      "urlencoded": true,
+      "limit": "10mb"
+    },
+    "trustProxy": false
+  },
+  "routes": {
+    "prefix": "/api",
+    "timeout": 30000,
+    "defaultMiddleware": []
+  },
+  "validation": {
+    "adapter": "mongoose",
+    "strictMode": true,
+    "sanitize": true
+  },
+  "errors": {
+    "400": {
+      "message": "Bad Request",
+      "json": true,
+      "log": false
+    },
+    "401": {
+      "message": "Unauthorized",
+      "json": true,
+      "log": true
+    },
+    "403": {
+      "message": "Forbidden",
+      "json": true,
+      "log": true
+    },
+    "404": {
+      "message": "Not Found",
+      "json": true,
+      "log": false
+    },
+    "500": {
+      "message": "Internal Server Error",
+      "json": true,
+      "log": true
+    },
+    "default": {
+      "message": "An error occurred",
+      "json": true,
+      "log": true
+    }
+  },
+  "logger": {
+    "enabled": true,
+    "level": "info",
+    "format": "text",
+    "output": "console"
+  },
+  "docker": {
+    "enabled": false,
+    "compose": "./docker-compose.yml"
+  }
+}
+

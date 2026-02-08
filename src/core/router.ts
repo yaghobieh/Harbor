@@ -1,4 +1,4 @@
-import { Router, RequestHandler, Response, NextFunction } from 'express';
+import { Router, RequestHandler } from 'express';
 import type {
   RouteDefinition,
   RouteOptions,
@@ -167,7 +167,7 @@ function validationMiddleware(
 }
 
 function timeoutMiddleware(timeout: number): RequestHandler {
-  return (req, res, next) => {
+  return (_req, res, next) => {
     const timer = setTimeout(() => {
       if (!res.headersSent) {
         res.status(HTTP_STATUS.GATEWAY_TIMEOUT).json({

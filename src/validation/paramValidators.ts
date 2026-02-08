@@ -22,7 +22,7 @@ class BaseParamValidator<T> implements ParamValidator<T> {
       return { valid: false, error: 'Value is required' };
     }
 
-    let processedValue = value;
+    let processedValue: unknown = value;
     if (this.transformFn) {
       processedValue = this.transformFn(processedValue);
     }

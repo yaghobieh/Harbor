@@ -59,7 +59,7 @@ export async function validateField(
     return { valid: true, value: undefined };
   }
 
-  let processedValue = value;
+  let processedValue: unknown = value;
 
   if (schema.transform) {
     processedValue = schema.transform(processedValue);

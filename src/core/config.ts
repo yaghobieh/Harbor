@@ -18,8 +18,11 @@ export function loadConfig(configPath?: string): HarborConfig {
   try {
     const fileContent = readFileSync(path, 'utf-8');
     const userConfig = JSON.parse(fileContent) as Partial<HarborConfig>;
-    const mergedConfig = deepMerge(DEFAULT_CONFIG, userConfig);
-    
+    const mergedConfig = deepMerge(
+      DEFAULT_CONFIG as unknown as Record<string, unknown>,
+      userConfig as unknown as Record<string, unknown>
+    ) as unknown as HarborConfig;
+
     logger.info('Config loaded', { path });
     return applyEnvOverrides(mergedConfig);
   } catch (error) {
@@ -29,7 +32,10 @@ export function loadConfig(configPath?: string): HarborConfig {
 }
 
 export function defineConfig(config: Partial<HarborConfig>): HarborConfig {
-  return deepMerge(DEFAULT_CONFIG, config);
+  return deepMerge(
+    DEFAULT_CONFIG as unknown as Record<string, unknown>,
+    config as unknown as Record<string, unknown>
+  ) as unknown as HarborConfig;
 }
 
 function findConfigPath(customPath?: string): string | null {

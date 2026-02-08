@@ -1,4 +1,4 @@
-import type { ErrorRequestHandler, Request, Response, NextFunction } from 'express';
+import type { ErrorRequestHandler, RequestHandler, Request, Response, NextFunction } from 'express';
 import type { HarborConfig, ErrorsConfig, ErrorHandler } from '../types';
 import { HTTP_STATUS, HTTP_STATUS_MESSAGES } from '../constants';
 import { createLogger } from '../utils/logger';
@@ -154,7 +154,7 @@ function buildErrorResponse(
   };
 }
 
-export function notFoundHandler(config: HarborConfig): ErrorRequestHandler {
+export function notFoundHandler(config: HarborConfig): RequestHandler {
   return (req: Request, res: Response, _next: NextFunction): void => {
     const errorConfig = config.errors[404];
     

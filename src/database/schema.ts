@@ -118,12 +118,12 @@ export class Schema<T = unknown> {
           } else if (typeof fieldDef.type === 'object') {
             // Nested schema
             this._paths.set(path, { type: 'Object' });
-            this._parseDefinition(fieldDef.type as SchemaDefinition, path);
+            this._parseDefinition(fieldDef.type as unknown as SchemaDefinition, path);
           }
         } else {
           // Nested object without type: { meta: { votes: Number } }
           this._paths.set(path, { type: 'Object' });
-          this._parseDefinition(value as SchemaDefinition, path);
+          this._parseDefinition(value as unknown as SchemaDefinition, path);
         }
       }
     }

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { resolve, join, dirname } from 'path';
-import { existsSync, writeFileSync, mkdirSync, readFileSync, readdirSync, statSync, copyFileSync } from 'fs';
+import { existsSync, writeFileSync, mkdirSync, readFileSync, readdirSync, statSync } from 'fs';
 import { createLogger } from '../utils/logger';
 
 const logger = createLogger('cli');

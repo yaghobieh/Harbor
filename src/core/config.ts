@@ -1,5 +1,5 @@
 import { readFileSync, existsSync } from 'fs';
-import { resolve, join } from 'path';
+import { resolve } from 'path';
 import type { HarborConfig } from '../types';
 import { CONFIG_SEARCH_PATHS, ENV_KEYS } from '../constants';
 import { DEFAULT_CONFIG } from '../constants/defaults.const';

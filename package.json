@@ -1,7 +1,7 @@
 {
   "name": "@forgedevstack/harbor",
-  "version": "1.0.0",
-  "description": "The pipeline for Node.js backends - Fast server creation, MongoDB ODM (Mongoose replacement), route management, validation, and Docker orchestration",
+  "version": "1.5.0",
+  "description": "ForgeStack Harbor - Complete Node.js backend framework with MongoDB ODM, WebSocket, scheduling, caching, auth, and more",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
@@ -21,10 +21,30 @@
       "require": "./dist/validation/index.js",
       "types": "./dist/validation/index.d.ts"
     },
-    "./validations": {
-      "import": "./dist/validation/index.js",
-      "require": "./dist/validation/index.js",
-      "types": "./dist/validation/index.d.ts"
+    "./middleware": {
+      "import": "./dist/middleware/index.js",
+      "require": "./dist/middleware/index.js",
+      "types": "./dist/middleware/index.d.ts"
+    },
+    "./websocket": {
+      "import": "./dist/websocket/index.js",
+      "require": "./dist/websocket/index.js",
+      "types": "./dist/websocket/index.d.ts"
+    },
+    "./scheduler": {
+      "import": "./dist/scheduler/index.js",
+      "require": "./dist/scheduler/index.js",
+      "types": "./dist/scheduler/index.d.ts"
+    },
+    "./cache": {
+      "import": "./dist/cache/index.js",
+      "require": "./dist/cache/index.js",
+      "types": "./dist/cache/index.d.ts"
+    },
+    "./auth": {
+      "import": "./dist/auth/index.js",
+      "require": "./dist/auth/index.js",
+      "types": "./dist/auth/index.d.ts"
     },
     "./docker": {
       "import": "./dist/docker/index.js",
@@ -53,29 +73,42 @@
     "build:watch": "vite build --watch",
     "lint": "eslint src --ext .ts",
     "test": "vitest",
-    "portal:dev": "cd portal && npm run dev",
-    "portal:build": "cd portal && npm run build",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "release": "npm run build && npm publish --access public",
+    "release:patch": "npm version patch && npm run release",
+    "release:minor": "npm version minor && npm run release",
+    "release:major": "npm version major && npm run release"
   },
   "keywords": [
+    "forgestack",
+    "harbor",
     "nodejs",
     "server",
     "express",
     "mongodb",
-    "validation",
-    "routing",
-    "docker",
+    "mongoose-alternative",
+    "websocket",
+    "scheduler",
+    "cron",
+    "rate-limit",
+    "cache",
+    "jwt",
+    "authentication",
+    "metrics",
+    "prometheus",
+    "health-check",
+    "file-upload",
     "backend",
     "api",
     "framework"
   ],
-  "author": "ForgeDevStack",
+  "author": "John Yaghobieh",
   "license": "MIT",
-  "homepage": "https://forgedevstack.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yaghobieh/Harbor"
+    "url": "https://github.com/yaghobieh/Harbork"
   },
+  "homepage": "https://forgestack.com",
   "bugs": {
     "url": "https://github.com/yaghobieh/Harbor/issues"
   },
@@ -87,21 +120,28 @@
   },
   "peerDependencies": {
     "express": ">=4.18.0",
-    "mongodb": ">=6.0.0"
+    "mongodb": ">=6.0.0",
+    "ws": ">=8.0.0",
+    "ioredis": ">=5.0.0"
   },
   "peerDependenciesMeta": {
     "mongodb": {
+      "optional": true
+    },
+    "ws": {
+      "optional": true
+    },
+    "ioredis": {
       "optional": true
     }
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.0",
-    "mongodb": "^6.0.0",
+    "@types/ws": "^8.5.10",
     "typescript": "^5.3.0",
     "vite": "^5.0.0",
     "vite-plugin-dts": "^3.6.0",
     "vitest": "^1.0.0"
   }
 }
-

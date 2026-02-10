@@ -68,10 +68,10 @@ export class MongoValidator {
       return { valid: true, value: undefined };
     }
 
-    let processedValue: unknown = value;
+    let processedValue = value;
 
     if (schema.transform) {
-      processedValue = schema.transform(processedValue);
+      processedValue = schema.transform(processedValue) as typeof processedValue;
     }
 
     if (!this.validateType(processedValue, schema.type)) {

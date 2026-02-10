@@ -143,7 +143,6 @@ export const CodeBlock: FC<CodeBlockProps> = ({
 
   return (
     <div className={`relative bg-gradient-to-b from-jet-900 to-[#0f0f1a] rounded-2xl border border-white/5 overflow-hidden group ${className}`}>
-      {/* Copy Button */}
       <button
         onClick={handleCopy}
         className="absolute top-3 right-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 opacity-0 group-hover:opacity-100 transition-all z-10"

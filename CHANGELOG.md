@@ -1,126 +1,107 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to Harbor will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [1.3.1] - 2026-01-13
+## [1.5.0] - 2026-01-14
 
 ### Added
 
-- **Version Dropdown** - Click on version badge to see changelog history with highlights
-- **Project Templates Link** - Homepage now links to templates documentation
-- **Template Init Flag** - `harbor init --template` to initialize with full boilerplate
-- **Template Version Tracking** - Each project tracks Harbor and template versions
+#### WebSocket Support
+- `createWebSocketServer()` for real-time applications
+- Room-based broadcasting
+- Heartbeat/ping-pong for connection health
+- Client tracking and management
+
+#### Job Scheduler
+- `createScheduler()` for task scheduling
+- Cron expressions support (`scheduler.cron('0 * * * *', ...)`)
+- Interval-based scheduling (`scheduler.every('5m', ...)`)
+- One-time scheduling (`scheduler.at(date, ...)`)
+
+#### Rate Limiting
+- `rateLimit()` middleware with memory store
+- `slidingWindowRateLimit()` for accurate limiting
+- Redis store support for distributed systems
+- Customizable key generation and skip logic
+
+#### Health Checks
+- `healthCheck()` endpoint with multiple checks
+- Pre-built checks: MongoDB, Redis, Memory, Disk
+- `customHealthCheck()` for custom health logic
+- Critical vs non-critical check distinction
+
+#### Metrics (Prometheus)
+- `metricsMiddleware()` for automatic collection
+- `metricsEndpoint()` for Prometheus scraping
+- Counter, Gauge, Histogram metric types
+- Request duration, size, and count metrics
+
+#### File Uploads
+- `upload()` middleware for multipart handling
+- Disk and memory storage options
+- File type and size validation
+- Custom filename generation
+
+#### Caching
+- `CacheManager` with memory store
+- `RedisCache` for distributed caching
+- `cacheResponse()` middleware
+- `cached()` function wrapper
+
+#### Authentication
+- `JWT` class for token signing/verification
+- `jwtAuth()` middleware
+- `apiKeyAuth()` middleware
+- `requireRole()` and `requirePermission()` for RBAC
+- `verifySignature()` for HMAC request signing
+- Password hashing utilities
 
 ### Changed
+- Server now has `.use()`, `.get()`, `.post()`, etc. methods
+- Server `.listen()` method for simpler startup
+- Auto-start disabled by default
 
-- Navbar version badge now shows dropdown with all versions
-- Sidebar version badge now shows dropdown with changelog
-- Hero code block centered properly
-- Docs navigation uses React Router (no page reload)
+## [1.4.0] - 2026-01-14
+
+### Added
+- `route.get()`, `route.post()` syntax for routes
+- Express-like convenience methods on server
+- ForgeStack branding and organization
+
+### Changed
+- Package renamed to `@forgestack/harbor`
+- Auto-start now defaults to false
 
 ## [1.3.0] - 2026-01-13
 
 ### Added
-
-- **Project Scaffolding CLI** - New `harbor create <project-name>` command:
-  - Full boilerplate with routes, controllers, services, models, types, utils, constants
-  - Pre-configured ESLint, TypeScript, and Vitest
-  - Example User CRUD implementation
-  - Environment configuration with `.env.example`
-  - Clean architecture with `index.ts` exports
-
-- **Subpath Exports** - Enhanced package exports for better tree-shaking:
-  - `import { ... } from 'harbor'` - Main exports
-  - `import { Schema, model, connect } from 'harbor/database'` - Database-specific
-  - `import { ... } from 'harbor/validations'` - Validation utilities
-  - `import { ... } from 'harbor/docker'` - Docker management
-  - `import { ... } from 'harbor/utils'` - Utility functions
-
-- **GitHub Integration** - Added repository links:
-  - Repository: https://github.com/yaghobieh/Harbor
-  - Homepage and issue tracker configured in package.json
-
-### Changed
-
-- **Portal Improvements**:
-  - Navbar is now solid (not floating/transparent)
-  - Added copy button to all code blocks with visual feedback
-  - Light/Dark mode toggle with system option
-  - Restructured all components with `index.ts`, `ComponentName.tsx`, `types.ts` pattern
-  - All GitHub links now point to official repository
-
-- Portal version updated to 1.3.0
-- CLI version updated to 1.2.0
+- Full MongoDB ODM (Mongoose replacement)
+- Schema, Model, Query with all methods
+- Connection management
+- Hooks (pre, post) support
+- Virtual fields
+- Indexes
 
 ## [1.2.0] - 2026-01-12
 
 ### Added
+- Simplified router API with `GET()`, `POST()`, etc.
+- Removed need for `.build()` on routes
+- CLI for project scaffolding
 
-- **MongoDB ODM (Mongoose Replacement)** - Complete database module that replaces Mongoose:
-  - `connect()` / `disconnect()` - MongoDB connection management with events
-  - `Schema` class - Mongoose-compatible schema definition with all field types
-  - `model()` function - Create models from schemas
-  - **All Query Methods**: `find()`, `findOne()`, `findById()`, `create()`, `insertMany()`, `updateOne()`, `updateMany()`, `findOneAndUpdate()`, `findByIdAndUpdate()`, `deleteOne()`, `deleteMany()`, `findOneAndDelete()`, `findByIdAndDelete()`, `countDocuments()`, `estimatedDocumentCount()`, `aggregate()`, `distinct()`, `exists()`
-  - **Query Builder**: `.where()`, `.select()`, `.sort()`, `.limit()`, `.skip()`, `.lean()`, `.populate()`, `.gt()`, `.gte()`, `.lt()`, `.lte()`, `.in()`, `.nin()`, `.ne()`, `.regex()`, `.exists()`, `.or()`, `.and()`, `.nor()`
-  - **Schema Features**: virtuals, instance methods, static methods, pre/post hooks (middleware)
-  - **Index Management**: `createIndex()`, `createIndexes()`, `listIndexes()`, `dropIndex()`
-  - **Transactions**: `startSession()`, `withTransaction()`
-  - `Types.ObjectId` - ObjectId type support
-
-- **Database Translations** - Added i18n support for all database operations (English & Hebrew)
-
-- **Comprehensive Documentation**:
-  - Updated README.md with full MongoDB documentation
-  - Added Database examples to portal
-  - API reference for all database methods
-
-### Changed
-
-- Portal version updated to 1.2.0
-- Portal now includes Database tab in code examples
-- Features section now highlights MongoDB ODM capability
-
-## [1.1.0] - 2026-01-12
+## [1.1.0] - 2026-01-11
 
 ### Added
+- HTTP request logger (Morgan alternative)
+- i18n support for translations
+- Docker manager
 
-- **Simplified Route API** - New `GET`, `POST`, `PUT`, `PATCH`, `DELETE` functions that don't require `.build()`
-- **i18n/Translation System** - Full internationalization support with `t()`, `setLocale()`, includes English and Hebrew
-- **Morgan-like HTTP Logger** - In-house `httpLogger()` middleware with formats: tiny, short, dev, combined, common
-- **React Portal** - Complete React-based documentation portal with proper component structure
-- `route()` function for creating routes with any HTTP method
-- Skip functions for HTTP logger: `successOnly`, `healthChecks`, `staticFiles`, `paths`
-
-### Changed
-
-- `RouteBuilder.handler()` now returns `RouteDefinition` directly (no need to call `.build()`)
-- Portal converted from static HTML to React project with components, constants, types pattern
-
-## [1.0.0] - 2026-01-12
+## [1.0.0] - 2026-01-10
 
 ### Added
-
-- Initial release of Harbor
-- Fast server creation with `createServer()`
-- Route management with `RouteBuilder` fluent API
-- Pre and post function middleware support
-- Request validation with schema definitions
-- MongoDB-compatible validation with `MongoValidator`
-- Custom validation adapter support
-- Config-driven error handling
-- CORS middleware with configurable options
-- Body parser with size limits
-- Request timeout handling
-- Docker container management
-- Docker Compose integration
-- Changelog manager for version tracking
-- API Portal documentation generator
-- CLI tools for project initialization
-- TypeScript-first with full type definitions
-- Graceful shutdown handling
-- Environment variable overrides
-- Comprehensive logging system
-
+- Initial release
+- `createServer()` for quick server setup
+- Route management with pre/post functions
+- Validation system
+- Error handling with config
+- Logger integration

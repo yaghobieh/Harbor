@@ -25,33 +25,33 @@ interface RouterOptions {
 }
 
 export function createRouter(options: RouterOptions, config: HarborConfig): Router {
-  const router = Router();
+  const expressRouter = Router();
 
   if (options.middleware) {
-    options.middleware.forEach((mw) => router.use(mw));
+    options.middleware.forEach((mw) => expressRouter.use(mw));
   }
 
   if (options.routes) {
-    options.routes.forEach((route) => {
-      registerRoute(router, route, config);
+    options.routes.forEach((routeDef) => {
+      registerRoute(expressRouter, routeDef, config);
     });
   }
 
-  return router;
+  return expressRouter;
 }
 
-function registerRoute(router: Router, route: RouteDefinition, config: HarborConfig): void {
-  const method = route.method.toLowerCase() as keyof Router;
-  const handlers = buildHandlerChain(route, config);
+function registerRoute(expressRouter: Router, routeDef: RouteDefinition, config: HarborConfig): void {
+  const method = routeDef.method.toLowerCase() as keyof Router;
+  const handlers = buildHandlerChain(routeDef, config);
   
-  (router[method] as Function)(route.path, ...handlers);
+  (expressRouter[method] as Function)(routeDef.path, ...handlers);
   
-  logger.debug(t('router.registered', { method: route.method, path: route.path }));
+  logger.debug(t('router.registered', { method: routeDef.method, path: routeDef.path }));
 }
 
-function buildHandlerChain(route: RouteDefinition, config: HarborConfig): RequestHandler[] {
+function buildHandlerChain(routeDef: RouteDefinition, config: HarborConfig): RequestHandler[] {
   const handlers: RequestHandler[] = [];
-  const options = route.options ?? {};
+  const options = routeDef.options ?? {};
 
   if (options.pre) {
     options.pre.forEach((preFn) => {
@@ -67,7 +67,7 @@ function buildHandlerChain(route: RouteDefinition, config: HarborConfig): Reques
     handlers.push(timeoutMiddleware(options.timeout));
   }
 
-  handlers.push(wrapHandler(route.handler, options));
+  handlers.push(wrapHandler(routeDef.handler, options));
 
   return handlers;
 }
@@ -186,10 +186,6 @@ function timeoutMiddleware(timeout: number): RequestHandler {
   };
 }
 
-// ============================================================================
-// SIMPLIFIED ROUTE DEFINITIONS - No .build() needed!
-// ============================================================================
-
 export type RouteHandlerFn = (req: HarborRequest, res: HarborResponse) => unknown | Promise<unknown>;
 
 export interface SimpleRouteOptions {
@@ -202,6 +198,106 @@ export interface SimpleRouteOptions {
     headers?: ValidationSchema;
   };
   timeout?: number;
+}
+
+/**
+ * Create a router with routes - no express import needed!
+ * 
+ * @example
+ * // Style 1: Using GET, POST helpers
+ * const userRoutes = router('/api/users', [
+ *   GET('/', async () => ({ users: [] })),
+ *   GET('/:id', async (req) => ({ user: req.params.id })),
+ *   POST('/', async (req) => ({ id: '123', ...req.body })),
+ * ]);
+ * 
+ * // Style 2: Using route.get, route.post
+ * const userRoutes = router('/api/users', [
+ *   route.get('/', async () => ({ users: [] })),
+ *   route.post('/', async (req) => ({ ...req.body })),
+ * ]);
+ * 
+ * server.use(userRoutes);
+ */
+export function router(basePath: string, routes: RouteDefinition[], options?: { middleware?: RequestHandler[] }): Router {
+  const expressRouter = Router();
+
+  if (options?.middleware) {
+    options.middleware.forEach((mw) => expressRouter.use(mw));
+  }
+
+  routes.forEach((routeDef) => {
+    const fullPath = routeDef.path === '/' ? '' : routeDef.path;
+    const method = routeDef.method.toLowerCase() as keyof Router;
+    
+    const handlers = buildSimpleHandlerChain(routeDef);
+    
+    (expressRouter[method] as Function)(fullPath, ...handlers);
+    
+    logger.debug(t('router.registered', { method: routeDef.method, path: `${basePath}${fullPath}` }));
+  });
+
+  const parentRouter = Router();
+  parentRouter.use(basePath, expressRouter);
+
+  return parentRouter;
+}
+
+function buildSimpleHandlerChain(routeDef: RouteDefinition): RequestHandler[] {
+  const handlers: RequestHandler[] = [];
+  const options = routeDef.options ?? {};
+
+  if (options.pre) {
+    options.pre.forEach((preFn) => {
+      handlers.push(wrapPreFunction(preFn));
+    });
+  }
+
+  handlers.push(wrapSimpleHandler(routeDef.handler, options));
+
+  return handlers;
+}
+
+function wrapSimpleHandler(handler: RouteHandler, options: RouteOptions): RequestHandler {
+  return async (req, res, next) => {
+    try {
+      const result = await handler(req as HarborRequest, res as HarborResponse);
+
+      if (options.post && options.post.length > 0) {
+        for (const postFn of options.post) {
+          await postFn(req as HarborRequest, res, result);
+        }
+      }
+
+      if (!res.headersSent && result !== undefined) {
+        res.json({
+          success: true,
+          data: result,
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+function createRoute(
+  method: HttpMethod,
+  path: string,
+  handler: RouteHandlerFn,
+  options?: SimpleRouteOptions
+): RouteDefinition {
+  return {
+    path,
+    method,
+    handler,
+    options: options ? {
+      pre: options.pre,
+      post: options.post,
+      validation: options.validation,
+      timeout: options.timeout,
+    } : undefined,
+  };
 }
 
 /**
@@ -240,39 +336,38 @@ export function DELETE(path: string, handler: RouteHandlerFn, options?: SimpleRo
 }
 
 /**
- * Create a route definition
+ * Route helper object - alternative syntax
+ * 
+ * @example
+ * const userRoutes = router('/api/users', [
+ *   route.get('/', async () => ({ users: [] })),
+ *   route.post('/', async (req) => ({ ...req.body })),
+ *   route.put('/:id', async (req) => ({ id: req.params.id })),
+ *   route.delete('/:id', async (req) => ({ deleted: true })),
+ * ]);
  */
-export function route(
-  method: HttpMethod,
-  path: string,
-  handler: RouteHandlerFn,
-  options?: SimpleRouteOptions
-): RouteDefinition {
-  return createRoute(method, path, handler, options);
-}
-
-function createRoute(
-  method: HttpMethod,
-  path: string,
-  handler: RouteHandlerFn,
-  options?: SimpleRouteOptions
-): RouteDefinition {
-  return {
-    path,
-    method,
-    handler,
-    options: options ? {
-      pre: options.pre,
-      post: options.post,
-      validation: options.validation,
-      timeout: options.timeout,
-    } : undefined,
-  };
-}
-
-// ============================================================================
-// ROUTE BUILDER (Legacy support - still works but optional)
-// ============================================================================
+export const route = {
+  get: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
+    createRoute('GET', path, handler, options),
+  
+  post: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
+    createRoute('POST', path, handler, options),
+  
+  put: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
+    createRoute('PUT', path, handler, options),
+  
+  patch: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
+    createRoute('PATCH', path, handler, options),
+  
+  delete: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
+    createRoute('DELETE', path, handler, options),
+  
+  options: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
+    createRoute('OPTIONS', path, handler, options),
+  
+  head: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
+    createRoute('HEAD', path, handler, options),
+};
 
 export class RouteBuilder {
   private _route: Partial<RouteDefinition> = {};
@@ -313,7 +408,6 @@ export class RouteBuilder {
   }
 
   handler(handler: RouteHandler): RouteDefinition {
-    // Returns directly - no need for .build()!
     this._route.handler = handler;
     
     if (!this._route.path || !this._route.method || !this._route.handler) {
@@ -363,7 +457,6 @@ export class RouteBuilder {
     return this;
   }
 
-  // Legacy .build() still works for backwards compatibility
   build(): RouteDefinition {
     if (!this._route.path || !this._route.method || !this._route.handler) {
       throw new Error(t('router.missingRequired'));

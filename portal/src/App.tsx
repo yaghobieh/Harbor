@@ -33,10 +33,8 @@ export const App: FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Home page */}
         <Route path="/" element={<HomePage />} />
         
-        {/* Documentation pages */}
         <Route path="/docs" element={<DocLayout />}>
           <Route path="*" element={<DocPage />} />
         </Route>

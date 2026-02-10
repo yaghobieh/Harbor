@@ -20,14 +20,12 @@ server.addRoute(
 export const Hero: FC = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-      {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-harbor-600/20 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl" />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
-        {/* Logo */}
         <div className="mb-8 flex justify-center">
           <Logo size="lg" className="shadow-[0_0_60px_rgba(192,38,211,0.3)]" />
         </div>
@@ -44,7 +42,6 @@ export const Hero: FC = () => {
           {DESCRIPTION}
         </p>
 
-        {/* Stats */}
         <div className="flex flex-wrap justify-center gap-8 mb-12">
           {STATS.map((stat, index) => (
             <div key={index} className="text-center">
@@ -56,7 +53,6 @@ export const Hero: FC = () => {
           ))}
         </div>
 
-        {/* CTA Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mb-16">
           <Link
             to="/docs/quick-start"
@@ -72,7 +68,6 @@ export const Hero: FC = () => {
           </a>
         </div>
 
-        {/* Code Preview */}
         <div className="flex justify-center">
           <div className="w-full max-w-2xl">
             <CodeBlock
@@ -83,7 +78,6 @@ export const Hero: FC = () => {
           </div>
         </div>
         
-        {/* Template Link */}
         <div className="mt-8">
           <Link
             to="/docs/templates"
@@ -97,7 +91,6 @@ export const Hero: FC = () => {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
         <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />

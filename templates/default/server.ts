@@ -1,45 +1,26 @@
-import { createServer, connect, httpLogger } from 'harbor';
-import { routes } from './routes';
-import { config } from './constants';
+import { createServer, connect, httpLogger } from '@forgestack/harbor';
+import { userRoutes } from './routes';
+import { CONFIG } from './constants';
 
 async function bootstrap() {
-  // Create server with Harbor
-  const app = createServer({
-    port: config.PORT,
+  // Connect to MongoDB
+  await connect(CONFIG.MONGODB_URI);
+  console.log('Connected to MongoDB');
+
+  // Create server with minimal config
+  const server = createServer({
+    port: CONFIG.PORT,
     cors: true,
-    helmet: true,
-    json: true,
-    urlencoded: true,
+    bodyParser: true,
   });
 
-  // HTTP request logging
-  app.use(httpLogger({
-    format: 'dev',
-    skip: (req) => req.path === '/health',
-  }));
+  // Add HTTP request logger
+  server.use(httpLogger());
 
-  // Connect to MongoDB (optional)
-  if (config.MONGODB_URI) {
-    await connect(config.MONGODB_URI, {
-      dbName: config.DB_NAME,
-    });
-    console.log('📦 Connected to MongoDB');
-  }
+  // Register routes
+  server.use(userRoutes);
 
-  // Register all routes
-  app.use('/api', routes);
-
-  // Health check endpoint
-  app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
-  });
-
-  // Start server
-  app.listen(config.PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${config.PORT}`);
-    console.log(`📚 API Docs: http://localhost:${config.PORT}/api-docs`);
-  });
+  console.log(`Server running at http://localhost:${CONFIG.PORT}`);
 }
 
 bootstrap().catch(console.error);
-

@@ -253,7 +253,6 @@ export const CodeExamples: FC = () => {
           </p>
         </div>
 
-        {/* Tabs */}
         <div className="flex flex-wrap justify-center gap-3 mb-10">
           {EXAMPLE_TABS.map((tab) => (
             <button
@@ -270,7 +269,6 @@ export const CodeExamples: FC = () => {
           ))}
         </div>
 
-        {/* Code Block */}
         <div className="max-w-4xl mx-auto">
           <CodeBlock
             code={activeExample.code}

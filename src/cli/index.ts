@@ -206,7 +206,7 @@ async function createProject(args: string[]): Promise<void> {
   console.log('   cp .env.example .env');
   console.log('   npm run dev\n');
 
-  console.log('📚 Documentation: https://github.com/yaghobieh/Harbor\n');
+  console.log('📚 Documentation: https://forgestack.dev/harbor\n');
 }
 
 function initProject(args: string[]): void {
@@ -331,22 +331,21 @@ function initProject(args: string[]): void {
 
   const serverPath = resolve(serverDir, 'server.ts');
   if (!existsSync(serverPath)) {
-    const serverTemplate = `import { createServer, GET, POST } from 'harbor';
+    const serverTemplate = `import { createServer, router, GET } from '@forgestack/harbor';
 
-const server = createServer({
-  port: 3000,
-});
+const server = createServer({ port: 3000 });
 
-// Health check
-server.get('/health', GET(async () => ({ 
-  status: 'ok', 
-  timestamp: new Date().toISOString() 
-})));
+// Define routes
+const healthRoutes = router('/health', [
+  GET('/', async () => ({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString() 
+  })),
+]);
 
-// Start the server
-server.listen(3000, () => {
-  console.log('Server running at http://localhost:3000');
-});
+server.use(healthRoutes);
+
+console.log('Server running at http://localhost:3000');
 `;
 
     writeFileSync(serverPath, serverTemplate, 'utf-8');
@@ -354,7 +353,7 @@ server.listen(3000, () => {
   }
 
   console.log('\nHarbor project initialized!');
-  console.log('Run: npm install harbor');
+  console.log('Run: npm install @forgestack/harbor');
   console.log('Then: npm run dev');
   console.log('\nTip: Use --template flag for full boilerplate');
 }
@@ -370,11 +369,11 @@ function generateDocs(): void {
 }
 
 function showVersion(): void {
-  console.log('Harbor v1.2.0');
+  console.log('@forgestack/harbor v1.4.0');
 }
 
 function showHelp(): void {
-  console.log('\n🚢 Harbor - The pipeline for Node.js backends\n');
+  console.log('\n🚢 ForgeStack Harbor - Node.js Backend Framework\n');
   console.log('Usage: harbor <command> [options]\n');
   console.log('Commands:\n');
 
@@ -386,12 +385,12 @@ function showHelp(): void {
   console.log('  --template, -t     Use full boilerplate template (for init command)');
 
   console.log('\nExamples:\n');
-  console.log('  harbor create my-app     Create new project with boilerplate');
-  console.log('  harbor init              Initialize config in existing project');
-  console.log('  harbor init --template   Initialize with full boilerplate');
-  console.log('  harbor docs              Generate API documentation');
-  console.log('  harbor version           Show version');
-  console.log('\nDocumentation: https://github.com/yaghobieh/Harbor');
+  console.log('  npx @forgestack/harbor create my-app    Create new project');
+  console.log('  harbor create my-app                    Create new project');
+  console.log('  harbor init                             Initialize config');
+  console.log('  harbor init --template                  Initialize with full boilerplate');
+  console.log('  harbor version                          Show version');
+  console.log('\nDocumentation: https://forgestack.dev/harbor');
 }
 
 main();

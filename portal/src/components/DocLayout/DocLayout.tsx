@@ -7,7 +7,6 @@ export const DocLayout: FC = () => {
 
   return (
     <div className="min-h-screen bg-jet-950">
-      {/* Mobile menu button */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="fixed top-4 left-4 z-40 p-2 bg-jet-900 border border-white/10 rounded-lg lg:hidden"
@@ -17,7 +16,6 @@ export const DocLayout: FC = () => {
         </svg>
       </button>
 
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -25,10 +23,8 @@ export const DocLayout: FC = () => {
         />
       )}
 
-      {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Main content */}
       <main className="lg:ml-72">
         <Outlet />
       </main>

@@ -273,9 +273,9 @@ export class HarborDocument {
   isNew: boolean = true;
 
   private _model: Model<any>;
-  private _modified: Set<string> = new Set();
-  /** Snapshot of document at load time for change tracking */
+  // @ts-ignore - Reserved for tracking changes
   private _original: Record<string, unknown> = {};
+  private _modified: Set<string> = new Set();
 
   constructor(model: Model<any>, doc?: Record<string, unknown>) {
     this._model = model;
@@ -317,11 +317,6 @@ export class HarborDocument {
     for (const [name, method] of schema.getMethods()) {
       (this as any)[name] = method.bind(this);
     }
-  }
-
-  /** Snapshot of document at load for change tracking */
-  get original(): Record<string, unknown> {
-    return this._original;
   }
 
   get id(): string {

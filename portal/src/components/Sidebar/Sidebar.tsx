@@ -26,7 +26,6 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
         isOpen ? 'translate-x-0' : '-translate-x-full'
       } lg:translate-x-0`}
     >
-      {/* Header */}
       <div className="sticky top-0 bg-jet-950 z-10 p-4 border-b border-white/5">
         <Link to="/" className="flex items-center gap-3 mb-4">
           <Logo size={32} />
@@ -34,7 +33,6 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
           <VersionDropdown />
         </Link>
 
-        {/* Search */}
         <div className="relative">
           <input
             type="text"
@@ -59,7 +57,6 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="p-4">
         {filteredNavigation.map((group) => (
           <div key={group.title} className="mb-6">
@@ -90,7 +87,6 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
         ))}
       </nav>
 
-      {/* Footer */}
       <div className="p-4 border-t border-white/5">
         <a
           href="https://github.com/yaghobieh/Harbor"

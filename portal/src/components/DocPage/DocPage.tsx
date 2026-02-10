@@ -40,7 +40,6 @@ export const DocPage: FC = () => {
 
   return (
     <article className="max-w-4xl mx-auto py-12 px-6">
-      {/* Breadcrumb */}
       <nav className="mb-8">
         <ol className="flex items-center gap-2 text-sm text-gray-500">
           <li>
@@ -59,7 +58,6 @@ export const DocPage: FC = () => {
         </ol>
       </nav>
 
-      {/* Header */}
       <header className="mb-12">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
           <GradientText>{content.title}</GradientText>
@@ -67,7 +65,6 @@ export const DocPage: FC = () => {
         <p className="text-xl text-gray-400">{content.description}</p>
       </header>
 
-      {/* Table of Contents */}
       {content.sections.length > 1 && (
         <nav className="mb-12 p-6 bg-white/5 rounded-xl border border-white/10">
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
@@ -88,7 +85,6 @@ export const DocPage: FC = () => {
         </nav>
       )}
 
-      {/* Content */}
       <div className="prose prose-invert prose-lg max-w-none">
         {content.sections.map((section, index) => (
           <section key={section.id} id={section.id} className="mb-16 scroll-mt-24">
@@ -99,7 +95,6 @@ export const DocPage: FC = () => {
               {section.title}
             </h2>
 
-            {/* Content with markdown-like rendering */}
             <div className="text-gray-300 mb-6 leading-relaxed whitespace-pre-wrap">
               {section.content.split('\n').map((line, i) => {
                 // Handle bullet points
@@ -129,7 +124,6 @@ export const DocPage: FC = () => {
                 );
               })}
 
-              {/* Render tables */}
               {section.content.includes('|') && (
                 <div className="my-6 overflow-x-auto">
                   <table className="w-full border-collapse">
@@ -156,7 +150,6 @@ export const DocPage: FC = () => {
               )}
             </div>
 
-            {/* Code block */}
             {section.code && (
               <CodeBlock
                 code={section.code}
@@ -168,7 +161,6 @@ export const DocPage: FC = () => {
         ))}
       </div>
 
-      {/* Navigation */}
       <nav className="mt-16 pt-8 border-t border-white/10 flex justify-between">
         {prevPage ? (
           <Link

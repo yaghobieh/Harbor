@@ -10,8 +10,9 @@ class HarborConnection extends EventEmitter {
     connected: false,
     readyState: 0,
   };
+  // @ts-ignore - Reserved for future use
+  private _uri: string = '';
   private _options: ConnectionOptions = {};
-  private _connectionUri: string = '';
   private _mongoClient: unknown = null;
   private _db: unknown = null;
   private _models: Map<string, unknown> = new Map();
@@ -44,17 +45,13 @@ class HarborConnection extends EventEmitter {
     return this._models;
   }
 
-  get uri(): string {
-    return this._connectionUri;
-  }
-
   async connect(uri: string, options?: ConnectionOptions): Promise<this> {
     if (this._state.readyState === 1) {
       console.warn('[Harbor] Already connected to MongoDB');
       return this;
     }
 
-    this._connectionUri = uri;
+    this._uri = uri;
     this._options = {
       maxPoolSize: 10,
       minPoolSize: 1,

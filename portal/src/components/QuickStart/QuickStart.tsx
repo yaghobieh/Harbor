@@ -34,7 +34,6 @@ export const QuickStart: FC = () => {
           </p>
         </div>
 
-        {/* Steps */}
         {STEPS.map((step) => (
           <div key={step.number} className="mb-12">
             <div className="flex items-center gap-4 mb-4">
@@ -51,7 +50,6 @@ export const QuickStart: FC = () => {
           </div>
         ))}
 
-        {/* Main Code Example */}
         <div className="mb-12">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-harbor-400 to-harbor-600 flex items-center justify-center text-white font-bold">
@@ -62,7 +60,6 @@ export const QuickStart: FC = () => {
           <CodeBlock code={QUICK_START_CODE} filename="src/server.ts" />
         </div>
 
-        {/* Run Step */}
         <div>
           <div className="flex items-center gap-4 mb-4">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-harbor-400 to-harbor-600 flex items-center justify-center text-white font-bold">

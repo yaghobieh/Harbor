@@ -10,11 +10,18 @@ export default defineConfig({
     }),
   ],
   build: {
+    target: 'node18',
     lib: {
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
+        'database/index': resolve(__dirname, 'src/database/index.ts'),
         'validation/index': resolve(__dirname, 'src/validation/index.ts'),
         'docker/index': resolve(__dirname, 'src/docker/index.ts'),
+        'middleware/index': resolve(__dirname, 'src/middleware/index.ts'),
+        'websocket/index': resolve(__dirname, 'src/websocket/index.ts'),
+        'scheduler/index': resolve(__dirname, 'src/scheduler/index.ts'),
+        'cache/index': resolve(__dirname, 'src/cache/index.ts'),
+        'auth/index': resolve(__dirname, 'src/auth/index.ts'),
         'cli/index': resolve(__dirname, 'src/cli/index.ts'),
       },
       formats: ['es', 'cjs'],
@@ -28,9 +35,8 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        'express',
-        'mongoose',
-        'mongodb',
+        // Node.js built-ins
+        'events',
         'fs',
         'fs/promises',
         'path',
@@ -38,24 +44,32 @@ export default defineConfig({
         'http',
         'https',
         'url',
-        'events',
         'util',
-        'stream',
+        'os',
         'net',
         'tls',
         'dns',
+        'stream',
+        'crypto',
+        'zlib',
         'timers',
         'timers/promises',
-        'crypto',
-        'os',
         'process',
-        'zlib',
+        // External dependencies
+        'express',
+        'mongoose',
+        'mongodb',
+        'ws',
+        'ioredis',
+        'check-disk-space',
       ],
       output: {
         globals: {
           express: 'express',
           mongoose: 'mongoose',
           mongodb: 'mongodb',
+          ws: 'ws',
+          ioredis: 'ioredis',
         },
       },
     },
@@ -72,4 +86,3 @@ export default defineConfig({
     },
   },
 });
-

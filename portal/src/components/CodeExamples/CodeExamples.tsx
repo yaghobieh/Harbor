@@ -1,6 +1,13 @@
-import { FC, useState } from 'react';
-import { GradientText } from '../GradientText/GradientText';
-import { CodeBlock } from '../CodeBlock/CodeBlock';
+import { FC } from 'react';
+import {
+  Typography,
+  GradientText,
+  CodeBlock,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanel,
+} from '@forgedevstack/bear';
 import { EXAMPLE_TABS } from '@/constants';
 
 const EXAMPLES: Record<string, { filename: string; code: string }> = {
@@ -70,31 +77,17 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
-// Instance methods
-userSchema.methods.comparePassword = async function(password) {
-  return bcrypt.compare(password, this.password);
-};
-
 // Create model
 const User = model('User', userSchema);
 
 // Query methods (all Mongoose methods work!)
 const users = await User.find({ role: 'admin' });
 const user = await User.findOne({ email: 'john@example.com' });
-const user = await User.findById('507f1f77bcf86cd799439011');
 
 // Create, Update, Delete
 await User.create({ email: 'john@example.com', name: 'John' });
 await User.updateOne({ email: 'john@example.com' }, { name: 'John Doe' });
-await User.deleteOne({ email: 'john@example.com' });
-
-// Query builder chain
-const admins = await User.find()
-  .where('role').equals('admin')
-  .select('name email')
-  .sort('-createdAt')
-  .limit(10)
-  .lean();`,
+await User.deleteOne({ email: 'john@example.com' });`,
   },
   validation: {
     filename: 'validation/userSchema.ts',
@@ -156,16 +149,7 @@ export const protectedRoute = GET('/api/admin/dashboard', async (req) => {
   }
 
   return { dashboard: 'data' };
-});
-
-// Errors are auto-handled based on harbor.config.json:
-// {
-//   "errors": {
-//     "401": { "message": "Unauthorized", "json": true, "log": true },
-//     "403": { "message": "Forbidden", "json": true },
-//     "404": { "message": "Not Found", "json": true }
-//   }
-// }`,
+});`,
   },
   middleware: {
     filename: 'middleware/auth.ts',
@@ -223,10 +207,6 @@ await docker.composeDown(true);     // Stop and remove volumes
 // View logs
 const logs = await docker.composeLogs('web');
 
-// Container management
-await docker.startContainer('my-container');
-await docker.stopContainer('my-container');
-
 // Build and push images
 await docker.buildImage('my-app', 'v1.0.0');
 await docker.pushImage('my-app', 'v1.0.0');
@@ -237,47 +217,42 @@ const output = await docker.exec('web', 'npm run migrate');`,
 };
 
 export const CodeExamples: FC = () => {
-  const [activeTab, setActiveTab] = useState('routing');
-
-  const activeExample = EXAMPLES[activeTab];
-
   return (
     <section id="examples" className="py-32 relative">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <GradientText>Code Examples</GradientText>
-          </h2>
-          <p className="text-xl text-gray-400">
+          <Typography variant="h2" className="text-4xl md:text-5xl font-bold mb-4">
+            <GradientText preset="ocean" className="text-4xl md:text-5xl font-bold">
+              Code Examples
+            </GradientText>
+          </Typography>
+          <Typography className="text-xl opacity-50">
             Real-world patterns for common use cases
-          </p>
+          </Typography>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-3 mb-10">
-          {EXAMPLE_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-2 rounded-lg font-medium text-sm transition-all ${
-                activeTab === tab.id
-                  ? 'bg-harbor-600 text-white'
-                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
-              }`}
-            >
-              {tab.label}
-            </button>
+        <Tabs defaultTab="routing" variant="pills">
+          <TabList className="flex flex-wrap justify-center gap-3 mb-10">
+            {EXAMPLE_TABS.map((tab) => (
+              <Tab key={tab.id} id={tab.id}>
+                {tab.label}
+              </Tab>
+            ))}
+          </TabList>
+
+          {Object.entries(EXAMPLES).map(([key, example]) => (
+            <TabPanel key={key} tabId={key} className="max-w-4xl mx-auto">
+              <CodeBlock
+                code={example.code}
+                title={example.filename}
+                language="typescript"
+                copyable
+                showLineNumbers
+              />
+            </TabPanel>
           ))}
-        </div>
-
-        <div className="max-w-4xl mx-auto">
-          <CodeBlock
-            code={activeExample.code}
-            filename={activeExample.filename}
-            className="shadow-[0_0_30px_rgba(192,38,211,0.2)]"
-          />
-        </div>
+        </Tabs>
       </div>
     </section>
   );
 };
-

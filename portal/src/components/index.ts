@@ -15,6 +15,7 @@ export { DocPage } from './DocPage';
 export { DocLayout } from './DocLayout';
 export { ThemeToggle } from './ThemeToggle';
 export { VersionDropdown } from './VersionDropdown';
+export { Sandbox } from './Sandbox';
 
 // Types
 export type { NavbarProps, NavItem as NavbarNavItem } from './Navbar';

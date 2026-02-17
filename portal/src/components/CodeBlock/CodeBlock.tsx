@@ -1,4 +1,5 @@
 import { FC, useMemo, useState } from 'react';
+import { Button, BearIcons } from '@forgedevstack/bear';
 import { CodeBlockProps, Token, TokenType } from './types';
 
 const TOKEN_COLORS: Record<TokenType, string> = {
@@ -143,21 +144,15 @@ export const CodeBlock: FC<CodeBlockProps> = ({
 
   return (
     <div className={`relative bg-gradient-to-b from-jet-900 to-[#0f0f1a] rounded-2xl border border-white/5 overflow-hidden group ${className}`}>
-      <button
+      <Button
+        variant="ghost"
+        size="xs"
+        icon={copied ? <BearIcons.CheckIcon size="xs" color="#4ade80" /> : <BearIcons.CopyIcon size="xs" color="#9ca3af" />}
         onClick={handleCopy}
-        className="absolute top-3 right-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 opacity-0 group-hover:opacity-100 transition-all z-10"
-        title="Copy code"
-      >
-        {copied ? (
-          <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        ) : (
-          <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-          </svg>
-        )}
-      </button>
+        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all z-10"
+        aria-label="Copy code"
+        style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)' }}
+      />
 
       {filename && (
         <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">

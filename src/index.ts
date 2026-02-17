@@ -110,6 +110,50 @@ export type {
   CacheEntry,
 } from './cache';
 
+// Queue exports
+export {
+  Queue,
+  createQueue,
+} from './queue';
+export type {
+  QueueJob,
+  AddJobOptions,
+  QueueOptions,
+  JobHandler,
+  QueueEvents,
+  QueueStats,
+  JobStatus,
+  JobPriority,
+} from './queue';
+
+// Mail exports
+export {
+  Mailer,
+  createMailer,
+  createMailerFromProvider,
+  SmtpTransport,
+  registerTemplate,
+  registerTemplates,
+  getTemplate,
+  removeTemplate,
+  listTemplates,
+  renderTemplate,
+  renderNamedTemplate,
+  escapeHtml,
+} from './mail';
+export type {
+  MailOptions,
+  MailResult,
+  MailAddress,
+  MailAttachment,
+  MailTemplate,
+  MailPriority,
+  MailerOptions,
+  MailProvider,
+  SmtpConfig,
+  SmtpAuth,
+} from './mail';
+
 // Auth exports
 export {
   JWT,

@@ -1,102 +1,134 @@
 import { FC } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Button,
+  Typography,
+  Container,
+  Flex,
+  Grid,
+  GridItem,
+  Card,
+  CardBody,
+  Badge,
+  GradientText,
+  CodeBlock,
+  BearIcons,
+} from '@forgedevstack/bear';
 import { Logo } from '../Logo/Logo';
-import { GradientText } from '../GradientText/GradientText';
-import { CodeBlock } from '../CodeBlock/CodeBlock';
-import { TITLE, TAGLINE, DESCRIPTION, STATS } from '@/constants';
-
-const HERO_CODE = `import { createServer, GET } from 'harbor';
-
-const server = createServer({ port: 3000 });
-
-server.addRoute(
-  GET('/api/users', async (req) => {
-    return { users: [], page: req.query.page };
-  })
-);
-
-// Server is running at http://localhost:3000`;
+import { TITLE, TAGLINE, DESCRIPTION, STATS, FORGESTACK_PACKAGES, QUICK_START_CODE } from '@/constants';
 
 export const Hero: FC = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-harbor-600/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-harbor-500/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-forge-500/20 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
-        <div className="mb-8 flex justify-center">
-          <Logo size="lg" className="shadow-[0_0_60px_rgba(192,38,211,0.3)]" />
-        </div>
+      <Container className="relative z-10 text-center" style={{ maxWidth: '72rem' }}>
+        <Flex justify="center" className="mb-4">
+          <Logo size="lg" className="shadow-[0_0_60px_rgba(0,102,204,0.3)]" />
+        </Flex>
 
-        <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
-          <GradientText>{TITLE}</GradientText>
-        </h1>
+        <Flex justify="center" className="mb-6">
+          <Badge variant="info" className="px-4 py-1.5 text-sm">
+            <Flex align="center" gap={2}>
+              <BearIcons.ZapIcon size="xs" />
+              Part of the ForgeStack Ecosystem
+            </Flex>
+          </Badge>
+        </Flex>
 
-        <p className="text-2xl md:text-3xl text-gray-300 font-medium mb-4">
+        <Typography variant="h1" className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+          <GradientText preset="ocean" className="text-5xl md:text-7xl font-extrabold">
+            {TITLE}
+          </GradientText>
+        </Typography>
+
+        <Typography variant="h2" className="text-2xl md:text-3xl font-medium mb-4 opacity-70">
           {TAGLINE}
-        </p>
+        </Typography>
 
-        <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-10">
+        <Typography className="text-lg max-w-2xl mx-auto mb-10 opacity-50">
           {DESCRIPTION}
-        </p>
+        </Typography>
 
-        <div className="flex flex-wrap justify-center gap-8 mb-12">
+        <Flex justify="center" gap={8} wrap="wrap" className="mb-12">
           {STATS.map((stat, index) => (
             <div key={index} className="text-center">
-              <div className="text-3xl font-bold">
-                <GradientText>{stat.value}</GradientText>
-              </div>
-              <div className="text-sm text-gray-500">{stat.label}</div>
+              <Typography variant="h3" className="text-3xl font-bold">
+                <GradientText preset="ocean">{stat.value}</GradientText>
+              </Typography>
+              <Typography variant="body2" className="opacity-50">{stat.label}</Typography>
             </div>
           ))}
-        </div>
+        </Flex>
 
-        <div className="flex flex-wrap justify-center gap-4 mb-16">
-          <Link
-            to="/docs/quick-start"
-            className="px-8 py-4 rounded-xl bg-gradient-to-r from-harbor-400 via-harbor-600 to-purple-600 text-white font-semibold text-lg hover:opacity-90 transition-opacity shadow-[0_0_30px_rgba(192,38,211,0.2)]"
-          >
-            Read the Docs
+        <Flex justify="center" gap={4} wrap="wrap" className="mb-12">
+          <Link to="/docs/quick-start">
+            <Button variant="harbor" size="lg" spotlight leftIcon={<BearIcons.BookOpenIcon size="xs" />}>
+              Read the Docs
+            </Button>
           </Link>
-          <a
-            href="#quickstart"
-            className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-semibold text-lg hover:bg-white/10 transition-colors"
-          >
-            Quick Start
+          <a href="#quickstart">
+            <Button variant="outline" size="lg" leftIcon={<BearIcons.RocketIcon size="xs" />}>
+              Quick Start
+            </Button>
           </a>
-        </div>
+          <a href="https://forgedevstack.com" target="_blank" rel="noopener noreferrer">
+            <Button variant="forgeGhost" size="lg" leftIcon={<BearIcons.ExternalLinkIcon size="xs" />} className="border">
+              ForgeStack
+            </Button>
+          </a>
+          <Link to="/sandbox">
+            <Button variant="forge" size="lg" spotlight leftIcon={<BearIcons.TerminalIcon size="xs" />}>
+              Sandbox
+            </Button>
+          </Link>
+        </Flex>
 
-        <div className="flex justify-center">
-          <div className="w-full max-w-2xl">
+        <Flex justify="center" className="mb-16">
+          <div className="w-full max-w-2xl text-left">
             <CodeBlock
-              code={HERO_CODE}
-              filename="server.ts"
-              className="shadow-[0_0_30px_rgba(192,38,211,0.2)] text-left"
+              code={QUICK_START_CODE}
+              title="server.ts"
+              language="typescript"
+              copyable
+              showLineNumbers
             />
           </div>
+        </Flex>
+
+        <div className="max-w-4xl mx-auto">
+          <Typography variant="overline" className="mb-6 opacity-50">
+            Works with the ForgeStack Ecosystem
+          </Typography>
+          <Grid cols={{ base: 2, md: 3 }} gap={3}>
+            {FORGESTACK_PACKAGES.map((pkg) => (
+              <GridItem key={pkg.name}>
+                <Card variant="ghost" interactive padding="sm" radius="xl">
+                  <CardBody>
+                    <Flex align="center" gap={2} className="mb-1">
+                      <BearIcons.PackageIcon size="xs" color="var(--harbor-accent)" />
+                      <Typography variant="body2" className="font-semibold">
+                        {pkg.name}
+                      </Typography>
+                    </Flex>
+                    <Typography variant="caption" className="opacity-50 mb-2 block">
+                      {pkg.description}
+                    </Typography>
+                    <code className="text-xs opacity-40 font-mono">{pkg.command}</code>
+                  </CardBody>
+                </Card>
+              </GridItem>
+            ))}
+          </Grid>
         </div>
-        
-        <div className="mt-8">
-          <Link
-            to="/docs/templates"
-            className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-harbor-400 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-            </svg>
-            View project template structure
-          </Link>
-        </div>
-      </div>
+      </Container>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
+        <BearIcons.ArrowDownIcon size="sm" color="var(--text-muted)" />
       </div>
     </section>
   );
 };
-

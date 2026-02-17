@@ -206,7 +206,7 @@ async function createProject(args: string[]): Promise<void> {
   console.log('   cp .env.example .env');
   console.log('   npm run dev\n');
 
-  console.log('📚 Documentation: https://forgestack.dev/harbor\n');
+  console.log('📚 Documentation: https://forgedevstack.com/harbor\n');
 }
 
 function initProject(args: string[]): void {
@@ -390,7 +390,7 @@ function showHelp(): void {
   console.log('  harbor init                             Initialize config');
   console.log('  harbor init --template                  Initialize with full boilerplate');
   console.log('  harbor version                          Show version');
-  console.log('\nDocumentation: https://forgestack.dev/harbor');
+  console.log('\nDocumentation: https://forgedevstack.com/harbor');
 }
 
 main();

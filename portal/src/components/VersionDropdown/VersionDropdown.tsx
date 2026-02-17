@@ -1,7 +1,35 @@
-import { FC, useState, useRef, useEffect } from 'react';
+import { FC, ReactNode } from 'react';
+import {
+  Dropdown,
+  Button,
+  Typography,
+  BearIcons,
+} from '@forgedevstack/bear';
+import type { DropdownItem } from '@forgedevstack/bear';
 import { VersionDropdownProps, VersionInfo } from './types';
 
 const VERSIONS: VersionInfo[] = [
+  {
+    version: '1.6.0',
+    date: '2026-02-17',
+    highlights: [
+      'Job Queue with priorities, retries, dead letter queue',
+      'Zero-dep Mail with SMTP, templates, provider presets',
+      'Crucible testing integration',
+      'ForgeStack ecosystem docs',
+      'Bear UI theme support',
+    ],
+  },
+  {
+    version: '1.5.0',
+    date: '2026-02-10',
+    highlights: [
+      'Cache module (Memory + Redis)',
+      'Scheduler with cron expressions',
+      'JWT & API Key auth',
+      'Health checks & Prometheus metrics',
+    ],
+  },
   {
     version: '1.3.1',
     date: '2026-01-13',
@@ -54,85 +82,65 @@ const VERSIONS: VersionInfo[] = [
   },
 ];
 
+const currentVersion = VERSIONS[0];
+
+function buildDropdownItems(): DropdownItem[] {
+  const items: DropdownItem[] = [
+    { key: 'header', label: 'Version History', header: true },
+  ];
+
+  VERSIONS.forEach((version, index) => {
+    const highlights = version.highlights.map(h => `• ${h}`).join('\n');
+    const isLatest = index === 0;
+
+    items.push({
+      key: `v${version.version}`,
+      label: `v${version.version}${isLatest ? ' (Latest)' : ''} — ${version.date}`,
+      icon: isLatest
+        ? <BearIcons.CheckCircleIcon size="xs" color="var(--harbor-accent)" />
+        : <BearIcons.GitCommitIcon size="xs" />,
+      trailing: (
+        <Typography variant="caption" className="opacity-40 text-xs">
+          {version.highlights.length} changes
+        </Typography>
+      ) as ReactNode,
+    });
+
+    if (index < VERSIONS.length - 1) {
+      items.push({ key: `divider-${index}`, divider: true });
+    }
+  });
+
+  items.push({ key: 'divider-bottom', divider: true });
+  items.push({
+    key: 'changelog',
+    label: 'View full changelog →',
+    icon: <BearIcons.ExternalLinkIcon size="xs" />,
+    onClick: () => {
+      window.open('https://www.npmjs.com/package/@forgedevstack/harbor', '_blank');
+    },
+  });
+
+  return items;
+}
+
 export const VersionDropdown: FC<VersionDropdownProps> = ({ className = '' }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const currentVersion = VERSIONS[0];
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const dropdownItems = buildDropdownItems();
 
   return (
-    <div ref={dropdownRef} className={`relative ${className}`}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-xs px-2 py-0.5 rounded-full bg-harbor-500/20 text-harbor-400 font-medium hover:bg-harbor-500/30 transition-colors flex items-center gap-1"
-      >
-        v{currentVersion.version}
-        <svg
-          className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-80 bg-jet-900 border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden">
-          <div className="p-3 border-b border-white/10">
-            <div className="text-xs text-gray-500 uppercase tracking-wider">Version History</div>
-          </div>
-          <div className="max-h-96 overflow-y-auto">
-            {VERSIONS.map((version, index) => (
-              <div
-                key={version.version}
-                className={`p-3 border-b border-white/5 hover:bg-white/5 transition-colors ${
-                  index === 0 ? 'bg-harbor-500/10' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-semibold text-white">v{version.version}</span>
-                    {index === 0 && (
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-green-500/20 text-green-400">
-                        Latest
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-xs text-gray-500">{version.date}</span>
-                </div>
-                <ul className="text-xs text-gray-400 space-y-1">
-                  {version.highlights.map((highlight, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <span className="text-harbor-400 mt-0.5">•</span>
-                      {highlight}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <a
-            href="https://github.com/yaghobieh/Harbor/blob/main/CHANGELOG.md"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block p-3 text-center text-sm text-harbor-400 hover:text-harbor-300 hover:bg-white/5 transition-colors"
-          >
-            View full changelog →
-          </a>
-        </div>
-      )}
+    <div className={className}>
+      <Dropdown
+        trigger={
+          <Button variant="ghost" size="xs" rightIcon={<BearIcons.ChevronDownIcon size="xs" />} className="text-xs font-mono">
+            v{currentVersion.version}
+          </Button>
+        }
+        items={dropdownItems}
+        placement="bottom-start"
+        minWidth={320}
+        maxHeight={400}
+        size="sm"
+      />
     </div>
   );
 };
-

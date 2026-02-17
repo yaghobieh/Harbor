@@ -1,20 +1,22 @@
 import { FC, useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { Button, BearIcons } from '@forgedevstack/bear';
 import { Sidebar } from '../Sidebar/Sidebar';
 
 export const DocLayout: FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-jet-950">
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-40 p-2 bg-jet-900 border border-white/10 rounded-lg lg:hidden"
-      >
-        <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div className="fixed top-4 left-4 z-40 lg:hidden">
+        <Button
+              variant="ghost"
+              size="sm"
+              icon={<BearIcons.MenuIcon size="sm" />}
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar"
+            />
+      </div>
 
       {sidebarOpen && (
         <div
@@ -31,4 +33,3 @@ export const DocLayout: FC = () => {
     </div>
   );
 };
-

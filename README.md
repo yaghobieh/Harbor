@@ -1,18 +1,17 @@
 # @forgestack/harbor
 
 <p align="center">
-  <img src="https://forgestack.dev/harbor-logo.svg" alt="Harbor Logo" width="120" />
+  <img src="https://forgedevstack.com/harbor-logo.svg" alt="Harbor Logo" width="120" />
 </p>
 
 <p align="center">
   <strong>Complete Node.js backend framework</strong><br/>
-  MongoDB ODM • WebSocket • Scheduling • Caching • Auth • Metrics
+  MongoDB ODM • WebSocket • Scheduling • Queue • Mail • Caching • Auth • Metrics
 </p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@forgestack/harbor"><img src="https://img.shields.io/npm/v/@forgestack/harbor.svg" alt="npm"></a>
-  <a href="https://github.com/yaghobieh/ForgeStack"><img src="https://img.shields.io/github/stars/yaghobieh/ForgeStack.svg" alt="stars"></a>
-  <a href="https://github.com/yaghobieh/ForgeStack/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@forgestack/harbor.svg" alt="license"></a>
+  <a href="https://www.npmjs.com/search?q=%40forgedevstack"><img src="https://img.shields.io/npm/l/@forgestack/harbor.svg" alt="license"></a>
 </p>
 
 ---
@@ -26,6 +25,8 @@
 | **Authentication** | JWT, API Key, RBAC, request signing |
 | **WebSocket** | Real-time with rooms and broadcasting |
 | **Scheduler** | Cron expressions and interval-based jobs |
+| **Job Queue** | Priority queue with retries, backoff, dead letter |
+| **Mail** | Zero-dep SMTP with templates & provider presets |
 | **Rate Limiting** | Memory and Redis stores |
 | **Caching** | Memory and Redis with middleware |
 | **Metrics** | Prometheus-compatible endpoint |
@@ -174,6 +175,109 @@ scheduler.at(new Date('2026-01-20'), 'reminder', async () => {
 });
 
 scheduler.start();
+```
+
+## Job Queue
+
+Event-driven job processing with retries, priorities, and dead letter:
+
+```typescript
+import { createQueue } from '@forgestack/harbor';
+
+const emailQueue = createQueue<{ to: string; subject: string }>('emails', {
+  concurrency: 3,
+  defaultMaxRetries: 5,
+  baseRetryDelay: 2000,
+}, {
+  onJobComplete: (job) => console.log(`Email sent to ${job.data.to}`),
+  onJobFailed: (job, err) => console.error(`Email failed: ${err.message}`),
+  onJobDead: (job) => console.error(`Email permanently failed: ${job.id}`),
+});
+
+// Register processor
+emailQueue.process(async (job) => {
+  await sendEmail(job.data.to, job.data.subject);
+  return { sent: true };
+});
+
+// Add jobs
+emailQueue.add({ to: 'user@example.com', subject: 'Welcome!' });
+emailQueue.add({ to: 'vip@example.com', subject: 'VIP Access' }, { priority: 'high' });
+emailQueue.add({ to: 'later@example.com', subject: 'Reminder' }, { delay: 60000 });
+
+// Bulk add
+emailQueue.addBulk([
+  { data: { to: 'a@test.com', subject: 'Hi A' } },
+  { data: { to: 'b@test.com', subject: 'Hi B' }, options: { priority: 'critical' } },
+]);
+
+// Start processing
+emailQueue.start();
+
+// Get stats
+const stats = emailQueue.stats();
+// { pending: 0, active: 2, completed: 10, failed: 1, dead: 0, avgDuration: 230 }
+```
+
+## Mail
+
+Zero-dependency email sending with SMTP, templates, and provider presets:
+
+```typescript
+import { createMailer, createMailerFromProvider, registerTemplate } from '@forgestack/harbor';
+
+// Quick setup with provider preset (Gmail, Outlook, SendGrid, SES)
+const mailer = createMailerFromProvider('gmail', {
+  user: 'you@gmail.com',
+  pass: 'app-specific-password',
+}, 'you@gmail.com');
+
+// Send simple email
+await mailer.send({
+  to: 'user@example.com',
+  subject: 'Hello from Harbor!',
+  html: '<h1>Welcome</h1><p>Thanks for signing up.</p>',
+  text: 'Welcome! Thanks for signing up.',
+});
+
+// Register templates
+registerTemplate({
+  name: 'welcome',
+  subject: 'Welcome to {{appName}}, {{name}}!',
+  html: '<h1>Hello {{name}}</h1><p>Welcome to {{appName}}.</p>',
+  text: 'Hello {{name}}, welcome to {{appName}}.',
+});
+
+// Send with template
+await mailer.sendTemplate('welcome', {
+  name: 'John',
+  appName: 'MyApp',
+}, {
+  to: 'john@example.com',
+});
+
+// With attachments
+await mailer.send({
+  to: 'user@example.com',
+  subject: 'Your Report',
+  html: '<p>Please find your report attached.</p>',
+  attachments: [{
+    filename: 'report.pdf',
+    content: pdfBuffer,
+    contentType: 'application/pdf',
+  }],
+});
+
+// Custom SMTP config
+const customMailer = createMailer({
+  transport: {
+    host: 'smtp.mycompany.com',
+    port: 587,
+    secure: false,
+    auth: { user: 'noreply@mycompany.com', pass: 'password' },
+  },
+  defaultFrom: { name: 'MyApp', email: 'noreply@mycompany.com' },
+});
 ```
 
 ## Rate Limiting
@@ -331,6 +435,12 @@ import { JWT, jwtAuth, apiKeyAuth } from '@forgestack/harbor/auth';
 // Cache
 import { cache, cacheResponse } from '@forgestack/harbor/cache';
 
+// Queue
+import { createQueue } from '@forgestack/harbor/queue';
+
+// Mail
+import { createMailer, createMailerFromProvider } from '@forgestack/harbor/mail';
+
 // Scheduler
 import { createScheduler } from '@forgestack/harbor/scheduler';
 
@@ -340,4 +450,4 @@ import { createWebSocketServer } from '@forgestack/harbor/websocket';
 
 ## License
 
-MIT © [John Yaghobieh](https://github.com/yaghobieh)
+MIT © [John Yaghobieh](https://forgedevstack.com)

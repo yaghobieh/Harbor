@@ -1,16 +1,16 @@
 import { FC } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import {
+  Button,
+  Typography,
+  Flex,
+  Badge,
+  BearIcons,
+} from '@forgedevstack/bear';
 import { Logo } from '../Logo/Logo';
 import { ThemeToggle } from '../ThemeToggle/ThemeToggle';
 import { VersionDropdown } from '../VersionDropdown/VersionDropdown';
-
-const NAV_ITEMS = [
-  { id: 'docs', label: 'Docs', href: '/docs/quick-start', isLink: true },
-  { id: 'features', label: 'Features', href: '#features' },
-  { id: 'examples', label: 'Examples', href: '#examples' },
-  { id: 'api', label: 'API', href: '#api' },
-  { id: 'github', label: 'GitHub', href: 'https://github.com/yaghobieh/Harbor', external: true },
-];
+import { NAV_ITEMS } from '@/constants';
 
 export const Navbar: FC = () => {
   const navigate = useNavigate();
@@ -23,25 +23,34 @@ export const Navbar: FC = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-jet-900 dark:bg-jet-900 border-b border-white/10 dark:border-white/10">
+    <nav className="sticky top-0 z-50 backdrop-blur-sm bg-opacity-80" style={{ backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)' }}>
       <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <Logo size="sm" />
-            <span className="text-xl font-bold text-white">Harbor</span>
-            <VersionDropdown />
-          </Link>
+        <Flex align="center" justify="between">
+          <Flex align="center" gap={4}>
+            <Link to="/" className="flex items-center gap-3">
+              <Logo size="sm" />
+              <Typography variant="h4" className="font-bold">Harbor</Typography>
+              <VersionDropdown />
+            </Link>
+            <Badge variant="secondary" className="hidden md:inline-flex">
+              <Flex align="center" gap={1}>
+                <BearIcons.ZapIcon size="xs" />
+                ForgeStack
+              </Flex>
+            </Badge>
+          </Flex>
 
-          <div className="hidden md:flex items-center gap-8">
-            {NAV_ITEMS.map((item) => (
+          <Flex align="center" gap={6} className="hidden md:flex">
+            {NAV_ITEMS.map((item) =>
               item.isLink ? (
                 <Link
                   key={item.id}
                   to={item.href}
                   onClick={(e) => handleNavClick(item, e)}
-                  className="text-gray-300 hover:text-white transition-colors"
                 >
-                  {item.label}
+                  <Typography variant="body2" className="hover:opacity-100 opacity-60 transition-opacity cursor-pointer">
+                    {item.label}
+                  </Typography>
                 </Link>
               ) : (
                 <a
@@ -49,24 +58,29 @@ export const Navbar: FC = () => {
                   href={item.href}
                   target={item.external ? '_blank' : undefined}
                   rel={item.external ? 'noopener noreferrer' : undefined}
-                  className="text-gray-300 hover:text-white transition-colors"
                 >
-                  {item.label}
+                  <Typography variant="body2" className="hover:opacity-100 opacity-60 transition-opacity cursor-pointer">
+                    {item.label}
+                  </Typography>
                 </a>
               )
-            ))}
-          </div>
+            )}
+          </Flex>
 
-          <div className="flex items-center gap-3">
+          <Flex align="center" gap={3}>
             <ThemeToggle />
-            <Link
-              to="/docs/quick-start"
-              className="hidden sm:inline-flex px-4 py-2 rounded-lg bg-harbor-600 hover:bg-harbor-500 transition-colors font-medium text-sm text-white"
-            >
-              Get Started
+            <Link to="/sandbox" className="hidden sm:inline-flex">
+              <Button variant="forge" size="sm" leftIcon={<BearIcons.TerminalIcon size="xs" />}>
+                Sandbox
+              </Button>
             </Link>
-          </div>
-        </div>
+            <Link to="/docs/quick-start" className="hidden sm:inline-flex">
+              <Button variant="harbor" size="sm" leftIcon={<BearIcons.BookOpenIcon size="xs" />}>
+                Get Started
+              </Button>
+            </Link>
+          </Flex>
+        </Flex>
       </div>
     </nav>
   );

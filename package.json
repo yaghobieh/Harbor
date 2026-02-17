@@ -1,7 +1,7 @@
 {
   "name": "@forgedevstack/harbor",
-  "version": "1.5.0",
-  "description": "ForgeStack Harbor - Complete Node.js backend framework with MongoDB ODM, WebSocket, scheduling, caching, auth, and more",
+  "version": "1.6.0",
+  "description": "ForgeStack Harbor - Complete Node.js backend framework with MongoDB ODM, WebSocket, scheduling, caching, auth, queue, mail, and more",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
@@ -55,6 +55,16 @@
       "import": "./dist/utils/index.js",
       "require": "./dist/utils/index.js",
       "types": "./dist/utils/index.d.ts"
+    },
+    "./queue": {
+      "import": "./dist/queue/index.js",
+      "require": "./dist/queue/index.js",
+      "types": "./dist/queue/index.d.ts"
+    },
+    "./mail": {
+      "import": "./dist/mail/index.js",
+      "require": "./dist/mail/index.js",
+      "types": "./dist/mail/index.d.ts"
     }
   },
   "bin": {
@@ -98,6 +108,11 @@
     "prometheus",
     "health-check",
     "file-upload",
+    "queue",
+    "job-queue",
+    "mail",
+    "smtp",
+    "email",
     "backend",
     "api",
     "framework"
@@ -106,11 +121,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yaghobieh/Harbork"
+    "url": "https://www.npmjs.com/search?q=%40forgedevstack"
   },
-  "homepage": "https://forgestack.com",
+  "homepage": "https://forgedevstack.com",
   "bugs": {
-    "url": "https://github.com/yaghobieh/Harbor/issues"
+    "url": "https://www.npmjs.com/package/@forgestack/harbor"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -136,6 +151,7 @@
     }
   },
   "devDependencies": {
+    "@forgedevstack/crucible": "^1.0.0",
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.0",
     "@types/ws": "^8.5.10",

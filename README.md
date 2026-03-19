@@ -57,31 +57,46 @@ server.use(users);
 server.listen(3000, () => console.log('Server running!'));
 ```
 
+### Imports (ESM)
+
+Use **named imports** from the package root (best for tree-shaking):
+
+```typescript
+import { createServer, connect, router, GET, POST, Schema, model } from '@forgestack/harbor';
+```
+
+**v1.6.1+** also provides a **default export** object (e.g. `import harbor from '@forgestack/harbor'`) with common APIs for legacy code — but prefer named imports in new apps.
+
 ## MongoDB ODM
 
 Full Mongoose replacement:
 
 ```typescript
-import { Schema, model, connect } from '@forgestack/harbor/database';
+import { Schema, model, connect, extractDbNameFromMongoUri } from '@forgestack/harbor/database';
 
 await connect('mongodb://localhost:27017/myapp');
 
+// Use PascalCase schema types: String, Number, Date, Boolean, ObjectId (not lowercase).
 const UserSchema = new Schema({
-  email: { type: 'string', required: true, unique: true },
-  name: { type: 'string', required: true },
-  role: { type: 'string', enum: ['user', 'admin'], default: 'user' },
-  createdAt: { type: 'date', default: () => new Date() },
+  email: { type: 'String', required: true, unique: true },
+  name: { type: 'String', required: true },
+  role: { type: 'String', enum: ['user', 'admin'], default: 'user' },
+  createdAt: { type: 'Date', default: () => new Date() },
 });
 
 const User = model('User', UserSchema);
 
-// All Mongoose-like methods
+// All Mongoose-like methods — create() persists with insertOne on first save
 const user = await User.create({ email: 'john@example.com', name: 'John' });
 const admins = await User.find({ role: 'admin' });
 const found = await User.findOne({ email: 'john@example.com' });
 await User.updateOne({ _id: user._id }, { role: 'admin' });
 await User.deleteOne({ _id: user._id });
 ```
+
+**Atlas / connection string:** The database name is taken from the path in your URI (e.g. `mongodb+srv://...@cluster.net/mydb?...` → `mydb`). Use **`extractDbNameFromMongoUri(uri)`** if you need the resolved name in logs or health checks.
+
+**v1.6.1+ fixes:** Earlier versions could leave collections empty because new documents used **`replaceOne`** instead of **`insertOne`** on first save, or **`replaceOne`** matched zero documents and no insert ran. Use **1.6.2** if you still see empty collections after registering users.
 
 ## Authentication
 

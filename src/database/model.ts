@@ -290,7 +290,8 @@ export class HarborDocument {
         }
       }
       this._original = { ...doc };
-      this.isNew = false;
+      // Do not set isNew = false here: `new Model(data)` / Model.create() must stay isNew until save() inserts.
+      // hydrate() sets isNew = false after construction for DB-loaded docs.
     }
 
     // Apply defaults
@@ -365,21 +366,34 @@ export class HarborDocument {
     }
 
     const collection = this._model.getCollection();
-    const docData = this.toObject();
+    const oid = new ObjectId(this._id);
 
     if (this.isNew) {
-      await collection.insertOne({ _id: new ObjectId(this._id), ...docData });
+      const payload = { ...this.toObject(), _id: oid };
+      const ins = await collection.insertOne(payload);
+      if (!ins.acknowledged) {
+        throw new Error('[Harbor] insertOne was not acknowledged');
+      }
       this.isNew = false;
     } else {
-      // Increment version
       if (schema.options.versionKey) {
         const versionField = typeof schema.options.versionKey === 'string' ? schema.options.versionKey : '__v';
         (this as any)[versionField] = ((this as any)[versionField] || 0) + 1;
       }
-      
-      await collection.replaceOne({ _id: new ObjectId(this._id) }, docData);
+      // Must snapshot after version bump (and any other mutations above).
+      const payload = { ...this.toObject(), _id: oid };
+      const rep = await collection.replaceOne({ _id: oid }, payload);
+      // If nothing matched, the row was never inserted (e.g. isNew was wrongly false) — insert now.
+      const upserted = (rep as { upsertedCount?: number }).upsertedCount ?? 0;
+      if (rep.matchedCount === 0 && upserted === 0) {
+        const ins = await collection.insertOne(payload);
+        if (!ins.acknowledged) {
+          throw new Error('[Harbor] insertOne (after replace matched 0) was not acknowledged');
+        }
+      }
     }
 
+    const docData = this.toObject();
     this._original = { ...docData };
     this._modified.clear();
 

@@ -1,6 +1,6 @@
 {
   "name": "@forgedevstack/harbor",
-  "version": "1.6.0",
+  "version": "1.6.2",
   "description": "ForgeStack Harbor - Complete Node.js backend framework with MongoDB ODM, WebSocket, scheduling, caching, auth, queue, mail, and more",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",

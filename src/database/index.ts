@@ -8,6 +8,7 @@ export {
   connect, 
   disconnect, 
   HarborConnection,
+  extractDbNameFromMongoUri,
 } from './connection';
 
 // Re-export types

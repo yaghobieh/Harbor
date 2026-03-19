@@ -21,6 +21,7 @@ export {
   connect, 
   disconnect,
   Types,
+  extractDbNameFromMongoUri,
 } from './database';
 export type {
   SchemaType,
@@ -255,3 +256,6 @@ export type {
 
 // Re-export constants
 export { HTTP_STATUS, HTTP_METHODS, CONTENT_TYPES, HEADERS } from './constants';
+
+// Default export (legacy interop; named imports are preferred)
+export { default } from './harbor.default';

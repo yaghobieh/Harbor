@@ -35,6 +35,32 @@ All notable changes to Harbor will be documented in this file.
 - All `forgestack.dev` links updated to `forgedevstack.com`
 - GitHub links replaced with npm links
 
+## [1.6.2] - 2026-02-07
+
+### Fixed
+
+#### ODM — `save()` update path could no-op silently
+- **`replaceOne`** with **`matchedCount: 0`** (e.g. `isNew` incorrectly `false` on a new document, or stale build) completed without error and **did not insert** rows — APIs could still return an in-memory `_id` while Mongo stayed empty.
+- **Fallback:** if `replaceOne` matches nothing and did not upsert, Harbor now **`insertOne`** the payload so the document is persisted.
+- **Payload correctness:** the replacement document is built with **`toObject()` after the version bump** so `__v` and fields stay in sync.
+
+## [1.6.1] - 2026-02-07
+
+### Fixed
+
+#### ODM — documents never inserted on `create` / `new(doc).save()`
+- **HarborDocument** incorrectly set `isNew = false` whenever a plain `doc` was passed to the constructor. That made the first `save()` call use **`replaceOne`** instead of **`insertOne`**, so missing documents were never created and collections stayed empty in Atlas.
+- **Hydration** still sets `isNew = false` via `Model.hydrate()` for rows loaded from MongoDB.
+
+#### ODM — `_id` on insert/replace
+- **`insertOne` / `replaceOne`** continue to spread document data then set a UUID **ObjectId** last so string `_id` from `toObject()` never overrides the BSON id.
+
+#### Connection
+- **Database name** is parsed with **`extractDbNameFromMongoUri()`** (handles `mongodb` / `mongodb+srv` and credentials) instead of fragile URL parsing.
+
+#### ESM / packaging
+- **`export default`** object added for CommonJS and `import harbor from '@forgedevstack/harbor'` (includes `createServer`, `router`, `GET`/`POST`, `connect`, `Schema`, `model`, etc.). **Named imports remain recommended** for tree-shaking.
+
 ## [1.6.0] - 2026-02-17
 
 ### Added

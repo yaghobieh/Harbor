@@ -2,6 +2,36 @@
 
 All notable changes to Harbor will be documented in this file.
 
+## [1.6.3] - 2026-07-12
+
+### Added
+
+#### WebSocket Hub (`@forgedevstack/harbor/ws`)
+- **`WsHub` / `createWsHub`** — first-class WebSocket support integrated with Harbor's HTTP server via manual `upgrade` handling (`noServer` mode).
+- **Connection auth hook** — `authenticate(request)` runs before the upgrade is accepted; rejections respond with a proper HTTP status (default `401`) and never open a socket.
+- **Typed message envelope** — all traffic uses `WsMessage<TPayload>` (`{ event, payload }`); invalid envelopes get a `harbor:error` reply.
+- **Rooms** — `join` / `leave` / `broadcastToRoom` with automatic cleanup when rooms empty and on disconnect.
+- **Per-connection context** — auth hook returns a `context` object carried on every `WsConnection`.
+- **Heartbeat** — ping/pong liveness with automatic termination of dead connections.
+- **Pub/sub adapter contract** — `WsPubSubAdapter` (`publish` / `subscribe` / `unsubscribe` / `close`) enables multi-instance fan-out; `MemoryPubSubAdapter` ships as the in-process default. No Redis dependency added — the contract is designed for a separate Redis adapter package.
+- The existing `websocket` module (`WebSocketManager`) is untouched and fully backward compatible.
+
+#### Streaming Uploads (`@forgedevstack/harbor/upload`)
+- **`streamUpload`** middleware — stream-based multipart/form-data parsing; file bytes flow straight to storage without buffering whole files in memory (unlike the buffered `upload` middleware, which remains unchanged).
+- **`MultipartParser`** — incremental boundary state machine with backpressure support, per-file/field size limits, file and field count limits, and header size guards.
+- **Mime allowlist** — `allowedMimeTypes` rejects disallowed files with `415`; size violations respond `413`.
+- **Storage adapter contract** — `StorageAdapter.save(stream, meta) -> { key, url }` with optional `remove(key)`.
+- **`LocalDiskStorageAdapter`** — built-in disk storage with configurable directory, base URL, and key strategy.
+- **`S3CompatibleStorageAdapter`** — interface and config types only (bucket, endpoint, credentials, signed URLs) so an external adapter package can implement S3/R2/MinIO without adding AWS SDK dependencies to Harbor.
+- **`req.uploads`** — stored uploads (`{ key, url, size, ...meta }`) attached to the request; form fields merged into `req.body`.
+
+#### Constants
+- `HTTP_STATUS.PAYLOAD_TOO_LARGE` (413) and `HTTP_STATUS.UNSUPPORTED_MEDIA_TYPE` (415) added with status messages.
+
+#### Packaging
+- New subpath exports: `@forgedevstack/harbor/ws` and `@forgedevstack/harbor/upload`.
+- Added vitest suites covering the hub (rooms, envelopes, adapters, disconnect cleanup) and uploads (parser state machine, limits, disk adapter, middleware).
+
 ## [Portal 1.1.0] - 2026-02-17
 
 ### Changed - Harbor Portal

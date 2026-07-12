@@ -85,6 +85,50 @@ export type {
   Room,
 } from './websocket';
 
+// WebSocket hub exports (rooms, auth, pub/sub)
+export {
+  WsHub,
+  createWsHub,
+  MemoryPubSubAdapter,
+  createMemoryPubSubAdapter,
+  encodeMessage,
+  decodeMessage,
+} from './ws';
+export type {
+  WsMessage,
+  WsConnection,
+  WsConnectionContext,
+  WsSocket,
+  WsAuthResult,
+  WsAuthenticate,
+  WsPubSubAdapter,
+  WsPubSubHandler,
+  WsHubOptions,
+} from './ws';
+
+// Streaming upload exports
+export {
+  streamUpload,
+  MultipartParser,
+  getBoundary,
+  LocalDiskStorageAdapter,
+  createLocalDiskAdapter,
+  UploadError,
+} from './upload';
+export type {
+  UploadRequest,
+  UploadFileMeta,
+  StorageResult,
+  StorageAdapter,
+  S3CompatibleCredentials,
+  S3CompatibleAdapterConfig,
+  S3CompatibleStorageAdapter,
+  MultipartLimits,
+  StoredUpload,
+  StreamUploadOptions,
+  LocalDiskAdapterOptions,
+} from './upload';
+
 // Scheduler exports
 export {
   Scheduler,

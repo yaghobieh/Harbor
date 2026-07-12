@@ -1,70 +1,80 @@
 {
   "name": "@forgedevstack/harbor",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "ForgeStack Harbor - Complete Node.js backend framework with MongoDB ODM, WebSocket, scheduling, caching, auth, queue, mail, and more",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.es.js",
-      "require": "./dist/index.cjs.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs.js"
     },
     "./database": {
+      "types": "./dist/database/index.d.ts",
       "import": "./dist/database/index.js",
-      "require": "./dist/database/index.js",
-      "types": "./dist/database/index.d.ts"
+      "require": "./dist/database/index.js"
     },
     "./validation": {
+      "types": "./dist/validation/index.d.ts",
       "import": "./dist/validation/index.js",
-      "require": "./dist/validation/index.js",
-      "types": "./dist/validation/index.d.ts"
+      "require": "./dist/validation/index.js"
     },
     "./middleware": {
+      "types": "./dist/middleware/index.d.ts",
       "import": "./dist/middleware/index.js",
-      "require": "./dist/middleware/index.js",
-      "types": "./dist/middleware/index.d.ts"
+      "require": "./dist/middleware/index.js"
     },
     "./websocket": {
+      "types": "./dist/websocket/index.d.ts",
       "import": "./dist/websocket/index.js",
-      "require": "./dist/websocket/index.js",
-      "types": "./dist/websocket/index.d.ts"
+      "require": "./dist/websocket/index.js"
     },
     "./scheduler": {
+      "types": "./dist/scheduler/index.d.ts",
       "import": "./dist/scheduler/index.js",
-      "require": "./dist/scheduler/index.js",
-      "types": "./dist/scheduler/index.d.ts"
+      "require": "./dist/scheduler/index.js"
     },
     "./cache": {
+      "types": "./dist/cache/index.d.ts",
       "import": "./dist/cache/index.js",
-      "require": "./dist/cache/index.js",
-      "types": "./dist/cache/index.d.ts"
+      "require": "./dist/cache/index.js"
     },
     "./auth": {
+      "types": "./dist/auth/index.d.ts",
       "import": "./dist/auth/index.js",
-      "require": "./dist/auth/index.js",
-      "types": "./dist/auth/index.d.ts"
+      "require": "./dist/auth/index.js"
     },
     "./docker": {
+      "types": "./dist/docker/index.d.ts",
       "import": "./dist/docker/index.js",
-      "require": "./dist/docker/index.js",
-      "types": "./dist/docker/index.d.ts"
+      "require": "./dist/docker/index.js"
     },
     "./utils": {
+      "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.js",
-      "require": "./dist/utils/index.js",
-      "types": "./dist/utils/index.d.ts"
+      "require": "./dist/utils/index.js"
     },
     "./queue": {
+      "types": "./dist/queue/index.d.ts",
       "import": "./dist/queue/index.js",
-      "require": "./dist/queue/index.js",
-      "types": "./dist/queue/index.d.ts"
+      "require": "./dist/queue/index.js"
     },
     "./mail": {
+      "types": "./dist/mail/index.d.ts",
       "import": "./dist/mail/index.js",
-      "require": "./dist/mail/index.js",
-      "types": "./dist/mail/index.d.ts"
+      "require": "./dist/mail/index.js"
+    },
+    "./ws": {
+      "types": "./dist/ws/index.d.ts",
+      "import": "./dist/ws/index.js",
+      "require": "./dist/ws/index.js"
+    },
+    "./upload": {
+      "types": "./dist/upload/index.d.ts",
+      "import": "./dist/upload/index.js",
+      "require": "./dist/upload/index.js"
     }
   },
   "bin": {

@@ -1,0 +1,11 @@
+export const DEFAULT_HEARTBEAT_INTERVAL_MS = 30000;
+
+export const DEFAULT_MAX_PAYLOAD_BYTES = 1048576;
+
+export const WS_OPEN_STATE = 1;
+
+export const DEFAULT_UNAUTHORIZED_STATUS = 401;
+
+export const CONNECTION_ID_RANDOM_LENGTH = 9;
+
+export const CONNECTION_ID_RADIX = 36;

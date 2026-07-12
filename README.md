@@ -165,6 +165,63 @@ wss.broadcastToRoom('lobby', { type: 'chat', text: 'Hello lobby!' });
 wss.send(clientId, { type: 'private', text: 'Just for you' });
 ```
 
+## WebSocket Hub (v1.6.3+)
+
+`WsHub` builds on the same HTTP server with upgrade-level auth, typed message envelopes (`{ event, payload }`), rooms, per-connection context, heartbeat cleanup, and a pluggable pub/sub adapter for multi-instance fan-out (in-memory by default, Redis-compatible contract).
+
+```typescript
+import { createServer } from '@forgedevstack/harbor';
+import { createWsHub } from '@forgedevstack/harbor/ws';
+
+const server = createServer();
+server.listen(3000);
+
+const hub = createWsHub({
+  path: '/chat',
+  authenticate: async (request) => {
+    const token = new URL(request.url ?? '', 'http://localhost').searchParams.get('token');
+    const user = await verifyToken(token);
+    if (!user) return { accept: false, status: 401 };
+    return { accept: true, context: { userId: user.id } };
+  },
+  onConnection: (connection) => {
+    void hub.join(connection, 'lobby');
+  },
+  onMessage: (connection, message) => {
+    if (message.event === 'chat:send') {
+      void hub.broadcastToRoom('lobby', 'chat:new', {
+        from: connection.context.userId,
+        text: message.payload,
+      });
+    }
+  },
+});
+
+await hub.attach(server.server!);
+
+// Rooms and messaging
+await hub.join(connection, 'room:42');
+await hub.leave(connection, 'room:42');
+await hub.broadcastToRoom('room:42', 'chat:new', { text: 'Hello room' });
+await hub.broadcast('announcement', 'Deploy complete');
+hub.sendTo(connectionId, 'private', { text: 'Just for you' });
+```
+
+Multi-instance fan-out plugs in through the `WsPubSubAdapter` contract — implement `publish`, `subscribe`, `unsubscribe`, and `close` over Redis (or anything else) and pass it as `adapter`. The default `MemoryPubSubAdapter` keeps everything in-process:
+
+```typescript
+import type { WsPubSubAdapter } from '@forgedevstack/harbor/ws';
+
+class RedisPubSubAdapter implements WsPubSubAdapter {
+  async publish(channel: string, message: string) { /* PUBLISH */ }
+  async subscribe(channel: string, handler: (channel: string, message: string) => void) { /* SUBSCRIBE */ }
+  async unsubscribe(channel: string) { /* UNSUBSCRIBE */ }
+  async close() { /* QUIT */ }
+}
+
+const hub = createWsHub({ adapter: new RedisPubSubAdapter() });
+```
+
 ## Scheduler
 
 ```typescript
@@ -391,6 +448,46 @@ app.post('/process', upload({ storage: 'memory' }), (req, res) => {
 });
 ```
 
+## Streaming Uploads (v1.6.3+)
+
+`streamUpload` parses multipart/form-data as a stream — files never buffer fully in memory. Files flow into a `StorageAdapter` (`save(stream, meta) -> { key, url }`); a local-disk adapter ships built in, and the S3-compatible contract lets a separate package implement cloud storage without pulling AWS SDK into Harbor.
+
+```typescript
+import { streamUpload, LocalDiskStorageAdapter } from '@forgedevstack/harbor/upload';
+import type { UploadRequest } from '@forgedevstack/harbor/upload';
+
+const storage = new LocalDiskStorageAdapter({
+  directory: './uploads',
+  baseUrl: 'https://cdn.example.com/files',
+});
+
+app.post(
+  '/upload',
+  streamUpload({
+    storage,
+    limits: { maxFileSizeBytes: 10485760, maxFiles: 5 },
+    allowedMimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+  }),
+  (req, res) => {
+    const { uploads } = req as UploadRequest;
+    res.json({ files: uploads?.map(({ key, url, size }) => ({ key, url, size })) });
+  }
+);
+```
+
+Size violations respond with `413`, disallowed mime types with `415`, and form fields are merged into `req.body`. Implement the `S3CompatibleStorageAdapter` interface for S3/R2/MinIO backends:
+
+```typescript
+import type { S3CompatibleStorageAdapter } from '@forgedevstack/harbor/upload';
+
+class MyS3Adapter implements S3CompatibleStorageAdapter {
+  readonly config = { bucket: 'avatars', region: 'us-east-1', credentials: { accessKeyId: '...', secretAccessKey: '...' } };
+  async save(stream, meta) { /* multipart PUT */ return { key: '...', url: '...' }; }
+  async exists(key) { /* HEAD */ return true; }
+  async getSignedUrl(key, expiresInSeconds) { /* presign */ return '...'; }
+}
+```
+
 ## CLI
 
 ```bash
@@ -461,6 +558,12 @@ import { createScheduler } from '@forgestack/harbor/scheduler';
 
 // WebSocket
 import { createWebSocketServer } from '@forgestack/harbor/websocket';
+
+// WebSocket Hub (rooms, auth, pub/sub)
+import { createWsHub, MemoryPubSubAdapter } from '@forgedevstack/harbor/ws';
+
+// Streaming uploads
+import { streamUpload, LocalDiskStorageAdapter } from '@forgedevstack/harbor/upload';
 ```
 
 ## License

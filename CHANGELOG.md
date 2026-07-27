@@ -1,126 +1,256 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to Harbor will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [1.3.1] - 2026-01-13
+## [1.6.4] - 2026-07-27
 
 ### Added
 
-- **Version Dropdown** - Click on version badge to see changelog history with highlights
-- **Project Templates Link** - Homepage now links to templates documentation
-- **Template Init Flag** - `harbor init --template` to initialize with full boilerplate
-- **Template Version Tracking** - Each project tracks Harbor and template versions
+- **`RedisPubSubAdapter` / `createRedisPubSubAdapter`** — real Redis pub/sub for `WsHub` multi-instance fan-out (`ioredis` peer). Duplicates the client for subscribe (or accepts an explicit `subscriber`); optional `channelPrefix`.
+- **`S3StorageAdapter` / `createS3StorageAdapter`** — S3/R2/MinIO streaming uploads with zero AWS SDK. SigV4 PutObject/Delete/HEAD + query-string presigned GET URLs. Temp-file bridge keeps multipart streams off the Node heap.
+- **`.github/workflows/publish.yml`** — ForgeStack publish workflow (Node 20, build, test, `npm publish --provenance`).
+
+### Fixed
+
+- Replaced remaining `@forgestack/harbor` install/docs/CLI/template references with `@forgedevstack/harbor`.
+- `package.json` `repository` / `bugs` / `homepage` now point at `https://github.com/yaghobieh/Harbor`.
 
 ### Changed
 
-- Navbar version badge now shows dropdown with all versions
-- Sidebar version badge now shows dropdown with changelog
-- Hero code block centered properly
-- Docs navigation uses React Router (no page reload)
+- README documents built-in Redis WS adapter and S3 storage adapter (no stub-only contracts).
+
+## [1.6.3] - 2026-07-12
+
+### Added
+
+#### WebSocket Hub (`@forgedevstack/harbor/ws`)
+- **`WsHub` / `createWsHub`** — first-class WebSocket support integrated with Harbor's HTTP server via manual `upgrade` handling (`noServer` mode).
+- **Connection auth hook** — `authenticate(request)` runs before the upgrade is accepted; rejections respond with a proper HTTP status (default `401`) and never open a socket.
+- **Typed message envelope** — all traffic uses `WsMessage<TPayload>` (`{ event, payload }`); invalid envelopes get a `harbor:error` reply.
+- **Rooms** — `join` / `leave` / `broadcastToRoom` with automatic cleanup when rooms empty and on disconnect.
+- **Per-connection context** — auth hook returns a `context` object carried on every `WsConnection`.
+- **Heartbeat** — ping/pong liveness with automatic termination of dead connections.
+- **Pub/sub adapter contract** — `WsPubSubAdapter` (`publish` / `subscribe` / `unsubscribe` / `close`) enables multi-instance fan-out; `MemoryPubSubAdapter` ships as the in-process default. No Redis dependency added — the contract is designed for a separate Redis adapter package.
+- The existing `websocket` module (`WebSocketManager`) is untouched and fully backward compatible.
+
+#### Streaming Uploads (`@forgedevstack/harbor/upload`)
+- **`streamUpload`** middleware — stream-based multipart/form-data parsing; file bytes flow straight to storage without buffering whole files in memory (unlike the buffered `upload` middleware, which remains unchanged).
+- **`MultipartParser`** — incremental boundary state machine with backpressure support, per-file/field size limits, file and field count limits, and header size guards.
+- **Mime allowlist** — `allowedMimeTypes` rejects disallowed files with `415`; size violations respond `413`.
+- **Storage adapter contract** — `StorageAdapter.save(stream, meta) -> { key, url }` with optional `remove(key)`.
+- **`LocalDiskStorageAdapter`** — built-in disk storage with configurable directory, base URL, and key strategy.
+- **`S3CompatibleStorageAdapter`** — interface and config types only (bucket, endpoint, credentials, signed URLs) so an external adapter package can implement S3/R2/MinIO without adding AWS SDK dependencies to Harbor.
+- **`req.uploads`** — stored uploads (`{ key, url, size, ...meta }`) attached to the request; form fields merged into `req.body`.
+
+#### Constants
+- `HTTP_STATUS.PAYLOAD_TOO_LARGE` (413) and `HTTP_STATUS.UNSUPPORTED_MEDIA_TYPE` (415) added with status messages.
+
+#### Packaging
+- New subpath exports: `@forgedevstack/harbor/ws` and `@forgedevstack/harbor/upload`.
+- Added vitest suites covering the hub (rooms, envelopes, adapters, disconnect cleanup) and uploads (parser state machine, limits, disk adapter, middleware).
+
+## [Portal 1.1.0] - 2026-02-17
+
+### Changed - Harbor Portal
+
+#### Bear UI Integration
+- Migrated all portal components to use `@forgedevstack/bear` UI components
+- `BearProvider` configured with full Harbor theme: primary (harbor blue), secondary (forge indigo), custom variants (`harbor`, `forge`, `harborGhost`, `forgeGhost`)
+- All colors and styles now flow through Bear's theme provider for consistent light/dark theming
+- `Hero` → Bear `Container`, `Typography`, `Button`, `GradientText`, `Grid`, `Card`, `Badge`, `CodeBlock`
+- `Navbar` → Bear `Button`, `Typography`, `Flex`, `Badge`
+- `Footer` → Bear `Typography`, `Flex`, `Divider`, `Link`
+- `Features` / `FeatureCard` → Bear `Grid`, `Card`, `CardBody`, `Typography`
+- `CodeExamples` → Bear `Tabs` (pills variant) + `CodeBlock` with syntax highlighting
+- `QuickStart` → Bear `CodeBlock`, `Badge`, `Typography`
+- `ApiReference` → Bear `Card`, `Badge`, `CodeBlock`
+- `ThemeToggle` → Bear `Button` with `useBear()` hook
+- `GradientText` → Re-exports Bear's `GradientText` component
+- `Sidebar` → Bear `Input` for search, `Typography`, `Link`, `Divider`
+- `DocLayout` → Bear `Button` for mobile toggle
+- `DocPage` → Bear `Breadcrumbs`, `Typography`, `GradientText`, `Card`, `CodeBlock`, `Divider`, `Button`
+
+#### Real-Time Sandbox
+- Added `/sandbox` route with live code editing and simulated execution
+- Bear `CodeEditor` with TypeScript syntax highlighting, line numbers, auto-indent, bracket matching
+- Bear `Terminal` with interactive command input (`run`, `clear`, `help`, `examples`)
+- 5 pre-loaded examples: Hello Server, CRUD API, Database Model, Middleware, Queue & Mail
+- Simulated execution engine that extracts console.log output from code
+- Split-pane editor + terminal layout
+
+#### Link Updates
+- All `forgestack.dev` links updated to `forgedevstack.com`
+- GitHub links replaced with npm links
+
+## [1.6.2] - 2026-02-07
+
+### Fixed
+
+#### ODM — `save()` update path could no-op silently
+- **`replaceOne`** with **`matchedCount: 0`** (e.g. `isNew` incorrectly `false` on a new document, or stale build) completed without error and **did not insert** rows — APIs could still return an in-memory `_id` while Mongo stayed empty.
+- **Fallback:** if `replaceOne` matches nothing and did not upsert, Harbor now **`insertOne`** the payload so the document is persisted.
+- **Payload correctness:** the replacement document is built with **`toObject()` after the version bump** so `__v` and fields stay in sync.
+
+## [1.6.1] - 2026-02-07
+
+### Fixed
+
+#### ODM — documents never inserted on `create` / `new(doc).save()`
+- **HarborDocument** incorrectly set `isNew = false` whenever a plain `doc` was passed to the constructor. That made the first `save()` call use **`replaceOne`** instead of **`insertOne`**, so missing documents were never created and collections stayed empty in Atlas.
+- **Hydration** still sets `isNew = false` via `Model.hydrate()` for rows loaded from MongoDB.
+
+#### ODM — `_id` on insert/replace
+- **`insertOne` / `replaceOne`** continue to spread document data then set a UUID **ObjectId** last so string `_id` from `toObject()` never overrides the BSON id.
+
+#### Connection
+- **Database name** is parsed with **`extractDbNameFromMongoUri()`** (handles `mongodb` / `mongodb+srv` and credentials) instead of fragile URL parsing.
+
+#### ESM / packaging
+- **`export default`** object added for CommonJS and `import harbor from '@forgedevstack/harbor'` (includes `createServer`, `router`, `GET`/`POST`, `connect`, `Schema`, `model`, etc.). **Named imports remain recommended** for tree-shaking.
+
+## [1.6.0] - 2026-02-17
+
+### Added
+
+#### Job Queue System
+- `Queue` class for in-memory job processing with workers
+- `createQueue()` factory function
+- Priority queues: `critical`, `high`, `normal`, `low`
+- Retry with exponential backoff (configurable attempts, backoff multiplier)
+- Dead letter queue for permanently failed jobs
+- Delayed jobs with automatic promotion
+- Bulk job insertion with `addBulk()`
+- Job lifecycle events: `onJobComplete`, `onJobFailed`, `onJobRetry`, `onJobDead`, `onDrained`
+- Queue stats: pending, active, completed, failed, delayed, dead, avg duration
+- Pause/resume/drain/clean operations
+- Configurable concurrency (multiple workers)
+- Subpath import: `@forgedevstack/harbor/queue`
+
+#### Mail System
+- `Mailer` class with zero-dependency SMTP transport (Node.js `net`/`tls`)
+- `createMailer()` and `createMailerFromProvider()` factory functions
+- Pre-configured providers: Gmail, Outlook, SendGrid, AWS SES
+- HTML and plain text email support
+- File attachments with base64 encoding
+- Template engine with `{{variable}}` placeholders
+- `registerTemplate()` / `renderNamedTemplate()` for reusable templates
+- `sendTemplate()` for sending emails with registered templates
+- Priority headers (high/normal/low)
+- CC, BCC, Reply-To, custom headers
+- STARTTLS upgrade for secure connections
+- `escapeHtml()` utility for safe template rendering
+- Subpath import: `@forgedevstack/harbor/mail`
+
+#### Testing
+- Added `@forgedevstack/crucible` as devDependency for testing
+
+### Notes
+- ORM/DB, Validation, Logger, Caching already existed from v1.3.0–1.5.0
+- Queue complements the existing Scheduler (cron/interval) with event-driven job processing
+- Mail uses zero external dependencies — built on Node.js `net` and `tls` modules
+
+---
+
+## [1.5.0] - 2026-01-14
+
+### Added
+
+#### WebSocket Support
+- `createWebSocketServer()` for real-time applications
+- Room-based broadcasting
+- Heartbeat/ping-pong for connection health
+- Client tracking and management
+
+#### Job Scheduler
+- `createScheduler()` for task scheduling
+- Cron expressions support (`scheduler.cron('0 * * * *', ...)`)
+- Interval-based scheduling (`scheduler.every('5m', ...)`)
+- One-time scheduling (`scheduler.at(date, ...)`)
+
+#### Rate Limiting
+- `rateLimit()` middleware with memory store
+- `slidingWindowRateLimit()` for accurate limiting
+- Redis store support for distributed systems
+- Customizable key generation and skip logic
+
+#### Health Checks
+- `healthCheck()` endpoint with multiple checks
+- Pre-built checks: MongoDB, Redis, Memory, Disk
+- `customHealthCheck()` for custom health logic
+- Critical vs non-critical check distinction
+
+#### Metrics (Prometheus)
+- `metricsMiddleware()` for automatic collection
+- `metricsEndpoint()` for Prometheus scraping
+- Counter, Gauge, Histogram metric types
+- Request duration, size, and count metrics
+
+#### File Uploads
+- `upload()` middleware for multipart handling
+- Disk and memory storage options
+- File type and size validation
+- Custom filename generation
+
+#### Caching
+- `CacheManager` with memory store
+- `RedisCache` for distributed caching
+- `cacheResponse()` middleware
+- `cached()` function wrapper
+
+#### Authentication
+- `JWT` class for token signing/verification
+- `jwtAuth()` middleware
+- `apiKeyAuth()` middleware
+- `requireRole()` and `requirePermission()` for RBAC
+- `verifySignature()` for HMAC request signing
+- Password hashing utilities
+
+### Changed
+- Server now has `.use()`, `.get()`, `.post()`, etc. methods
+- Server `.listen()` method for simpler startup
+- Auto-start disabled by default
+
+## [1.4.0] - 2026-01-14
+
+### Added
+- `route.get()`, `route.post()` syntax for routes
+- Express-like convenience methods on server
+- ForgeStack branding and organization
+
+### Changed
+- Package renamed to `@forgedevstack/harbor`
+- Auto-start now defaults to false
 
 ## [1.3.0] - 2026-01-13
 
 ### Added
-
-- **Project Scaffolding CLI** - New `harbor create <project-name>` command:
-  - Full boilerplate with routes, controllers, services, models, types, utils, constants
-  - Pre-configured ESLint, TypeScript, and Vitest
-  - Example User CRUD implementation
-  - Environment configuration with `.env.example`
-  - Clean architecture with `index.ts` exports
-
-- **Subpath Exports** - Enhanced package exports for better tree-shaking:
-  - `import { ... } from 'harbor'` - Main exports
-  - `import { Schema, model, connect } from 'harbor/database'` - Database-specific
-  - `import { ... } from 'harbor/validations'` - Validation utilities
-  - `import { ... } from 'harbor/docker'` - Docker management
-  - `import { ... } from 'harbor/utils'` - Utility functions
-
-- **GitHub Integration** - Added repository links:
-  - Repository: https://github.com/yaghobieh/Harbor
-  - Homepage and issue tracker configured in package.json
-
-### Changed
-
-- **Portal Improvements**:
-  - Navbar is now solid (not floating/transparent)
-  - Added copy button to all code blocks with visual feedback
-  - Light/Dark mode toggle with system option
-  - Restructured all components with `index.ts`, `ComponentName.tsx`, `types.ts` pattern
-  - All GitHub links now point to official repository
-
-- Portal version updated to 1.3.0
-- CLI version updated to 1.2.0
+- Full MongoDB ODM (Mongoose replacement)
+- Schema, Model, Query with all methods
+- Connection management
+- Hooks (pre, post) support
+- Virtual fields
+- Indexes
 
 ## [1.2.0] - 2026-01-12
 
 ### Added
+- Simplified router API with `GET()`, `POST()`, etc.
+- Removed need for `.build()` on routes
+- CLI for project scaffolding
 
-- **MongoDB ODM (Mongoose Replacement)** - Complete database module that replaces Mongoose:
-  - `connect()` / `disconnect()` - MongoDB connection management with events
-  - `Schema` class - Mongoose-compatible schema definition with all field types
-  - `model()` function - Create models from schemas
-  - **All Query Methods**: `find()`, `findOne()`, `findById()`, `create()`, `insertMany()`, `updateOne()`, `updateMany()`, `findOneAndUpdate()`, `findByIdAndUpdate()`, `deleteOne()`, `deleteMany()`, `findOneAndDelete()`, `findByIdAndDelete()`, `countDocuments()`, `estimatedDocumentCount()`, `aggregate()`, `distinct()`, `exists()`
-  - **Query Builder**: `.where()`, `.select()`, `.sort()`, `.limit()`, `.skip()`, `.lean()`, `.populate()`, `.gt()`, `.gte()`, `.lt()`, `.lte()`, `.in()`, `.nin()`, `.ne()`, `.regex()`, `.exists()`, `.or()`, `.and()`, `.nor()`
-  - **Schema Features**: virtuals, instance methods, static methods, pre/post hooks (middleware)
-  - **Index Management**: `createIndex()`, `createIndexes()`, `listIndexes()`, `dropIndex()`
-  - **Transactions**: `startSession()`, `withTransaction()`
-  - `Types.ObjectId` - ObjectId type support
-
-- **Database Translations** - Added i18n support for all database operations (English & Hebrew)
-
-- **Comprehensive Documentation**:
-  - Updated README.md with full MongoDB documentation
-  - Added Database examples to portal
-  - API reference for all database methods
-
-### Changed
-
-- Portal version updated to 1.2.0
-- Portal now includes Database tab in code examples
-- Features section now highlights MongoDB ODM capability
-
-## [1.1.0] - 2026-01-12
+## [1.1.0] - 2026-01-11
 
 ### Added
+- HTTP request logger (Morgan alternative)
+- i18n support for translations
+- Docker manager
 
-- **Simplified Route API** - New `GET`, `POST`, `PUT`, `PATCH`, `DELETE` functions that don't require `.build()`
-- **i18n/Translation System** - Full internationalization support with `t()`, `setLocale()`, includes English and Hebrew
-- **Morgan-like HTTP Logger** - In-house `httpLogger()` middleware with formats: tiny, short, dev, combined, common
-- **React Portal** - Complete React-based documentation portal with proper component structure
-- `route()` function for creating routes with any HTTP method
-- Skip functions for HTTP logger: `successOnly`, `healthChecks`, `staticFiles`, `paths`
-
-### Changed
-
-- `RouteBuilder.handler()` now returns `RouteDefinition` directly (no need to call `.build()`)
-- Portal converted from static HTML to React project with components, constants, types pattern
-
-## [1.0.0] - 2026-01-12
+## [1.0.0] - 2026-01-10
 
 ### Added
-
-- Initial release of Harbor
-- Fast server creation with `createServer()`
-- Route management with `RouteBuilder` fluent API
-- Pre and post function middleware support
-- Request validation with schema definitions
-- MongoDB-compatible validation with `MongoValidator`
-- Custom validation adapter support
-- Config-driven error handling
-- CORS middleware with configurable options
-- Body parser with size limits
-- Request timeout handling
-- Docker container management
-- Docker Compose integration
-- Changelog manager for version tracking
-- API Portal documentation generator
-- CLI tools for project initialization
-- TypeScript-first with full type definitions
-- Graceful shutdown handling
-- Environment variable overrides
-- Comprehensive logging system
-
+- Initial release
+- `createServer()` for quick server setup
+- Route management with pre/post functions
+- Validation system
+- Error handling with config
+- Logger integration

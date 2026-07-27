@@ -2,6 +2,7 @@
 export { createServer } from './core/server';
 export { 
   createRouter, 
+  router,
   RouteBuilder,
   GET, POST, PUT, PATCH, DELETE, route,
 } from './core/router';
@@ -20,6 +21,7 @@ export {
   connect, 
   disconnect,
   Types,
+  extractDbNameFromMongoUri,
 } from './database';
 export type {
   SchemaType,
@@ -41,14 +43,194 @@ export type {
 // Validation exports
 export { validateRequest, validateField, MongoValidator, createMongoSchema, validators, createParamValidator } from './validation';
 
+// Middleware exports
+export {
+  rateLimit,
+  slidingWindowRateLimit,
+  RedisStore as RateLimitRedisStore,
+  healthCheck,
+  mongoHealthCheck,
+  redisHealthCheck,
+  memoryHealthCheck,
+  diskHealthCheck,
+  customHealthCheck,
+  metricsMiddleware,
+  metricsEndpoint,
+  defaultRegistry,
+  upload,
+  validateFileType,
+  mimeToExtension,
+} from './middleware';
+export type {
+  RateLimitOptions,
+  RateLimitStore,
+  RateLimitInfo,
+  HealthOptions,
+  HealthCheck,
+  HealthCheckResult,
+  HealthStatus,
+  MetricsOptions,
+  UploadOptions,
+  UploadedFile,
+} from './middleware';
+
+// WebSocket exports
+export {
+  WebSocketManager,
+  createWebSocketServer,
+} from './websocket';
+export type {
+  WebSocketOptions,
+  HarborWebSocket,
+  Room,
+} from './websocket';
+
+// WebSocket hub exports (rooms, auth, pub/sub)
+export {
+  WsHub,
+  createWsHub,
+  MemoryPubSubAdapter,
+  createMemoryPubSubAdapter,
+  RedisPubSubAdapter,
+  createRedisPubSubAdapter,
+  encodeMessage,
+  decodeMessage,
+} from './ws';
+export type {
+  WsMessage,
+  WsConnection,
+  WsConnectionContext,
+  WsSocket,
+  WsAuthResult,
+  WsAuthenticate,
+  WsPubSubAdapter,
+  WsPubSubHandler,
+  WsHubOptions,
+  RedisPubSubClient,
+  RedisPubSubAdapterOptions,
+} from './ws';
+
+export {
+  streamUpload,
+  MultipartParser,
+  getBoundary,
+  LocalDiskStorageAdapter,
+  createLocalDiskAdapter,
+  S3StorageAdapter,
+  createS3StorageAdapter,
+  UploadError,
+} from './upload';
+export type {
+  UploadRequest,
+  UploadFileMeta,
+  StorageResult,
+  StorageAdapter,
+  S3CompatibleCredentials,
+  S3CompatibleAdapterConfig,
+  S3CompatibleStorageAdapter,
+  MultipartLimits,
+  StoredUpload,
+  StreamUploadOptions,
+  LocalDiskAdapterOptions,
+} from './upload';
+// Scheduler exports
+export {
+  Scheduler,
+  createScheduler,
+} from './scheduler';
+export type {
+  Job,
+  SchedulerOptions,
+} from './scheduler';
+
+// Cache exports
+export {
+  CacheManager,
+  MemoryCache,
+  RedisCache,
+  cache,
+  cacheResponse,
+  cached,
+  createCache,
+} from './cache';
+export type {
+  CacheOptions,
+  CacheStore,
+  CacheEntry,
+} from './cache';
+
+// Queue exports
+export {
+  Queue,
+  createQueue,
+} from './queue';
+export type {
+  QueueJob,
+  AddJobOptions,
+  QueueOptions,
+  JobHandler,
+  QueueEvents,
+  QueueStats,
+  JobStatus,
+  JobPriority,
+} from './queue';
+
+// Mail exports
+export {
+  Mailer,
+  createMailer,
+  createMailerFromProvider,
+  SmtpTransport,
+  registerTemplate,
+  registerTemplates,
+  getTemplate,
+  removeTemplate,
+  listTemplates,
+  renderTemplate,
+  renderNamedTemplate,
+  escapeHtml,
+} from './mail';
+export type {
+  MailOptions,
+  MailResult,
+  MailAddress,
+  MailAttachment,
+  MailTemplate,
+  MailPriority,
+  MailerOptions,
+  MailProvider,
+  SmtpConfig,
+  SmtpAuth,
+} from './mail';
+
+// Auth exports
+export {
+  JWT,
+  jwtAuth,
+  apiKeyAuth,
+  requireRole,
+  requirePermission,
+  verifySignature,
+  generateApiKey,
+  hashPassword,
+  verifyPassword,
+  createJwt,
+} from './auth';
+export type {
+  JwtOptions,
+  JwtPayload,
+  ApiKeyOptions,
+  RbacOptions,
+  SigningOptions,
+  Role,
+  Permission,
+} from './auth';
+
 // Docker exports
 export { DockerManager, createDockerManager } from './docker';
 
 // Changelog exports
 export { ChangelogManager, createChangelogManager } from './changelog';
-
-// Portal exports
-export { PortalGenerator, createPortal, generateDocs } from './portal';
 
 // i18n exports
 export { t, setLocale, getLocale, getAvailableLocales, addTranslations, registerLocale } from './i18n';
@@ -122,3 +304,6 @@ export type {
 
 // Re-export constants
 export { HTTP_STATUS, HTTP_METHODS, CONTENT_TYPES, HEADERS } from './constants';
+
+// Default export (legacy interop; named imports are preferred)
+export { default } from './harbor.default';

@@ -1,40 +1,80 @@
 {
-  "name": "harbor",
-  "version": "1.3.1",
-  "description": "The pipeline for Node.js backends - Fast server creation, MongoDB ODM (Mongoose replacement), route management, validation, and Docker orchestration",
+  "name": "@forgedevstack/harbor",
+  "version": "1.6.4",
+  "description": "ForgeStack Harbor - Complete Node.js backend framework with MongoDB ODM, WebSocket, scheduling, caching, auth, queue, mail, and more",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.es.js",
-      "require": "./dist/index.cjs.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs.js"
     },
     "./database": {
+      "types": "./dist/database/index.d.ts",
       "import": "./dist/database/index.js",
-      "require": "./dist/database/index.js",
-      "types": "./dist/database/index.d.ts"
+      "require": "./dist/database/index.js"
     },
     "./validation": {
+      "types": "./dist/validation/index.d.ts",
       "import": "./dist/validation/index.js",
-      "require": "./dist/validation/index.js",
-      "types": "./dist/validation/index.d.ts"
+      "require": "./dist/validation/index.js"
     },
-    "./validations": {
-      "import": "./dist/validation/index.js",
-      "require": "./dist/validation/index.js",
-      "types": "./dist/validation/index.d.ts"
+    "./middleware": {
+      "types": "./dist/middleware/index.d.ts",
+      "import": "./dist/middleware/index.js",
+      "require": "./dist/middleware/index.js"
+    },
+    "./websocket": {
+      "types": "./dist/websocket/index.d.ts",
+      "import": "./dist/websocket/index.js",
+      "require": "./dist/websocket/index.js"
+    },
+    "./scheduler": {
+      "types": "./dist/scheduler/index.d.ts",
+      "import": "./dist/scheduler/index.js",
+      "require": "./dist/scheduler/index.js"
+    },
+    "./cache": {
+      "types": "./dist/cache/index.d.ts",
+      "import": "./dist/cache/index.js",
+      "require": "./dist/cache/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "import": "./dist/auth/index.js",
+      "require": "./dist/auth/index.js"
     },
     "./docker": {
+      "types": "./dist/docker/index.d.ts",
       "import": "./dist/docker/index.js",
-      "require": "./dist/docker/index.js",
-      "types": "./dist/docker/index.d.ts"
+      "require": "./dist/docker/index.js"
     },
     "./utils": {
+      "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.js",
-      "require": "./dist/utils/index.js",
-      "types": "./dist/utils/index.d.ts"
+      "require": "./dist/utils/index.js"
+    },
+    "./queue": {
+      "types": "./dist/queue/index.d.ts",
+      "import": "./dist/queue/index.js",
+      "require": "./dist/queue/index.js"
+    },
+    "./mail": {
+      "types": "./dist/mail/index.d.ts",
+      "import": "./dist/mail/index.js",
+      "require": "./dist/mail/index.js"
+    },
+    "./ws": {
+      "types": "./dist/ws/index.d.ts",
+      "import": "./dist/ws/index.js",
+      "require": "./dist/ws/index.js"
+    },
+    "./upload": {
+      "types": "./dist/upload/index.d.ts",
+      "import": "./dist/upload/index.js",
+      "require": "./dist/upload/index.js"
     }
   },
   "bin": {
@@ -53,27 +93,45 @@
     "build:watch": "vite build --watch",
     "lint": "eslint src --ext .ts",
     "test": "vitest",
-    "portal:dev": "cd portal && npm run dev",
-    "portal:build": "cd portal && npm run build",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "release": "npm run build && npm publish --access public",
+    "release:patch": "npm version patch && npm run release",
+    "release:minor": "npm version minor && npm run release",
+    "release:major": "npm version major && npm run release"
   },
   "keywords": [
+    "forgestack",
+    "harbor",
     "nodejs",
     "server",
     "express",
     "mongodb",
-    "validation",
-    "routing",
-    "docker",
+    "mongoose-alternative",
+    "websocket",
+    "scheduler",
+    "cron",
+    "rate-limit",
+    "cache",
+    "jwt",
+    "authentication",
+    "metrics",
+    "prometheus",
+    "health-check",
+    "file-upload",
+    "queue",
+    "job-queue",
+    "mail",
+    "smtp",
+    "email",
     "backend",
     "api",
     "framework"
   ],
-  "author": "",
+  "author": "John Yaghobieh",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yaghobieh/Harbor"
+    "url": "https://github.com/yaghobieh/Harbor.git"
   },
   "homepage": "https://github.com/yaghobieh/Harbor#readme",
   "bugs": {
@@ -87,20 +145,29 @@
   },
   "peerDependencies": {
     "express": ">=4.18.0",
-    "mongodb": ">=6.0.0"
+    "mongodb": ">=6.0.0",
+    "ws": ">=8.0.0",
+    "ioredis": ">=5.0.0"
   },
   "peerDependenciesMeta": {
     "mongodb": {
       "optional": true
+    },
+    "ws": {
+      "optional": true
+    },
+    "ioredis": {
+      "optional": true
     }
   },
   "devDependencies": {
+    "@forgedevstack/crucible": "^1.0.0",
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.0",
+    "@types/ws": "^8.5.10",
     "typescript": "^5.3.0",
     "vite": "^5.0.0",
     "vite-plugin-dts": "^3.6.0",
     "vitest": "^1.0.0"
   }
 }
-

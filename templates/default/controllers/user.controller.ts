@@ -1,77 +1,57 @@
-import { Request, Response } from 'express';
+import type { HarborRequest } from '@forgedevstack/harbor';
+import { User } from '../models';
 import { UserService } from '../services';
-import { CreateUserDto, UpdateUserDto } from '../types';
 
-export class UserController {
-  /**
-   * Get all users
-   */
-  static async getAll(req: Request, res: Response) {
-    const { page = 1, limit = 10 } = req.query;
+export const UserController = {
+  async getAll() {
+    const users = await User.find();
+    return { users };
+  },
+
+  async getById(req: HarborRequest) {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return { user };
+  },
+
+  async create(req: HarborRequest) {
+    const { email, name, password } = req.body;
     
-    const result = await UserService.findAll({
-      page: Number(page),
-      limit: Number(limit),
-    });
-
-    return res.json(result);
-  }
-
-  /**
-   * Get user by ID
-   */
-  static async getById(req: Request, res: Response) {
-    const { id } = req.params;
+    // Hash password and create user
+    const user = await UserService.createUser({ email, name, password });
     
-    const user = await UserService.findById(id);
+    return { 
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+      },
+    };
+  },
+
+  async update(req: HarborRequest) {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
     
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw new Error('User not found');
     }
-
-    return res.json(user);
-  }
-
-  /**
-   * Create new user
-   */
-  static async create(req: Request, res: Response) {
-    const data: CreateUserDto = req.body;
     
-    const user = await UserService.create(data);
+    return { user };
+  },
 
-    return res.status(201).json(user);
-  }
-
-  /**
-   * Update user
-   */
-  static async update(req: Request, res: Response) {
-    const { id } = req.params;
-    const data: UpdateUserDto = req.body;
+  async delete(req: HarborRequest) {
+    const result = await User.findByIdAndDelete(req.params.id);
     
-    const user = await UserService.update(id, data);
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    if (!result) {
+      throw new Error('User not found');
     }
-
-    return res.json(user);
-  }
-
-  /**
-   * Delete user
-   */
-  static async delete(req: Request, res: Response) {
-    const { id } = req.params;
     
-    const deleted = await UserService.delete(id);
-
-    if (!deleted) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    return res.status(204).send();
-  }
-}
-
+    return { deleted: true };
+  },
+};

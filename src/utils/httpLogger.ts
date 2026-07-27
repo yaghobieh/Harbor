@@ -186,7 +186,7 @@ export function httpLogger(options: HttpLoggerOptions = {}): RequestHandler {
  */
 export const skipFunctions = {
   /** Skip successful responses */
-  successOnly: (req: Request, res: Response): boolean => res.statusCode < 400,
+  successOnly: (_req: Request, res: Response): boolean => res.statusCode < 400,
   
   /** Skip health check endpoints */
   healthChecks: (req: Request): boolean => 

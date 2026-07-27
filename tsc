@@ -1,0 +1,156 @@
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+vite v5.4.21 building for production...
+✓ 56 modules transformed.
+
+[vite:dts] Start generate declaration files...
+dist/docker/index.js           0.15 kB │ gzip: 0.14 kB │ map:  0.09 kB
+dist/auth/index.js             0.37 kB │ gzip: 0.25 kB │ map:  0.09 kB
+dist/database/index.js         0.38 kB │ gzip: 0.25 kB │ map:  0.09 kB
+dist/mail/index.js             0.45 kB │ gzip: 0.26 kB │ map:  0.09 kB
+dist/middleware/index.js       0.80 kB │ gzip: 0.43 kB │ map:  0.09 kB
+dist/http.const-BKHG1Lsj.mjs   1.30 kB │ gzip: 0.74 kB │ map:  2.48 kB
+dist/logger-CZn7QxCl.mjs       2.23 kB │ gzip: 0.91 kB │ map:  6.80 kB
+dist/cache/index.js            4.04 kB │ist/websocket/index.js        4.12 kB │ gzip: 1. kB │ map: 10.56 kB
+dist/managerjcKb4P9.mjs      5.05 kB │ gzip: 1.64 kB │ map: 13.63 kB
+dist/scheduler/index.js        5.84 kB │ gzip: 1.86 kB │ map: 14.88 kB
+dist/password-y4m307oa.mjs     6.38 kB │ gzip: 2.06 kB │ map: 18.28 kB
+dist/cli/index.js              8.11 kB │ gzip: 2.65 kB │ map: 17.95 kB
+dist/queue/index.js            8.14 kB │ gzip: 2.51 kB │ map: 20.46 kB
+dist/mail-BFzSBL9w.mjs        10.13 kB │ gzip: 3.46 kB │ map: 30.19 kB
+dist/validation/index.js      10.42 kB │ gzip: 2.49 kB │ map: 29.60 kB
+dist/upload-DUjQiuq7.mjs      17.90 kB │ gzip: 5.37 kB │ map: 52.69 kB
+dist/index.es.js              29.20 kB │ gzip: 8.90 kB │ map: 82.00 kB
+dist/index-DIVHd6rO.mjs       35.14 kB │ gzip: 8.82 kB │ map: 86.79 kB
+[vite:dts] Declaration files built in 6378ms.
+
+Entry module "src/database/index.ts" is using named and default exports together. Consumer
+Entry module "src/database/index.ts" is using named and default exports together. Consumers of your bundle will have to use `chunk.defaumay 
+Entry module "src/database/index.ts" is using named and default exports together. Consumers of your bundle will have to use `chunk.default` to access the default export, which may not be what you want. Use `output.exports: "named"` to disable this warning.
+dist/docker/index.js          0.25 kB │ gzip: 0.19 kB │ map:  0.09 kB
+dist/auth/index.js            0.50 kB │ gzip: 0.28 kB │ map:  0.09 kB
+dist/database/index.js        0.51 kB │ gzip: 0.29 kB │ map:  0.09 kB
+dist/mail/index.js            0.64 kB │ gzip: 0.28 kB │ map:  0.09 kB
+dist/middleware/index.js      1.07 kB │ gzip: 0.42 kB │ map:  0.09 kB
+dist/http.const-Ckcy7OFp.js   1.15 kB │ gzip: 0.74 kB │ map:  2.25 kB
+dist/logger-D-lfaRWQ.js       1.54 kB │ gzip: 0.78 kB │ map:  6.47 kB
+dist/cache/index.js           3.11 kB │ gzip: 1.31 kB │ map: 11.13 kB
+dist/websocket/index.js       3.10 kB
+dist/manager-DrF1vbJg.js      3.87 kB │ gzip: 1.49 kB │ map: 13.16 kB
+dist/scheduler/index.js       4.44 kB │ gzip: 1.69 kB │ map: 14.30 kB
+dist/password-BXBkKbv3.js     5.12 kB │ gzip: 1.88 kB │ map: 17.92 kB
+dist/queue/index.js           5.93 kB │ gzip: 2.09 kB │ map: 19.62 kB
+dist/cli/index.js             6.87 kB │ gzip: 2.36 kB │ map: 17.41 kB
+dist/mail-6PMwWXIR.js         7.89 kB │ gzip: 3.14 kB │ map: 29.20 kB
+dist/validation/index.js      8.12 kB │ gzip: 2.25 kB │ map: 28.68 kB
+dist/upload-9lCNnKK_.js      12.88 kB │ gzip: 4.67 kB │ map: 50.88 kB
+dist/index.cjs.js            22.28 kB │ gzip: 7.71 kB │ map: 79.14 kB
+dist/index-Ca4WpLvw.js       27.81 kB │ gzip: 7.94 kB │ map: 83.37 kB
+✓ built in 8.87sjohnyaghobieh@MacBookPro-2 Harbor % npm run build
+
+> @forgestack/harbor@1.6.0 build
+> tsc && vite build
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+vite v5.4.21 building for production...
+✓ 56 modules transformed.
+
+[vite:dts] Start generate declaration files...
+dist/docker/index.js           0.15 kB │ gzip: 0.14 kB │ map:  0.09 kB
+dist/auth/index.js             0.37 kB │ gzip: 0.25 kB │ map:  0.09 kB
+dist/database/index.js         0.38 kB │ gzip: 0.25 kB │ map:  0.09 kB
+dist/mail/index.js             0.45 kB │ gzip: 0.26 kB │ map:  0.09 kB
+dist/middleware/index.js       0.80 kB │ gzip: 0.43 kB │ map:  0.09 kB
+dist/http.const-BKHG1Lsj.mjs   1.30 kB │ gzip: 0.74 kB │ map:  2.48 kB
+dist/logger-CZn7QxCl.mjs       2.23 kB │ gzip: 0.91 kB │ map:  6.80 kB
+dist/cache/index.js      │ map: 11.61 kB
+dist/websocket/index.js        4.12 kB │ gzip: 1.43 kB │ map: 10.56 kB
+dist/manager-CjcKb4P9.mjs      5.05 kB │ gzip: 1.64 kB │ map: 13.63 kB
+dist/scheduler/index.js        5.84 kB │ gzip: 1.86 kB │ map: 14.88 kB
+dist/password-y4m307oa.mjs     6.38 kB │ gzip: 2.06 kB │ map: 18.28 kB
+dist/cli/index.js              8.11 kB │ gzip: 2.65 kB │ map: 17.95 kB
+dist/queue/index.js            8.14 kB │ gzip: 2.51 kB │ map: 20.46 kB
+dist/mail-BFzSBL9w.mjs        10.13 kB │ gzip: 3.46 kB │ map: 30.19 kB
+dist/validation/index.js      10.42 kB │ gzip: 2.49 kB │ map: 29.60 kB
+dist/upload-DUjQiuq7.mjs      17.90 kB │ gzip: 5.37 kB │ map: 52.69 kB
+dist/index.es.js              29.20 kB │ gzip: 8.90 kB │ map: 82.00 kB
+dist/index-DIVHd6rO.mjs       35.14 kB │ gzip: 8.82 kB │ map: 86.79 kB
+[vite:dts] Declaration files built in 6378ms.
+
+Entry module "src/database/index.ts" is using named and default exports together. Consumer
+Entry module "src/database/index.ts" is using named and defe will have to use `chunk.default` to access the default export, which may 
+Entry module "src/database/index.ts" is using named and default exports together. Consumers of your bundle will have to use `chunk.default` to access the default export, which may not be what you want. Use `output.exports: "named"` to disable this warning.
+dist/docker/index.js          0.25 kB │ gzip: 0.19 kB │ map:  0.09 kB
+dist/auth/index.js            0.50 kB │ gzip: 0.28 kB │ map:  0.09 kB
+dist/database/index.js        0.51 kB │ gzip: 0.29 kB │ map:  0.09 kB
+dist/mail/index.js            0.64 kB │ gzip: 0.28 kB │ map:  0.09 kB
+dist/middleware/index.js      1.07 kB │ gzip: 0.42 kB │ map:  0.09 kB
+dist/http.const-Ckcy7OFp.js   1.15 kB │ gzip: 0.74 kB │ map:  2.25 kB
+dist/logger-D-lfaRWQ.js       1.54 kB │ gzip: 0.78 kB │ map:  6.47 kB
+dist/cache/index.js           3.11 kB │ gzip: 1.31 kB │ map: 11.13 kB
+dist/websocket/index.js       3.65 kB dist/manager-DrF1vbJg.js      3.87 kB │ gzip: 1.49 kB │ map: 13.16 kB
+dist/scheduler/index.js       4.44 kB │ gzip: 1.69 kB │ map: 14.30 kB
+dist/password-BXBkKbv3.js     5.12 kB │ gzip: 1.88 kB │ map: 17.92 kB
+dist/queue/index.js           5.93 kB │ gzip: 2.09 kB │ map: 19.62 kB
+dist/cli/index.js             6.87 kB │ gzip: 2.36 kB │ map: 17.41 kB
+dist/mail-6PMwWXIR.js         7.89 kB │ gzip: 3.14 kB │ map: 29.20 kB
+dist/validation/index.js      8.12 kB │ gzip: 2.25 kB │ map: 28.68 kB
+dist/upload-9lCNnKK_.js      12.88 kB │ gzip: 4.67 kB │ map: 50.88 kB
+dist/index.cjs.js            22.28 kB │ gzip: 7.71 kB │ map: 79.14 kB
+dist/index-Ca4WpLvw.js       27.81 kB │ gzip: 7.94 kB │ map: 83.37 kB
+✓ built in 8.87sjohnyaghobieh@MacBookPro-2 Harbor % npm run build
+
+> @forgestack/harbor@1.6.0 build
+> tsc && vite build
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+vite v5.4.21 building for production...
+✓ 56 modules transformed.
+
+[vite:dts] Start generate declaration files...
+dist/docker/index.js           0.15 kB │ gzip: 0.14 kB │ map:  0.09 kB
+dist/auth/index.js             0.37 kB │ gzip: 0.25 kB │ map:  0.09 kB
+dist/database/index.js         0.38 kB │ gzip: 0.25 kB │ map:  0.09 kB
+dist/mail/index.js             0.45 kB │ gzip: 0.26 kB │ map:  0.09 kB
+dist/middleware/index.js       0.80 kB │ gzip: 0.43 kB │ map:  0.09 kB
+dist/http.const-BKHG1Lsj.mjs   1.30 kB │ gzip: 0.74 kB │ map:  2.48 kB
+dist/logger-CZn7QxCl.mjs       2.23 kB │ gzip: 0.91 kB │ map:  6.80 kB
+dist/cache/index.js            4.04 kB │ gzip: 1.45 kB │ map: 11.61 kB
+dist/websocket/in kB │ map: 10.56 kB
+dist/manager-CjcKb4P9.mjs      5.05 kB │ gzip: 1.64 kB │ map: 13.63 kB
+dist/scheduler/index.js        5.84 kB │ gzip: 1.86 kB │ map: 14.88 kB
+dist/password-y4m307oa.mjs     6.38 kB │ gzip: 2.06 kB │ map: 18.28 kB
+dist/cli/index.js              8.11 kB │ gzip: 2.65 kB │ map: 17.95 kB
+dist/queue/index.js            8.14 kB │ gzip: 2.51 kB │ map: 20.46 kB
+dist/mail-BFzSBL9w.mjs        10.13 kB │ gzip: 3.46 kB │ map: 30.19 kB
+dist/validation/index.js      10.42 kB │ gzip: 2.49 kB │ map: 29.60 kB
+dist/upload-DUjQiuq7.mjs      17.90 kB │ gzip: 5.37 kB │ map: 52.69 kB
+dist/index.es.js              29.20 kB │ gzip: 8.90 kB │ map: 82.00 kB
+dist/index-DIVHd6rO.mjs       35.14 kB │ gzip: 8.82 kB │ map: 86.79 kB
+[vite:dts] Declaration files built in 6378ms.
+
+Entry module "src/database/index.ts" is using named and default exports together. Consumer
+Entry module "src/database/index.ts" is using named and default exports together. Consumers of t` to access the default export, which may 
+Entry module "src/database/index.ts" is using named and default exports together. Consumers of your bundle will have to use `chunk.default` to access the default export, which may not be what you want. Use `output.exports: "named"` to disable this warning.
+dist/docker/index.js          0.25 kB │ gzip: 0.19 kB │ map:  0.09 kB
+dist/auth/index.js            0.50 kB │ gzip: 0.28 kB │ map:  0.09 kB
+dist/database/index.js        0.51 kB │ gzip: 0.29 kB │ map:  0.09 kB
+dist/mail/index.js            0.64 kB │ gzip: 0.28 kB │ map:  0.09 kB
+dist/middleware/index.js      1.07 kB │ gzip: 0.42 kB │ map:  0.09 kB
+dist/http.const-Ckcy7OFp.js   1.15 kB │ gzip: 0.74 kB │ map:  2.25 kB
+dist/logger-D-lfaRWQ.js       1.54 kB │ gzip: 0.78 kB │ map:  6.47 kB
+dist/cache/index.js           3.11 kB │ gzip: 1.31 kB │ map: 11.13 kB
+dist/websocket/index.js       3.65 kB │ gzip: 1.51 kB │ map: 10.10 kB
+dist/manager-DrF1vbJg.js      3.87 kB │ gzip: 1.49 kB │ map: 13.16 kB
+dist/scheduler/index.js  0 kB
+dist/password-BXBkKbv3.js     5.12 kB │ gzip: 1.88 kB │ map: 17.92 kB
+dist/queue/index.js           5.93 kB │ gzip: 2.09 kB │ map: 19.62 kB
+dist/cli/index.js             6.87 kB │ gzip: 2.36 kB │ map: 17.41 kB
+dist/mail-6PMwWXIR.js         7.89 kB │ gzip: 3.14 kB │ map: 29.20 kB
+dist/validation/index.js      8.12 kB │ gzip: 2.25 kB │ map: 28.68 kB
+dist/upload-9lCNnKK_.js      12.88 kB │ gzip: 4.67 kB │ map: 50.88 kB
+dist/index.cjs.js            22.28 kB │ gzip: 7.71 kB │ map: 79.14 kB
+dist/index-Ca4WpLvw.js       27.81 kB │ gzip: 7.94 kB │ map: 83.37 kB

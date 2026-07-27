@@ -1,5 +1,18 @@
 // Harbor Database Connection - Mongoose-compatible connection management
 import { EventEmitter } from 'events';
+
+/** DB segment after host (mongodb://host/db or ...mongodb.net/dbname), ignores query string. */
+export function extractDbNameFromMongoUri(uri: string): string {
+  const noQuery = uri.split('?')[0];
+  const at = noQuery.lastIndexOf('@');
+  const hostAndPath = at >= 0 ? noQuery.slice(at + 1) : noQuery.replace(/^mongodb(\+srv)?:\/\//i, '');
+  const slash = hostAndPath.indexOf('/');
+  if (slash >= 0 && slash < hostAndPath.length - 1) {
+    const name = hostAndPath.slice(slash + 1).replace(/\/+$/, '');
+    return name || 'test';
+  }
+  return 'test';
+}
 import type { ConnectionOptions, ConnectionState } from './types';
 import { t } from '../i18n';
 
@@ -10,6 +23,7 @@ class HarborConnection extends EventEmitter {
     connected: false,
     readyState: 0,
   };
+  // @ts-ignore - Reserved for future use
   private _uri: string = '';
   private _options: ConnectionOptions = {};
   private _mongoClient: unknown = null;
@@ -71,9 +85,9 @@ class HarborConnection extends EventEmitter {
       this._mongoClient = new MongoClient(uri, this._options as any);
       await (this._mongoClient as any).connect();
       
-      // Parse URI to get database name
-      const urlObj = new URL(uri);
-      const dbName = urlObj.pathname.slice(1) || 'test';
+      // Parse DB name without relying on URL() (credentials / mongodb+srv edge cases)
+      const dbName = extractDbNameFromMongoUri(uri);
+      const urlObj = new URL(uri.replace(/^mongodb(\+srv)?:/i, 'https:'));
       
       this._db = (this._mongoClient as any).db(dbName);
       

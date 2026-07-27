@@ -10,12 +10,12 @@ import {
   Footer,
   DocLayout,
   DocPage,
+  Sandbox,
 } from '@/components';
 
-// Home page component
 const HomePage: FC = () => {
   return (
-    <div className="bg-theme-primary text-theme-primary font-sans antialiased min-h-screen transition-colors duration-200">
+    <div className="font-sans antialiased min-h-screen transition-colors duration-200" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <Navbar />
       <main>
         <Hero />
@@ -33,10 +33,9 @@ export const App: FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Home page */}
         <Route path="/" element={<HomePage />} />
-        
-        {/* Documentation pages */}
+        <Route path="/sandbox" element={<Sandbox />} />
+
         <Route path="/docs" element={<DocLayout />}>
           <Route path="*" element={<DocPage />} />
         </Route>

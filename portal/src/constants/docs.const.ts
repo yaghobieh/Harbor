@@ -1,5 +1,3 @@
-// Documentation Navigation Structure
-
 export interface DocSection {
   title: string;
   path: string;
@@ -21,53 +19,72 @@ export const DOC_NAVIGATION: DocNavigation[] = [
     ],
   },
   {
-    title: 'Guides',
-    sections: [
-      { title: 'Schemas', path: '/docs/schemas' },
-      { title: 'SchemaTypes', path: '/docs/schematypes' },
-      { title: 'Connections', path: '/docs/connections' },
-      { title: 'Models', path: '/docs/models' },
-      { title: 'Documents', path: '/docs/documents' },
-      { title: 'Queries', path: '/docs/queries' },
-      { title: 'Validation', path: '/docs/validation' },
-      { title: 'Middleware', path: '/docs/middleware' },
-      { title: 'Virtuals', path: '/docs/virtuals' },
-      { title: 'Plugins', path: '/docs/plugins' },
-      { title: 'Timestamps', path: '/docs/timestamps' },
-      { title: 'Transactions', path: '/docs/transactions' },
-    ],
-  },
-  {
-    title: 'Server',
+    title: 'Core',
     sections: [
       { title: 'Creating a Server', path: '/docs/server' },
       { title: 'Routes', path: '/docs/routes' },
-      { title: 'Error Handling', path: '/docs/errors' },
-      { title: 'HTTP Logger', path: '/docs/http-logger' },
       { title: 'Configuration', path: '/docs/config' },
+      { title: 'Error Handling', path: '/docs/errors' },
     ],
   },
   {
-    title: 'API Reference',
+    title: 'Database',
     sections: [
-      { title: 'Harbor', path: '/docs/api/harbor' },
-      { title: 'Schema', path: '/docs/api/schema' },
-      { title: 'Model', path: '/docs/api/model' },
-      { title: 'Query', path: '/docs/api/query' },
-      { title: 'Document', path: '/docs/api/document' },
-      { title: 'Connection', path: '/docs/api/connection' },
+      { title: 'MongoDB ODM', path: '/docs/database' },
+      { title: 'Schemas', path: '/docs/schemas' },
+      { title: 'Models & Queries', path: '/docs/queries' },
+      { title: 'Validation', path: '/docs/validation' },
+    ],
+  },
+  {
+    title: 'Queue & Mail',
+    sections: [
+      { title: 'Job Queue', path: '/docs/queue' },
+      { title: 'Mail', path: '/docs/mail' },
+    ],
+  },
+  {
+    title: 'Auth & Security',
+    sections: [
+      { title: 'Authentication', path: '/docs/auth' },
+      { title: 'Rate Limiting', path: '/docs/rate-limit' },
+    ],
+  },
+  {
+    title: 'Real-time & Cache',
+    sections: [
+      { title: 'WebSocket', path: '/docs/websocket' },
+      { title: 'Caching', path: '/docs/cache' },
+      { title: 'Scheduler', path: '/docs/scheduler' },
+    ],
+  },
+  {
+    title: 'Observability',
+    sections: [
+      { title: 'Health Checks', path: '/docs/health' },
+      { title: 'Metrics', path: '/docs/metrics' },
+      { title: 'HTTP Logger', path: '/docs/http-logger' },
     ],
   },
   {
     title: 'Extras',
     sections: [
-      { title: 'Docker Manager', path: '/docs/docker' },
+      { title: 'File Uploads', path: '/docs/upload' },
+      { title: 'Docker', path: '/docs/docker' },
       { title: 'i18n', path: '/docs/i18n' },
-      { title: 'TypeScript', path: '/docs/typescript' },
-      { title: 'Migration from Mongoose', path: '/docs/migration' },
+    ],
+  },
+  {
+    title: 'Testing',
+    sections: [
+      { title: 'Testing with Crucible', path: '/docs/testing' },
+    ],
+  },
+  {
+    title: 'Ecosystem',
+    sections: [
+      { title: 'ForgeStack', path: '/docs/forgestack' },
+      { title: 'Forge CLI', path: '/docs/forge-cli' },
     ],
   },
 ];
-
-// VERSION is exported from content.const.ts
-

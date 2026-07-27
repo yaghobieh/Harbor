@@ -14,6 +14,15 @@ export interface HarborServer {
   addRouteGroup: (group: RouteGroup) => void;
   addMiddleware: (middleware: RequestHandler) => void;
   getInfo: () => ServerInfo;
+  
+  // Express-like convenience methods
+  use: (...args: Parameters<Express['use']>) => void;
+  get: (path: string, ...handlers: RequestHandler[]) => void;
+  post: (path: string, ...handlers: RequestHandler[]) => void;
+  put: (path: string, ...handlers: RequestHandler[]) => void;
+  patch: (path: string, ...handlers: RequestHandler[]) => void;
+  delete: (path: string, ...handlers: RequestHandler[]) => void;
+  listen: (port?: number, callback?: () => void) => void;
 }
 
 export interface ServerInfo {

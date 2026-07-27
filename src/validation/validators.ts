@@ -62,11 +62,11 @@ export async function validateField(
   let processedValue = value;
 
   if (schema.transform) {
-    processedValue = schema.transform(processedValue);
+    processedValue = schema.transform(processedValue) as typeof processedValue;
   }
 
   if (config.sanitize) {
-    processedValue = sanitizeValue(processedValue, schema.type);
+    processedValue = sanitizeValue(processedValue, schema.type) as typeof processedValue;
   }
 
   const typeValid = validateType(processedValue, schema.type);

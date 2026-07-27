@@ -24,7 +24,7 @@ class BaseParamValidator<T> implements ParamValidator<T> {
 
     let processedValue = value;
     if (this.transformFn) {
-      processedValue = this.transformFn(processedValue);
+      processedValue = this.transformFn(processedValue) as typeof processedValue;
     }
 
     return this.validateFn(processedValue);

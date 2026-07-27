@@ -1,0 +1,43 @@
+name: Publish to npm
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ensure Rollup Linux optional dependency
+        run: |
+          ROLLUP_VERSION=$(node -p "require('./node_modules/rollup/package.json').version")
+          npm install --no-save "@rollup/rollup-linux-x64-gnu@${ROLLUP_VERSION}"
+
+      - name: Build library
+        run: npm run build
+
+      - name: Run tests
+        run: npm test -- --run
+
+      - name: Publish to npm
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,17 +1,17 @@
 // Documentation Content for all pages
 
-export interface DocContent {
-  title: string;
-  description: string;
-  sections: DocSection[];
-}
-
-export interface DocSection {
+interface DocContentSection {
   id: string;
   title: string;
   content: string;
   code?: string;
   filename?: string;
+}
+
+export interface DocContent {
+  title: string;
+  description: string;
+  sections: DocContentSection[];
 }
 
 export const DOCS_CONTENT: Record<string, DocContent> = {
@@ -1481,6 +1481,754 @@ addTranslations('he', {
 import { t } from 'harbor';
 console.log(t('app.goodbye', { name: 'John' }));`,
         filename: 'custom-translations.ts',
+      },
+    ],
+  },
+
+  'queue': {
+    title: 'Job Queue',
+    description: 'Priority-based asynchronous job processing with retries, exponential backoff, dead letter queue, delayed jobs, and real-time events.',
+    sections: [
+      {
+        id: 'overview',
+        title: 'Overview',
+        content: `Harbor's Job Queue allows you to offload heavy or async work — email sending, image processing, PDF generation — to a background queue with full control over concurrency, retries, and priorities.
+
+Key features:
+- **Priority-based processing** — critical, high, medium, normal, low
+- **Retries with exponential backoff** — configurable per job or globally
+- **Dead Letter Queue** — permanently failed jobs are captured
+- **Delayed jobs** — schedule jobs to run after a delay
+- **Bulk operations** — add many jobs at once
+- **Pause / Resume** — control queue processing at runtime
+- **Real-time stats** — track pending, active, completed, failed counts`,
+      },
+      {
+        id: 'basic-usage',
+        title: 'Basic Usage',
+        content: 'Create a queue, register a processor, and start processing:',
+        code: `import { createQueue } from '@forgedevstack/harbor/queue';
+
+interface EmailJob {
+  to: string;
+  subject: string;
+  body: string;
+}
+
+// Create a typed queue
+const emailQueue = createQueue<EmailJob>('emails', {
+  concurrency: 5,
+  maxRetries: 3,
+  retryDelay: 1000,
+  backoffStrategy: 'exponential',
+});
+
+// Register a job processor
+emailQueue.process(async (job) => {
+  console.log(\`Sending email to \${job.data.to}\`);
+  // Your email sending logic here
+  await sendEmail(job.data.to, job.data.subject, job.data.body);
+});
+
+// Listen to events
+emailQueue.on('job:completed', (job) => {
+  console.log(\`Job \${job.id} completed\`);
+});
+
+emailQueue.on('job:failed', (job, error) => {
+  console.error(\`Job \${job.id} failed: \${error.message}\`);
+});
+
+// Add jobs
+emailQueue.add({
+  to: 'user@example.com',
+  subject: 'Welcome!',
+  body: '<h1>Welcome to our platform</h1>',
+});
+
+// Add a high priority job
+emailQueue.add({
+  to: 'admin@example.com',
+  subject: 'Alert',
+  body: 'Server is running hot',
+}, { priority: 'high' });
+
+// Add a delayed job (runs after 60 seconds)
+emailQueue.add({
+  to: 'user@example.com',
+  subject: 'Follow up',
+  body: 'How was your experience?',
+}, { delay: 60000 });
+
+// Start the queue
+emailQueue.start();`,
+        filename: 'queue-example.ts',
+      },
+      {
+        id: 'bulk-operations',
+        title: 'Bulk Operations & Stats',
+        content: 'Add multiple jobs at once and inspect queue statistics:',
+        code: `// Add many jobs in one call
+emailQueue.addBulk([
+  { data: { to: 'a@test.com', subject: 'Hi A', body: '...' } },
+  { data: { to: 'b@test.com', subject: 'Hi B', body: '...' }, options: { priority: 'high' } },
+  { data: { to: 'c@test.com', subject: 'Hi C', body: '...' }, options: { delay: 30000 } },
+]);
+
+// Get real-time queue stats
+const stats = emailQueue.getStats();
+console.log(stats);
+// { total: 10, pending: 3, active: 2, completed: 4, failed: 0, delayed: 1 }
+
+// Get all failed jobs
+const failedJobs = emailQueue.getJobs('failed');
+
+// Pause and resume
+emailQueue.pause();
+// ... do maintenance ...
+emailQueue.resume();
+
+// Stop completely
+emailQueue.stop();`,
+        filename: 'queue-bulk.ts',
+      },
+      {
+        id: 'with-server',
+        title: 'Queue with Harbor Server',
+        content: 'Common pattern: trigger queue jobs from API routes:',
+        code: `import { createServer, router, POST, GET } from '@forgedevstack/harbor';
+import { createQueue } from '@forgedevstack/harbor/queue';
+
+const invoiceQueue = createQueue<{ orderId: string; userId: string }>('invoices', {
+  concurrency: 3,
+  maxRetries: 5,
+});
+
+invoiceQueue.process(async (job) => {
+  const { orderId, userId } = job.data;
+  const pdf = await generateInvoicePDF(orderId);
+  await uploadToStorage(pdf);
+  await notifyUser(userId, pdf.url);
+});
+
+invoiceQueue.start();
+
+const server = createServer({ port: 3000 });
+
+const api = router('/api', [
+  POST('/orders', async (req) => {
+    const order = await Order.create(req.body);
+    // Offload heavy work to queue
+    invoiceQueue.add({ orderId: order.id, userId: req.user.id });
+    return { order, message: 'Invoice is being generated' };
+  }),
+
+  GET('/queue/stats', async () => {
+    return invoiceQueue.getStats();
+  }),
+]);
+
+server.use(api);`,
+        filename: 'queue-server.ts',
+      },
+    ],
+  },
+
+  'mail': {
+    title: 'Mail',
+    description: 'Zero-dependency SMTP mail service with HTML templates, provider presets, attachments, and priority support.',
+    sections: [
+      {
+        id: 'overview',
+        title: 'Overview',
+        content: `Harbor's Mail module lets you send emails without any third-party email library. It speaks raw SMTP using Node.js \`net\` and \`tls\` modules.
+
+Key features:
+- **Zero external dependencies** — built on native Node.js sockets
+- **Provider presets** — Gmail, Outlook, SendGrid, AWS SES
+- **HTML templates** — register reusable templates with \`{{variable}}\` interpolation
+- **Attachments** — files with content IDs for inline embedding
+- **Priority** — high, normal, low email priority headers
+- **STARTTLS / TLS** — secure connections out of the box`,
+      },
+      {
+        id: 'basic-usage',
+        title: 'Basic Usage',
+        content: 'Send a plain text email:',
+        code: `import { createMailer, SmtpTransport } from '@forgedevstack/harbor/mail';
+
+const mailer = createMailer({
+  transport: new SmtpTransport({
+    host: 'smtp.example.com',
+    port: 587,
+    secure: false,
+    auth: { user: 'you@example.com', pass: 'your-password' },
+  }),
+  defaults: { from: 'noreply@example.com' },
+});
+
+// Send plain text
+await mailer.send({
+  to: 'user@example.com',
+  subject: 'Hello from Harbor',
+  text: 'This is a test email sent from Harbor Mail.',
+});
+
+// Send HTML
+await mailer.send({
+  to: 'user@example.com',
+  subject: 'HTML Email',
+  html: '<h1>Hello</h1><p>This is <strong>HTML</strong> content.</p>',
+});`,
+        filename: 'mail-basic.ts',
+      },
+      {
+        id: 'providers',
+        title: 'Provider Presets',
+        content: 'Use pre-configured settings for popular email services:',
+        code: `import { createMailerFromProvider } from '@forgedevstack/harbor/mail';
+
+// Gmail (use App Password, not your main password)
+const gmail = createMailerFromProvider('gmail', {
+  auth: {
+    user: process.env.GMAIL_USER!,
+    pass: process.env.GMAIL_APP_PASSWORD!,
+  },
+});
+
+await gmail.send({
+  to: 'recipient@example.com',
+  subject: 'From Gmail via Harbor',
+  text: 'Sent using Harbor Mail with Gmail preset.',
+});
+
+// Outlook
+const outlook = createMailerFromProvider('outlook', {
+  auth: { user: process.env.OUTLOOK_USER!, pass: process.env.OUTLOOK_PASS! },
+});
+
+// SendGrid
+const sendgrid = createMailerFromProvider('sendgrid', {
+  auth: { user: 'apikey', pass: process.env.SENDGRID_API_KEY! },
+});
+
+// AWS SES
+const ses = createMailerFromProvider('aws_ses', {
+  auth: { user: process.env.SES_KEY!, pass: process.env.SES_SECRET! },
+});`,
+        filename: 'mail-providers.ts',
+      },
+      {
+        id: 'templates',
+        title: 'HTML Templates',
+        content: 'Register and use reusable email templates with variable interpolation:',
+        code: `import {
+  registerTemplate,
+  registerTemplates,
+  renderTemplate,
+  renderNamedTemplate,
+  escapeHtml,
+} from '@forgedevstack/harbor/mail';
+
+// Register a single template
+registerTemplate('welcome', \`
+  <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+    <h1>Welcome, {{name}}!</h1>
+    <p>Thank you for joining <strong>{{appName}}</strong>.</p>
+    <p>Your account is now active. Get started:</p>
+    <a href="{{dashboardUrl}}" style="
+      display: inline-block;
+      padding: 12px 24px;
+      background: #0066cc;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+    ">Go to Dashboard</a>
+    <p style="color: #666; margin-top: 20px;">
+      Best regards,<br/>The {{appName}} Team
+    </p>
+  </div>
+\`);
+
+// Register multiple templates at once
+registerTemplates({
+  'password-reset': '<h1>Reset Password</h1><p>Click <a href="{{resetUrl}}">here</a>.</p>',
+  'invoice': '<h1>Invoice #{{invoiceId}}</h1><p>Amount: \${{amount}}</p>',
+});
+
+// Use template when sending
+await mailer.send({
+  to: 'john@example.com',
+  subject: 'Welcome to ForgeStack!',
+  template: {
+    name: 'welcome',
+    data: {
+      name: 'John',
+      appName: 'ForgeStack',
+      dashboardUrl: 'https://app.forgedevstack.com/dashboard',
+    },
+  },
+});
+
+// Render template manually (e.g. for previews)
+const html = renderNamedTemplate('invoice', {
+  invoiceId: 'INV-001',
+  amount: '99.99',
+});`,
+        filename: 'mail-templates.ts',
+      },
+      {
+        id: 'attachments',
+        title: 'Attachments & Priority',
+        content: 'Attach files and set email priority:',
+        code: `await mailer.send({
+  to: 'client@example.com',
+  subject: 'Your Invoice',
+  html: '<p>Please find your invoice attached.</p><img src="cid:logo@company" />',
+  priority: 'high',
+  attachments: [
+    {
+      filename: 'invoice.pdf',
+      path: './invoices/INV-001.pdf',
+      contentType: 'application/pdf',
+    },
+    {
+      filename: 'logo.png',
+      path: './assets/logo.png',
+      cid: 'logo@company', // Embed inline
+    },
+  ],
+  headers: {
+    'X-Campaign-ID': 'welcome-2026',
+  },
+});`,
+        filename: 'mail-attachments.ts',
+      },
+      {
+        id: 'queue-integration',
+        title: 'Mail + Queue Integration',
+        content: 'Combine Mail with Job Queue for reliable email delivery:',
+        code: `import { createQueue } from '@forgedevstack/harbor/queue';
+import { createMailerFromProvider, registerTemplate } from '@forgedevstack/harbor/mail';
+
+registerTemplate('order-confirmation', \`
+  <h1>Order Confirmed!</h1>
+  <p>Hi {{name}}, your order #{{orderId}} has been confirmed.</p>
+  <p>Total: \${{total}}</p>
+\`);
+
+interface MailJob {
+  to: string;
+  templateName: string;
+  templateData: Record<string, string>;
+}
+
+const mailQueue = createQueue<MailJob>('mail-queue', {
+  concurrency: 10,
+  maxRetries: 5,
+  retryDelay: 2000,
+  backoffStrategy: 'exponential',
+});
+
+const mailer = createMailerFromProvider('gmail', {
+  auth: { user: process.env.SMTP_USER!, pass: process.env.SMTP_PASS! },
+});
+
+mailQueue.process(async (job) => {
+  await mailer.send({
+    to: job.data.to,
+    subject: 'Order Confirmation',
+    template: {
+      name: job.data.templateName,
+      data: job.data.templateData,
+    },
+  });
+});
+
+mailQueue.start();
+
+// In your route handler:
+mailQueue.add({
+  to: 'customer@example.com',
+  templateName: 'order-confirmation',
+  templateData: { name: 'Jane', orderId: 'ORD-42', total: '149.99' },
+});`,
+        filename: 'mail-queue-integration.ts',
+      },
+    ],
+  },
+
+  'testing': {
+    title: 'Testing with Crucible',
+    description: 'Test your Harbor server, routes, models, and queue jobs using @forgedevstack/crucible — the ForgeStack testing framework.',
+    sections: [
+      {
+        id: 'setup',
+        title: 'Setup',
+        content: `Install Crucible as a dev dependency:`,
+        code: `npm install -D @forgedevstack/crucible`,
+        filename: 'terminal',
+      },
+      {
+        id: 'test-routes',
+        title: 'Testing API Routes',
+        content: 'Use Crucible\'s server module to test your Harbor API endpoints:',
+        code: `import { describe, it, expect, beforeAll, afterAll } from '@forgedevstack/crucible';
+import { request, assertResponse, createMockServer } from '@forgedevstack/crucible/server';
+
+describe('User API', () => {
+  let server: any;
+
+  beforeAll(async () => {
+    server = await startTestServer(); // Your Harbor server
+  });
+
+  afterAll(async () => {
+    await server.close();
+  });
+
+  it('GET /api/users returns user list', async () => {
+    const res = await request('http://localhost:3000')
+      .get('/api/users')
+      .header('Authorization', 'Bearer test-token')
+      .send();
+
+    assertResponse(res)
+      .status(200)
+      .hasHeader('content-type')
+      .bodyContains('users');
+  });
+
+  it('POST /api/users creates a user', async () => {
+    const res = await request('http://localhost:3000')
+      .post('/api/users')
+      .json({ email: 'test@example.com', name: 'Test User' })
+      .send();
+
+    assertResponse(res)
+      .status(201)
+      .bodyContains('email');
+  });
+
+  it('POST /api/users rejects invalid data', async () => {
+    const res = await request('http://localhost:3000')
+      .post('/api/users')
+      .json({ email: 'invalid' })
+      .send();
+
+    assertResponse(res)
+      .status(400);
+  });
+});`,
+        filename: 'routes.test.ts',
+      },
+      {
+        id: 'mock-server',
+        title: 'Mock Server',
+        content: 'Create a mock server to test code that makes HTTP calls (e.g. external API wrappers):',
+        code: `import { describe, it, expect } from '@forgedevstack/crucible';
+import { createMockServer } from '@forgedevstack/crucible/server';
+
+describe('External API Client', () => {
+  it('handles mock responses', async () => {
+    const mock = createMockServer();
+
+    mock.on('GET', '/api/v1/products', {
+      status: 200,
+      body: { products: [{ id: 1, name: 'Widget' }] },
+    });
+
+    mock.on('POST', '/api/v1/orders', {
+      status: 201,
+      body: { orderId: 'ORD-123' },
+    });
+
+    mock.start();
+
+    // Your code now hits the mock instead of real API
+    const products = await fetch('/api/v1/products').then(r => r.json());
+    expect(products.products).toHaveLength(1);
+
+    const order = await fetch('/api/v1/orders', {
+      method: 'POST',
+      body: JSON.stringify({ productId: 1 }),
+    }).then(r => r.json());
+    expect(order.orderId).toBe('ORD-123');
+
+    mock.stop();
+  });
+});`,
+        filename: 'mock-server.test.ts',
+      },
+      {
+        id: 'test-queue',
+        title: 'Testing Queue Jobs',
+        content: 'Test your queue processors and job flows:',
+        code: `import { describe, it, expect, spy } from '@forgedevstack/crucible';
+import { createQueue } from '@forgedevstack/harbor/queue';
+
+describe('Invoice Queue', () => {
+  it('processes jobs and calls handler', async () => {
+    const handler = spy.fn();
+    const queue = createQueue('test-invoices', {
+      concurrency: 1,
+      maxRetries: 0,
+    });
+
+    queue.process(async (job) => {
+      handler(job.data);
+    });
+
+    queue.add({ orderId: 'ORD-1' });
+    queue.start();
+
+    // Wait for processing
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    expect(handler.callCount).toBe(1);
+    expect(handler.calls[0][0]).toEqual({ orderId: 'ORD-1' });
+
+    queue.stop();
+  });
+
+  it('retries failed jobs', async () => {
+    let attempts = 0;
+    const queue = createQueue('retry-test', {
+      concurrency: 1,
+      maxRetries: 2,
+      retryDelay: 100,
+      backoffStrategy: 'fixed',
+    });
+
+    queue.process(async () => {
+      attempts++;
+      if (attempts < 3) throw new Error('Not ready');
+    });
+
+    queue.add({ task: 'retry-me' });
+    queue.start();
+
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    expect(attempts).toBe(3); // 1 initial + 2 retries
+    queue.stop();
+  });
+});`,
+        filename: 'queue.test.ts',
+      },
+      {
+        id: 'run-tests',
+        title: 'Running Tests',
+        content: 'Run your tests with Crucible or use Forge CLI:',
+        code: `# Run with tsx (recommended)
+npx tsx --test src/**/*.test.ts
+
+# Or add to package.json
+# "scripts": { "test": "tsx --test src/**/*.test.ts" }
+npm test
+
+# Using Forge CLI
+npx forge test`,
+        filename: 'terminal',
+      },
+    ],
+  },
+
+  'forgestack': {
+    title: 'ForgeStack Ecosystem',
+    description: 'Harbor is part of the ForgeStack ecosystem — a complete set of tools for building modern full-stack applications.',
+    sections: [
+      {
+        id: 'what-is-forgestack',
+        title: 'What is ForgeStack?',
+        content: `ForgeStack is a unified ecosystem of TypeScript libraries designed to work together seamlessly:
+
+- **Harbor** — Node.js backend framework (you are here)
+- **Bear UI** — React component library with 60+ components
+- **Synapse** — Signal-based state management
+- **Compass** — Type-safe client-side routing
+- **Relay** — Zero-dependency HTTP client
+- **Crucible** — Full-stack testing framework
+- **Anvil** — Developer utilities and debugger
+- **Grid Table** — Advanced data table
+- **Forge Form** — Form management
+- **Forge Query** — Data fetching hooks
+- **Forge Auth** — OAuth authentication
+
+Every package is built with TypeScript first, zero (or minimal) dependencies, and designed to work together.`,
+      },
+      {
+        id: 'forge-cli',
+        title: 'Forge CLI',
+        content: 'The fastest way to start a new Harbor project:',
+        code: `# Create a new full-stack project
+npx create-forge my-app
+
+# The CLI will ask:
+# - Project type: React / Server / Full-Stack
+# - Include packages: Bear, Synapse, Harbor, Relay, Crucible...
+# - Package manager: npm / pnpm / yarn / bun
+
+# For a server-only project:
+npx create-forge my-api --template server
+
+# The generated server includes:
+# - Harbor with Express
+# - MongoDB ODM setup
+# - JWT authentication
+# - User routes & controllers
+# - Docker files
+# - Crucible for testing
+
+# Add packages to an existing project:
+npx forge add harbor
+npx forge add crucible --scope both
+npx forge add relay`,
+        filename: 'terminal',
+      },
+      {
+        id: 'full-stack-example',
+        title: 'Full-Stack Example',
+        content: 'A real full-stack app using Harbor (backend) + Bear + Relay (frontend):',
+        code: `// ── server/index.ts ──
+import { createServer, router, GET, POST } from '@forgedevstack/harbor';
+import { connect, Schema, model } from '@forgedevstack/harbor/database';
+import { jwtAuth, JWT } from '@forgedevstack/harbor/auth';
+import { createQueue } from '@forgedevstack/harbor/queue';
+import { createMailerFromProvider } from '@forgedevstack/harbor/mail';
+
+await connect(process.env.MONGO_URI!);
+
+const User = model('User', new Schema({
+  email: { type: 'string', required: true, unique: true },
+  name: { type: 'string', required: true },
+  password: { type: 'string', required: true },
+}));
+
+const mailQueue = createQueue('mail', { concurrency: 5 });
+mailQueue.process(async (job) => {
+  const mailer = createMailerFromProvider('gmail', {
+    auth: { user: process.env.SMTP_USER!, pass: process.env.SMTP_PASS! },
+  });
+  await mailer.send(job.data);
+});
+mailQueue.start();
+
+const server = createServer({ port: 4000 });
+
+const api = router('/api', [
+  POST('/register', async (req) => {
+    const user = await User.create(req.body);
+    const token = JWT.sign({ id: user.id, role: 'user' });
+    mailQueue.add({
+      to: user.email,
+      subject: 'Welcome!',
+      html: '<h1>Welcome to our app!</h1>',
+    });
+    return { user, token };
+  }),
+
+  GET('/me', async (req) => {
+    return { user: req.user };
+  }, { pre: [jwtAuth()] }),
+]);
+
+server.use(api);
+
+// ── client/App.tsx ──
+import { useRelay } from '@forgedevstack/relay/react';
+import { Button, Card, Input } from '@forgedevstack/bear';
+
+function Register() {
+  const { post, loading, error } = useRelay('/api/register');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const res = await post({
+      email: formData.get('email'),
+      name: formData.get('name'),
+      password: formData.get('password'),
+    });
+    localStorage.setItem('token', res.data.token);
+  };
+
+  return (
+    <Card>
+      <form onSubmit={handleSubmit}>
+        <Input name="name" placeholder="Name" />
+        <Input name="email" type="email" placeholder="Email" />
+        <Input name="password" type="password" placeholder="Password" />
+        <Button type="submit" loading={loading}>Register</Button>
+        {error && <p>{error.message}</p>}
+      </form>
+    </Card>
+  );
+}`,
+        filename: 'full-stack.ts',
+      },
+    ],
+  },
+
+  'forge-cli': {
+    title: 'Forge CLI',
+    description: 'Use the Forge CLI to scaffold Harbor projects with all the ecosystem packages pre-configured.',
+    sections: [
+      {
+        id: 'create-project',
+        title: 'Creating a Project',
+        content: 'The Forge CLI generates a complete project structure with Harbor configured:',
+        code: `# Interactive mode
+npx create-forge my-project
+
+# Quick mode with defaults
+npx create-forge my-project --yes
+
+# Server-only template
+npx create-forge my-api --template server
+
+# Full-stack monorepo
+npx create-forge my-app --template fullstack`,
+        filename: 'terminal',
+      },
+      {
+        id: 'generated-server',
+        title: 'Generated Server Structure',
+        content: 'A generated server project includes:',
+        code: `my-api/
+  src/
+    index.ts              # Harbor server entry point
+    routes/
+      user.routes.ts      # Example CRUD routes
+    controllers/
+      user.controller.ts  # Route handlers
+    models/
+      user.model.ts       # MongoDB schemas
+    middleware/
+      auth.middleware.ts   # JWT authentication
+  package.json            # With @forgedevstack/harbor
+  tsconfig.json
+  Dockerfile
+  docker-compose.yml
+  .env.example`,
+        filename: 'project-structure',
+      },
+      {
+        id: 'add-packages',
+        title: 'Adding Packages',
+        content: 'Add ForgeStack packages to an existing project:',
+        code: `# Add Harbor to any Node.js project
+npx forge add harbor
+
+# Add Crucible for testing (prompts for scope: client/server/both)
+npx forge add crucible --scope both
+
+# Add Relay HTTP client
+npx forge add relay
+
+# Add authentication
+npx forge add forge-auth`,
+        filename: 'terminal',
       },
     ],
   },

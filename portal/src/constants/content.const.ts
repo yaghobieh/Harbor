@@ -1,14 +1,18 @@
 import type { Feature, CodeExample, ApiItem } from '@/types';
 
-export const VERSION = '1.3.1';
+export const VERSION = '1.6.0';
+export const PORTAL_VERSION = '1.0.1';
 export const TITLE = 'Harbor';
-export const TAGLINE = 'The Pipeline for Node.js Backends';
-export const DESCRIPTION = 'Fast server creation, route management, MongoDB ODM (Mongoose replacement), Docker orchestration, and automatic error handling. All in one lightweight package.';
+export const TAGLINE = 'The Complete Node.js Backend Framework';
+export const DESCRIPTION = 'Server creation, routing, MongoDB ODM, job queue, mail, caching, auth, WebSocket, scheduling, Docker, and more. Part of the ForgeStack ecosystem.';
+
+export const FORGESTACK_TAGLINE = 'Part of the ForgeStack Ecosystem';
+export const FORGESTACK_DESCRIPTION = 'Harbor works seamlessly with Bear UI, Synapse state, Compass routing, Relay HTTP, Crucible testing, and Forge CLI.';
 
 export const STATS = [
-  { value: 'MongoDB', label: 'Full ODM Support' },
+  { value: '13+', label: 'Built-in Modules' },
   { value: 'TypeScript', label: 'First Class Support' },
-  { value: 'Express', label: 'Compatible' },
+  { value: 'Zero-Config', label: 'Server in Seconds' },
 ];
 
 export const FEATURES: Feature[] = [
@@ -25,16 +29,58 @@ export const FEATURES: Feature[] = [
     icon: 'database',
   },
   {
+    id: 'queue',
+    title: 'Job Queue',
+    description: 'Priority-based job processing with retries, exponential backoff, dead letter queue, and configurable concurrency.',
+    icon: 'stack',
+  },
+  {
+    id: 'mail',
+    title: 'Mail',
+    description: 'Zero-dependency SMTP transport with HTML templates, provider presets (Gmail, Outlook, SendGrid, SES), and attachments.',
+    icon: 'mail',
+  },
+  {
     id: 'routes',
     title: 'Route Management',
     description: 'Fluent API with pre/post middleware, validation, timeout handling, and automatic error responses.',
     icon: 'routes',
   },
   {
+    id: 'auth',
+    title: 'Authentication',
+    description: 'JWT, API Key, RBAC, request signing, password hashing. Protect any route in one line.',
+    icon: 'shield',
+  },
+  {
+    id: 'websocket',
+    title: 'WebSocket',
+    description: 'Real-time communication with rooms, broadcasting, heartbeat, and client tracking.',
+    icon: 'realtime',
+  },
+  {
+    id: 'cache',
+    title: 'Caching',
+    description: 'Memory and Redis cache stores with middleware support, pattern invalidation, and TTL management.',
+    icon: 'cache',
+  },
+  {
+    id: 'scheduler',
+    title: 'Scheduler',
+    description: 'Cron expressions, interval-based, and one-time job scheduling with lifecycle callbacks.',
+    icon: 'clock',
+  },
+  {
     id: 'validation',
     title: 'Schema Validation',
     description: 'Mongoose-compatible schema validation. Validate params, query, body, and headers with custom validators.',
-    icon: 'shield',
+    icon: 'check',
+  },
+  {
+    id: 'testing',
+    title: 'Testing with Crucible',
+    description: 'Built-in test support via @forgedevstack/crucible. Test routes, middleware, models, and queue jobs.',
+    icon: 'test',
   },
   {
     id: 'docker',
@@ -42,94 +88,27 @@ export const FEATURES: Feature[] = [
     description: 'Built-in Docker and Docker Compose management. Build, push, pull images and orchestrate containers.',
     icon: 'server',
   },
-  {
-    id: 'typescript',
-    title: 'TypeScript First',
-    description: 'Full type definitions with intellisense. Catch errors at compile time, not runtime.',
-    icon: 'code',
-  },
+];
+
+export const FORGESTACK_PACKAGES = [
+  { name: 'Bear UI', description: 'React component library', command: 'npm i @forgedevstack/bear' },
+  { name: 'Synapse', description: 'State management', command: 'npm i @forgedevstack/synapse' },
+  { name: 'Compass', description: 'Type-safe routing', command: 'npm i @forgedevstack/compass' },
+  { name: 'Relay', description: 'HTTP client', command: 'npm i @forgedevstack/relay' },
+  { name: 'Crucible', description: 'Testing framework', command: 'npm i -D @forgedevstack/crucible' },
+  { name: 'Forge CLI', description: 'Project scaffolding', command: 'npx create-forge my-app' },
 ];
 
 export const EXAMPLE_TABS = [
-  { id: 'routing', label: 'Route Builder' },
+  { id: 'routing', label: 'Routing' },
   { id: 'database', label: 'Database' },
-  { id: 'validation', label: 'Validation' },
-  { id: 'error', label: 'Error Handling' },
-  { id: 'middleware', label: 'Middleware' },
-  { id: 'docker', label: 'Docker' },
+  { id: 'queue', label: 'Queue' },
+  { id: 'mail', label: 'Mail' },
+  { id: 'auth', label: 'Auth' },
+  { id: 'testing', label: 'Testing' },
 ];
 
 export const API_ITEMS: ApiItem[] = [
-  {
-    name: 'connect(uri, options)',
-    type: 'function',
-    description: 'Connect to MongoDB database. Returns a promise that resolves when connected.',
-    signature: `import { connect, connection } from 'harbor';
-
-// Connect to MongoDB
-await connect('mongodb://localhost:27017/myapp', {
-  maxPoolSize: 10,
-  serverSelectionTimeoutMS: 30000,
-});
-
-// Connection events
-connection.on('connected', () => console.log('Connected!'));
-connection.on('error', (err) => console.error(err));
-
-// Check state
-console.log(connection.readyState); // 1 = connected`,
-  },
-  {
-    name: 'Schema(definition, options)',
-    type: 'class',
-    description: 'Define the structure of your documents with Mongoose-compatible schema syntax.',
-    signature: `import { Schema, model } from 'harbor';
-
-const userSchema = new Schema({
-  email: { type: 'String', required: true, unique: true },
-  password: { type: 'String', required: true, minLength: 8 },
-  name: { type: 'String', trim: true },
-  role: { type: 'String', enum: ['user', 'admin'], default: 'user' },
-  profile: {
-    avatar: 'String',
-    bio: 'String'
-  }
-}, { timestamps: true });
-
-// Add methods, statics, hooks
-userSchema.methods.comparePassword = function(pwd) { /* ... */ };
-userSchema.pre('save', async function(next) { /* ... */ });
-
-const User = model('User', userSchema);`,
-  },
-  {
-    name: 'Model Query Methods',
-    type: 'function',
-    description: 'All Mongoose query methods are available: find, findOne, findById, create, update, delete, and more.',
-    signature: `// Find documents
-const users = await User.find({ role: 'admin' });
-const user = await User.findOne({ email: 'john@example.com' });
-const user = await User.findById('507f1f77bcf86cd799439011');
-
-// Create
-const user = await User.create({ email: 'john@example.com', name: 'John' });
-
-// Update
-await User.updateOne({ email: 'john@example.com' }, { name: 'John Doe' });
-const user = await User.findByIdAndUpdate(id, update, { new: true });
-
-// Delete
-await User.deleteOne({ email: 'john@example.com' });
-await User.findByIdAndDelete(id);
-
-// Query builder
-const users = await User.find()
-  .where('age').gte(18)
-  .select('name email')
-  .sort('-createdAt')
-  .limit(10)
-  .lean();`,
-  },
   {
     name: 'createServer(options)',
     type: 'function',
@@ -144,15 +123,72 @@ const users = await User.find()
 });`,
   },
   {
+    name: 'createQueue(name, options, events)',
+    type: 'function',
+    description: 'Creates a new job queue with priority processing, retries, and dead letter queue.',
+    signature: `import { createQueue } from '@forgedevstack/harbor/queue';
+
+const queue = createQueue<{ to: string }>('emails', {
+  concurrency: 3,
+  defaultMaxRetries: 5,
+  baseRetryDelay: 2000,
+}, {
+  onJobComplete: (job) => console.log('Done:', job.id),
+  onJobFailed: (job, err) => console.error(err),
+  onJobDead: (job) => console.error('Dead:', job.id),
+});
+
+queue.process(async (job) => {
+  await sendEmail(job.data.to);
+});
+
+queue.add({ to: 'user@test.com' }, { priority: 'high' });
+queue.start();`,
+  },
+  {
+    name: 'createMailer(options) / createMailerFromProvider(provider, auth)',
+    type: 'function',
+    description: 'Creates a mailer for sending emails via SMTP. Use provider presets for Gmail, Outlook, SendGrid, SES.',
+    signature: `import { createMailerFromProvider, registerTemplate } from '@forgedevstack/harbor/mail';
+
+const mailer = createMailerFromProvider('gmail', {
+  user: 'you@gmail.com',
+  pass: 'app-password',
+}, 'you@gmail.com');
+
+registerTemplate({
+  name: 'welcome',
+  subject: 'Welcome {{name}}!',
+  html: '<h1>Hello {{name}}</h1><p>Welcome to {{app}}.</p>',
+});
+
+await mailer.sendTemplate('welcome', { name: 'John', app: 'MyApp' }, {
+  to: 'john@test.com',
+});`,
+  },
+  {
+    name: 'Schema(definition, options)',
+    type: 'class',
+    description: 'Define the structure of your documents with Mongoose-compatible schema syntax.',
+    signature: `import { Schema, model } from '@forgedevstack/harbor/database';
+
+const userSchema = new Schema({
+  email: { type: 'String', required: true, unique: true },
+  password: { type: 'String', required: true, minLength: 8 },
+  role: { type: 'String', enum: ['user', 'admin'], default: 'user' },
+}, { timestamps: true });
+
+userSchema.pre('save', async function(next) { /* hash password */ });
+const User = model('User', userSchema);`,
+  },
+  {
     name: 'GET / POST / PUT / PATCH / DELETE',
     type: 'function',
-    description: 'Simple route definition functions - no .build() needed!',
-    signature: `// Simple usage - just pass your handler function
-const route = GET('/api/users', async (req) => {
+    description: 'Simple route definition functions.',
+    signature: `const route = GET('/api/users', async (req) => {
   return { users: [] };
 });
 
-// With options
 const route = POST('/api/users', handler, {
   validation: { body: { email: { type: 'email', required: true } } },
   pre: [authMiddleware],
@@ -171,66 +207,67 @@ HarborError.conflict(message?, details?)       // 409
 HarborError.tooManyRequests(message?)         // 429
 HarborError.internal(message?)                // 500`,
   },
-  {
-    name: 'httpLogger(options)',
-    type: 'function',
-    description: 'Morgan-like HTTP request logger middleware.',
-    signature: `import { httpLogger } from 'harbor';
-
-// Use like Morgan
-app.use(httpLogger({ format: 'dev' }));
-
-// Available formats: 'tiny', 'short', 'dev', 'combined', 'common'
-// Custom format:
-app.use(httpLogger({
-  format: 'custom',
-  customFormat: (tokens) => \`\${tokens.method} \${tokens.url} \${tokens.status}\`
-}));`,
-  },
-  {
-    name: 'setLocale(locale)',
-    type: 'function',
-    description: 'Set the language for all Harbor messages (i18n support).',
-    signature: `import { setLocale, t } from 'harbor';
-
-// Set to Hebrew
-setLocale('he');
-
-// Use translations
-console.log(t('server.started', { host: 'localhost', port: 3000 }));
-// Output: השרת פועל בכתובת http://localhost:3000`,
-  },
 ];
 
-export const QUICK_START_CODE = `import { createServer, connect, GET, POST, httpLogger } from 'harbor';
+export const QUICK_START_CODE = `import { createServer, router, GET, POST } from '@forgedevstack/harbor';
+import { connect, Schema, model } from '@forgedevstack/harbor/database';
+import { createQueue } from '@forgedevstack/harbor/queue';
+import { createMailerFromProvider } from '@forgedevstack/harbor/mail';
 
 // Connect to MongoDB
 await connect('mongodb://localhost:27017/myapp');
 
+// Define a model
+const User = model('User', new Schema({
+  email: { type: 'string', required: true, unique: true },
+  name: { type: 'string', required: true },
+}));
+
+// Create a job queue
+const emailQueue = createQueue('welcome-emails', { concurrency: 2 });
+emailQueue.process(async (job) => {
+  const mailer = createMailerFromProvider('gmail', {
+    user: process.env.SMTP_USER!,
+    pass: process.env.SMTP_PASS!,
+  });
+  await mailer.send({
+    to: job.data.email,
+    subject: 'Welcome!',
+    html: '<h1>Welcome to our app!</h1>',
+  });
+});
+emailQueue.start();
+
+// Create server with routes
 const server = createServer({ port: 3000 });
 
-// Add HTTP logging (Morgan-like)
-server.addMiddleware(httpLogger({ format: 'dev' }));
+const users = router('/api/users', [
+  GET('/', async () => {
+    const allUsers = await User.find();
+    return { users: allUsers };
+  }),
+  POST('/', async (req) => {
+    const user = await User.create(req.body);
+    emailQueue.add({ email: user.email });
+    return { user };
+  }),
+]);
 
-// Simple route - just pass your handler function!
-server.addRoute(
-  GET('/health', () => ({ status: 'ok', timestamp: new Date() }))
-);
+server.use(users);
+server.listen(3000, () => console.log('Server running!'));`;
 
-// Route with validation
-server.addRoute(
-  POST('/api/users', async (req) => {
-    const { email, name } = req.validated.body;
-    return { id: '123', email, name };
-  }, {
-    validation: {
-      body: {
-        email: { type: 'email', required: true },
-        name: { type: 'string', required: true, min: 2 }
-      }
-    }
-  })
-);
+export const NAV_ITEMS = [
+  { id: 'docs', label: 'Docs', href: '/docs/quick-start', isLink: true },
+  { id: 'features', label: 'Features', href: '#features' },
+  { id: 'examples', label: 'Examples', href: '#examples' },
+  { id: 'api', label: 'API', href: '#api' },
+  { id: 'forgestack', label: 'ForgeStack', href: 'https://forgedevstack.com', external: true },
+  { id: 'npm', label: 'npm', href: 'https://www.npmjs.com/search?q=%40forgedevstack', external: true },
+];
 
-// Server is running at http://localhost:3000`;
-
+export const FOOTER_LINKS = [
+  { label: 'ForgeStack', href: 'https://forgedevstack.com' },
+  { label: 'npm', href: 'https://www.npmjs.com/search?q=%40forgedevstack' },
+  { label: 'Harbor', href: 'https://www.npmjs.com/package/@forgedevstack/harbor' },
+  { label: 'Forge CLI', href: 'https://www.npmjs.com/package/create-forge' },
+];

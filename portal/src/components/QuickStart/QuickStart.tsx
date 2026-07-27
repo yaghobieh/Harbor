@@ -1,6 +1,11 @@
 import { FC } from 'react';
-import { GradientText } from '../GradientText/GradientText';
-import { CodeBlock } from '../CodeBlock/CodeBlock';
+import {
+  Typography,
+  GradientText,
+  CodeBlock,
+  Badge,
+  Flex,
+} from '@forgedevstack/bear';
 import { QUICK_START_CODE } from '@/constants';
 
 const STEPS = [
@@ -8,6 +13,7 @@ const STEPS = [
     number: 1,
     title: 'Install Harbor',
     code: '$ npm install harbor',
+    lang: 'shell' as const,
   },
   {
     number: 2,
@@ -18,70 +24,85 @@ Created harbor.config.json
 Created src/server.ts
 
 Harbor project initialized!`,
+    lang: 'shell' as const,
   },
 ];
 
 export const QuickStart: FC = () => {
   return (
-    <section id="quickstart" className="py-32 relative bg-gradient-to-b from-transparent via-harbor-900/10 to-transparent">
+    <section id="quickstart" className="py-32 relative" style={{ background: 'linear-gradient(to bottom, transparent, rgba(0,102,204,0.05), transparent)' }}>
       <div className="max-w-5xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <GradientText>Quick Start</GradientText>
-          </h2>
-          <p className="text-xl text-gray-400">
+          <Typography variant="h2" className="text-4xl md:text-5xl font-bold mb-4">
+            <GradientText preset="ocean" className="text-4xl md:text-5xl font-bold">
+              Quick Start
+            </GradientText>
+          </Typography>
+          <Typography className="text-xl opacity-50">
             Get up and running in under 2 minutes
-          </p>
+          </Typography>
         </div>
 
-        {/* Steps */}
         {STEPS.map((step) => (
           <div key={step.number} className="mb-12">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-harbor-400 to-harbor-600 flex items-center justify-center text-white font-bold">
+            <Flex align="center" gap={4} className="mb-4">
+              <Badge
+                variant="primary"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold"
+                style={{ background: 'linear-gradient(135deg, var(--harbor-accent), var(--forge-accent))' }}
+              >
                 {step.number}
-              </div>
-              <h3 className="text-2xl font-bold">{step.title}</h3>
-            </div>
-            <div className="bg-gradient-to-b from-jet-900 to-[#0f0f1a] rounded-xl p-4 border border-white/5">
-              <pre className="font-mono text-sm">
-                <code>{step.code}</code>
-              </pre>
-            </div>
+              </Badge>
+              <Typography variant="h3" className="text-2xl font-bold">{step.title}</Typography>
+            </Flex>
+            <CodeBlock
+              code={step.code}
+              language={step.lang}
+              copyable
+            />
           </div>
         ))}
 
-        {/* Main Code Example */}
         <div className="mb-12">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-harbor-400 to-harbor-600 flex items-center justify-center text-white font-bold">
+          <Flex align="center" gap={4} className="mb-4">
+            <Badge
+              variant="primary"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold"
+              style={{ background: 'linear-gradient(135deg, var(--harbor-accent), var(--forge-accent))' }}
+            >
               3
-            </div>
-            <h3 className="text-2xl font-bold">Create Your Server</h3>
-          </div>
-          <CodeBlock code={QUICK_START_CODE} filename="src/server.ts" />
+            </Badge>
+            <Typography variant="h3" className="text-2xl font-bold">Create Your Server</Typography>
+          </Flex>
+          <CodeBlock
+            code={QUICK_START_CODE}
+            title="src/server.ts"
+            language="typescript"
+            copyable
+            showLineNumbers
+          />
         </div>
 
-        {/* Run Step */}
         <div>
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-harbor-400 to-harbor-600 flex items-center justify-center text-white font-bold">
+          <Flex align="center" gap={4} className="mb-4">
+            <Badge
+              variant="primary"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold"
+              style={{ background: 'linear-gradient(135deg, var(--harbor-accent), var(--forge-accent))' }}
+            >
               4
-            </div>
-            <h3 className="text-2xl font-bold">Run Your Server</h3>
-          </div>
-          <div className="bg-gradient-to-b from-jet-900 to-[#0f0f1a] rounded-xl p-4 border border-white/5">
-            <pre className="font-mono text-sm">
-              <code>
-                {`$ npx ts-node src/server.ts
+            </Badge>
+            <Typography variant="h3" className="text-2xl font-bold">Run Your Server</Typography>
+          </Flex>
+          <CodeBlock
+            code={`$ npx ts-node src/server.ts
 
 Server running at http://localhost:3000`}
-              </code>
-            </pre>
-          </div>
+            language="shell"
+            copyable
+          />
         </div>
       </div>
     </section>
   );
 };
-

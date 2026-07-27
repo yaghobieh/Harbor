@@ -1,21 +1,28 @@
-import { Router } from 'express';
-import { GET, POST, PUT, DELETE } from 'harbor';
+import { router, GET, POST, PUT, DELETE } from '@forgedevstack/harbor';
 import { UserController } from '../controllers';
 
-export const userRoutes = Router();
-
-// GET /api/users - Get all users
-userRoutes.get('/', GET(UserController.getAll));
-
-// GET /api/users/:id - Get user by ID
-userRoutes.get('/:id', GET(UserController.getById));
-
-// POST /api/users - Create new user
-userRoutes.post('/', POST(UserController.create));
-
-// PUT /api/users/:id - Update user
-userRoutes.put('/:id', PUT(UserController.update));
-
-// DELETE /api/users/:id - Delete user
-userRoutes.delete('/:id', DELETE(UserController.delete));
-
+// Create user routes - no express import needed!
+export const userRoutes = router('/api/users', [
+  // GET /api/users - List all users
+  GET('/', UserController.getAll),
+  
+  // GET /api/users/:id - Get user by ID
+  GET('/:id', UserController.getById),
+  
+  // POST /api/users - Create new user
+  POST('/', UserController.create, {
+    validation: {
+      body: {
+        email: { type: 'email', required: true },
+        name: { type: 'string', required: true, min: 2, max: 100 },
+        password: { type: 'string', required: true, min: 8 },
+      },
+    },
+  }),
+  
+  // PUT /api/users/:id - Update user
+  PUT('/:id', UserController.update),
+  
+  // DELETE /api/users/:id - Delete user
+  DELETE('/:id', UserController.delete),
+]);

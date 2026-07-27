@@ -4,7 +4,7 @@ import type {
   ValidationResult,
   ValidationError,
 } from '../types';
-import { REGEX_PATTERNS, VALIDATION_MESSAGES } from '../constants';
+import { REGEX_PATTERNS } from '../constants';
 
 export class MongoValidator {
   private schema: MongoValidationSchema;
@@ -71,7 +71,7 @@ export class MongoValidator {
     let processedValue = value;
 
     if (schema.transform) {
-      processedValue = schema.transform(processedValue);
+      processedValue = schema.transform(processedValue) as typeof processedValue;
     }
 
     if (!this.validateType(processedValue, schema.type)) {

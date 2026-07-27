@@ -126,6 +126,48 @@ export function createServer(options: CreateServerOptions = {}): HarborServer {
       app.use(middleware);
     },
 
+    // Convenience methods - works like Express!
+    use(...args: Parameters<Express['use']>): void {
+      app.use(...args);
+    },
+
+    get(path: string, ...handlers: RequestHandler[]): void {
+      app.get(path, ...handlers);
+    },
+
+    post(path: string, ...handlers: RequestHandler[]): void {
+      app.post(path, ...handlers);
+    },
+
+    put(path: string, ...handlers: RequestHandler[]): void {
+      app.put(path, ...handlers);
+    },
+
+    patch(path: string, ...handlers: RequestHandler[]): void {
+      app.patch(path, ...handlers);
+    },
+
+    delete(path: string, ...handlers: RequestHandler[]): void {
+      app.delete(path, ...handlers);
+    },
+
+    listen(port?: number, callback?: () => void): void {
+      const serverPort = port ?? options.port ?? config.server.port;
+      const host = options.host ?? config.server.host ?? 'localhost';
+      
+      server = createHttpServer(app);
+      harborServer.server = server;
+      
+      server.listen(serverPort, host, () => {
+        status = 'running';
+        startedAt = new Date();
+        logger.info(`Server started on http://${host}:${serverPort}`);
+        callback?.();
+      });
+
+      setupGracefulShutdown(harborServer);
+    },
+
     getInfo(): ServerInfo {
       const port = options.port ?? config.server.port;
       const host = options.host ?? config.server.host ?? 'localhost';
@@ -145,7 +187,8 @@ export function createServer(options: CreateServerOptions = {}): HarborServer {
     },
   };
 
-  if (options.autoStart !== false) {
+  // Only auto-start if explicitly requested (default: false for easier setup)
+  if (options.autoStart === true) {
     harborServer.start().catch((error) => {
       logger.error('Failed to auto-start server', error);
     });

@@ -1,3 +1,1 @@
-export { GradientText } from './GradientText';
-export type { GradientTextProps } from './types';
-
+export { GradientText, type GradientTextProps } from './GradientText';

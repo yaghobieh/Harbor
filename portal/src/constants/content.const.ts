@@ -126,7 +126,7 @@ export const API_ITEMS: ApiItem[] = [
     name: 'createQueue(name, options, events)',
     type: 'function',
     description: 'Creates a new job queue with priority processing, retries, and dead letter queue.',
-    signature: `import { createQueue } from '@forgestack/harbor/queue';
+    signature: `import { createQueue } from '@forgedevstack/harbor/queue';
 
 const queue = createQueue<{ to: string }>('emails', {
   concurrency: 3,
@@ -149,7 +149,7 @@ queue.start();`,
     name: 'createMailer(options) / createMailerFromProvider(provider, auth)',
     type: 'function',
     description: 'Creates a mailer for sending emails via SMTP. Use provider presets for Gmail, Outlook, SendGrid, SES.',
-    signature: `import { createMailerFromProvider, registerTemplate } from '@forgestack/harbor/mail';
+    signature: `import { createMailerFromProvider, registerTemplate } from '@forgedevstack/harbor/mail';
 
 const mailer = createMailerFromProvider('gmail', {
   user: 'you@gmail.com',
@@ -170,7 +170,7 @@ await mailer.sendTemplate('welcome', { name: 'John', app: 'MyApp' }, {
     name: 'Schema(definition, options)',
     type: 'class',
     description: 'Define the structure of your documents with Mongoose-compatible schema syntax.',
-    signature: `import { Schema, model } from '@forgestack/harbor/database';
+    signature: `import { Schema, model } from '@forgedevstack/harbor/database';
 
 const userSchema = new Schema({
   email: { type: 'String', required: true, unique: true },
@@ -209,10 +209,10 @@ HarborError.internal(message?)                // 500`,
   },
 ];
 
-export const QUICK_START_CODE = `import { createServer, router, GET, POST } from '@forgestack/harbor';
-import { connect, Schema, model } from '@forgestack/harbor/database';
-import { createQueue } from '@forgestack/harbor/queue';
-import { createMailerFromProvider } from '@forgestack/harbor/mail';
+export const QUICK_START_CODE = `import { createServer, router, GET, POST } from '@forgedevstack/harbor';
+import { connect, Schema, model } from '@forgedevstack/harbor/database';
+import { createQueue } from '@forgedevstack/harbor/queue';
+import { createMailerFromProvider } from '@forgedevstack/harbor/mail';
 
 // Connect to MongoDB
 await connect('mongodb://localhost:27017/myapp');
@@ -268,6 +268,6 @@ export const NAV_ITEMS = [
 export const FOOTER_LINKS = [
   { label: 'ForgeStack', href: 'https://forgedevstack.com' },
   { label: 'npm', href: 'https://www.npmjs.com/search?q=%40forgedevstack' },
-  { label: 'Harbor', href: 'https://www.npmjs.com/package/@forgestack/harbor' },
+  { label: 'Harbor', href: 'https://www.npmjs.com/package/@forgedevstack/harbor' },
   { label: 'Forge CLI', href: 'https://www.npmjs.com/package/create-forge' },
 ];

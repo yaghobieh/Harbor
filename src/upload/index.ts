@@ -2,6 +2,7 @@ export { streamUpload } from './middleware';
 export type { UploadRequest } from './middleware';
 export { MultipartParser, getBoundary } from './multipart';
 export { LocalDiskStorageAdapter, createLocalDiskAdapter } from './localDiskAdapter';
+export { S3StorageAdapter, createS3StorageAdapter } from './s3Adapter';
 export { UploadError } from './uploadError';
 export { DEFAULT_UPLOAD_DIRECTORY } from './upload.const';
 export {

@@ -9,7 +9,7 @@
     "lint": "eslint . --ext .ts"
   },
   "dependencies": {
-    "@forgestack/harbor": "^1.0.0"
+    "@forgedevstack/harbor": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

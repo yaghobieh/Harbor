@@ -91,6 +91,8 @@ export {
   createWsHub,
   MemoryPubSubAdapter,
   createMemoryPubSubAdapter,
+  RedisPubSubAdapter,
+  createRedisPubSubAdapter,
   encodeMessage,
   decodeMessage,
 } from './ws';
@@ -104,15 +106,18 @@ export type {
   WsPubSubAdapter,
   WsPubSubHandler,
   WsHubOptions,
+  RedisPubSubClient,
+  RedisPubSubAdapterOptions,
 } from './ws';
 
-// Streaming upload exports
 export {
   streamUpload,
   MultipartParser,
   getBoundary,
   LocalDiskStorageAdapter,
   createLocalDiskAdapter,
+  S3StorageAdapter,
+  createS3StorageAdapter,
   UploadError,
 } from './upload';
 export type {
@@ -128,7 +133,6 @@ export type {
   StreamUploadOptions,
   LocalDiskAdapterOptions,
 } from './upload';
-
 // Scheduler exports
 export {
   Scheduler,

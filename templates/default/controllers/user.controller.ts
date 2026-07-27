@@ -1,4 +1,4 @@
-import type { HarborRequest } from '@forgestack/harbor';
+import type { HarborRequest } from '@forgedevstack/harbor';
 import { User } from '../models';
 import { UserService } from '../services';
 

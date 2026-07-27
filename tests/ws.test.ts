@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { IncomingMessage } from 'http';
-import { WsHub, MemoryPubSubAdapter, encodeMessage, decodeMessage } from '../src/ws';
-import type { WsMessage, WsSocket } from '../src/ws';
+import { WsHub, MemoryPubSubAdapter, RedisPubSubAdapter, encodeMessage, decodeMessage } from '../src/ws';
+import type { RedisPubSubClient, WsMessage, WsSocket } from '../src/ws';
 
 class FakeSocket implements WsSocket {
   readyState = 1;
@@ -198,5 +198,74 @@ describe('WsHub', () => {
 
     expect(socketA.lastMessage()).toEqual({ event: 'sync', payload: 42 });
     expect(socketB.lastMessage()).toEqual({ event: 'sync', payload: 42 });
+  });
+});
+
+class FakeRedisClient implements RedisPubSubClient {
+  published: Array<{ channel: string; message: string }> = [];
+  subscribed = new Set<string>();
+  private listeners: Array<(channel: string, message: string) => void> = [];
+  private twin: FakeRedisClient | null = null;
+  quitCalls = 0;
+
+  publish(channel: string, message: string): number {
+    this.published.push({ channel, message });
+    const target = this.twin ?? this;
+    target.listeners.forEach((listener) => listener(channel, message));
+    return 1;
+  }
+
+  async subscribe(...channels: string[]): Promise<void> {
+    channels.forEach((channel) => this.subscribed.add(channel));
+  }
+
+  async unsubscribe(...channels: string[]): Promise<void> {
+    channels.forEach((channel) => this.subscribed.delete(channel));
+  }
+
+  on(_event: 'message', listener: (channel: string, message: string) => void): void {
+    this.listeners.push(listener);
+  }
+
+  quit(): string {
+    this.quitCalls += 1;
+    return 'OK';
+  }
+
+  duplicate(): RedisPubSubClient {
+    const copy = new FakeRedisClient();
+    this.twin = copy;
+    copy.twin = this;
+    return copy;
+  }
+}
+
+describe('RedisPubSubAdapter', () => {
+  it('publishes and delivers through duplicated subscriber', async () => {
+    const client = new FakeRedisClient();
+    const adapter = new RedisPubSubAdapter({ client, channelPrefix: 'h:' });
+    const handler = vi.fn();
+
+    await adapter.subscribe('room:1', handler);
+    await adapter.publish('room:1', 'hello');
+
+    expect(client.published).toEqual([{ channel: 'h:room:1', message: 'hello' }]);
+    expect(handler).toHaveBeenCalledWith('room:1', 'hello');
+  });
+
+  it('stops delivering after unsubscribe and closes clients', async () => {
+    const client = new FakeRedisClient();
+    const subscriber = new FakeRedisClient();
+    const adapter = new RedisPubSubAdapter({ client, subscriber });
+    const handler = vi.fn();
+
+    await adapter.subscribe('room:1', handler);
+    await adapter.unsubscribe('room:1');
+    await adapter.publish('room:1', 'hello');
+    expect(handler).not.toHaveBeenCalled();
+
+    await adapter.close();
+    expect(client.quitCalls).toBe(1);
+    expect(subscriber.quitCalls).toBe(1);
   });
 });

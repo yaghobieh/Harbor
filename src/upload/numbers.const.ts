@@ -11,3 +11,11 @@ export const DEFAULT_MAX_HEADER_SIZE_BYTES = 16384;
 export const BOUNDARY_TAIL_LENGTH = 2;
 
 export const KEY_RANDOM_BYTES = 8;
+
+export const HTTP_OK = 200;
+
+export const HTTP_NO_CONTENT = 204;
+
+export const HTTP_SUCCESS_MAX = 300;
+
+export const HTTP_NOT_FOUND = 404;

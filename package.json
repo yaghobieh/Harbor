@@ -1,6 +1,6 @@
 {
   "name": "@forgedevstack/harbor",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "ForgeStack Harbor - Complete Node.js backend framework with MongoDB ODM, WebSocket, scheduling, caching, auth, queue, mail, and more",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
@@ -131,11 +131,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://www.npmjs.com/search?q=%40forgedevstack"
+    "url": "https://github.com/yaghobieh/Harbor.git"
   },
-  "homepage": "https://forgedevstack.com",
+  "homepage": "https://github.com/yaghobieh/Harbor#readme",
   "bugs": {
-    "url": "https://www.npmjs.com/package/@forgestack/harbor"
+    "url": "https://github.com/yaghobieh/Harbor/issues"
   },
   "engines": {
     "node": ">=18.0.0"

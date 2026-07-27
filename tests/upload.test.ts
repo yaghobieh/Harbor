@@ -9,9 +9,13 @@ import {
   getBoundary,
   streamUpload,
   LocalDiskStorageAdapter,
+  S3StorageAdapter,
   UploadError,
 } from '../src/upload';
 import type { StoredUpload, UploadFileMeta, UploadRequest } from '../src/upload';
+import { createPresignedUrl, sha256Hex, signAwsRequest } from '../src/upload/s3Signing.utils';
+import { createServer } from 'http';
+import { UNSIGNED_PAYLOAD } from '../src/upload/upload.const';
 
 const BOUNDARY = 'HarborTestBoundary';
 
@@ -296,5 +300,95 @@ describe('streamUpload middleware', () => {
     streamUpload()(req as unknown as Request, createFakeResponse(resState), next);
 
     expect(next).toHaveBeenCalledOnce();
+  });
+});
+
+describe('s3Signing', () => {
+  it('signs requests with stable credential scope and payload hash', () => {
+    const url = new URL('https://bucket.s3.us-east-1.amazonaws.com/key.txt');
+    const signed = signAwsRequest({
+      method: 'PUT',
+      url,
+      headers: { 'content-type': 'text/plain' },
+      credentials: { accessKeyId: 'AKIA', secretAccessKey: 'secret' },
+      region: 'us-east-1',
+      payloadHash: UNSIGNED_PAYLOAD,
+      amzDate: '20260727T120000Z',
+    });
+
+    expect(signed.headers['x-amz-content-sha256']).toBe(UNSIGNED_PAYLOAD);
+    expect(signed.authorization).toContain('Credential=AKIA/20260727/us-east-1/s3/aws4_request');
+    expect(signed.authorization).toContain('Signature=');
+    expect(sha256Hex('')).toHaveLength(64);
+  });
+
+  it('builds a presigned GET url', () => {
+    const url = new URL('https://bucket.s3.us-east-1.amazonaws.com/key.txt');
+    const signedUrl = createPresignedUrl({
+      method: 'GET',
+      url,
+      credentials: { accessKeyId: 'AKIA', secretAccessKey: 'secret' },
+      region: 'us-east-1',
+      expiresInSeconds: 60,
+    });
+
+    expect(signedUrl).toContain('X-Amz-Algorithm=AWS4-HMAC-SHA256');
+    expect(signedUrl).toContain('X-Amz-Signature=');
+    expect(signedUrl).toContain('X-Amz-Expires=60');
+  });
+});
+
+describe('S3StorageAdapter', () => {
+  it('uploads via SigV4 PUT against an S3-compatible endpoint', async () => {
+    const received: { method?: string; auth?: string; body: Buffer[] } = { body: [] };
+    const server = createServer((req, res) => {
+      received.method = req.method;
+      received.auth = req.headers.authorization as string | undefined;
+      req.on('data', (chunk: Buffer) => received.body.push(chunk));
+      req.on('end', () => {
+        res.statusCode = 200;
+        res.end();
+      });
+    });
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const address = server.address();
+    if (!address || typeof address === 'string') {
+      throw new Error('Failed to bind test server');
+    }
+
+    const adapter = new S3StorageAdapter({
+      bucket: 'avatars',
+      region: 'auto',
+      endpoint: `http://127.0.0.1:${address.port}`,
+      forcePathStyle: true,
+      credentials: { accessKeyId: 'AKIA', secretAccessKey: 'secret' },
+      publicUrlBase: 'https://cdn.test',
+      keyPrefix: 'uploads',
+    });
+
+    const source = new PassThrough();
+    const meta: UploadFileMeta = {
+      fieldName: 'file',
+      originalName: 'hello.txt',
+      mimeType: 'text/plain',
+      extension: '.txt',
+    };
+    const saving = adapter.save(source, meta);
+    source.end('hello s3');
+    const result = await saving;
+
+    expect(result.key.startsWith('uploads/')).toBe(true);
+    expect(result.url).toBe(`https://cdn.test/${result.key}`);
+    expect(received.method).toBe('PUT');
+    expect(received.auth).toContain('AWS4-HMAC-SHA256');
+    expect(Buffer.concat(received.body).toString()).toBe('hello s3');
+
+    const signed = await adapter.getSignedUrl(result.key, 120);
+    expect(signed).toContain('X-Amz-Expires=120');
+
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve()))
+    );
   });
 });

@@ -1,5 +1,6 @@
 export { WsHub, createWsHub } from './hub';
 export { MemoryPubSubAdapter, createMemoryPubSubAdapter } from './memoryAdapter';
+export { RedisPubSubAdapter, createRedisPubSubAdapter } from './redisAdapter';
 export { encodeMessage, decodeMessage } from './envelope';
 export {
   DEFAULT_WS_PATH,
@@ -21,4 +22,6 @@ export type {
   WsPubSubAdapter,
   WsPubSubHandler,
   WsHubOptions,
+  RedisPubSubClient,
+  RedisPubSubAdapterOptions,
 } from './ws.types';

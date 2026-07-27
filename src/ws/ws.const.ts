@@ -14,3 +14,7 @@ export const DEFAULT_UNAUTHORIZED_REASON = 'Unauthorized';
 
 export const WS_MODULE_MISSING_MESSAGE =
   'WebSocket support requires the ws package. Install it with: npm i ws';
+
+export const EMPTY_CHANNEL_PREFIX = '';
+
+export const REDIS_ADAPTER_CLOSED_MESSAGE = 'RedisPubSubAdapter is closed';

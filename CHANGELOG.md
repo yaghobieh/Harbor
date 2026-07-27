@@ -2,6 +2,23 @@
 
 All notable changes to Harbor will be documented in this file.
 
+## [1.6.4] - 2026-07-27
+
+### Added
+
+- **`RedisPubSubAdapter` / `createRedisPubSubAdapter`** — real Redis pub/sub for `WsHub` multi-instance fan-out (`ioredis` peer). Duplicates the client for subscribe (or accepts an explicit `subscriber`); optional `channelPrefix`.
+- **`S3StorageAdapter` / `createS3StorageAdapter`** — S3/R2/MinIO streaming uploads with zero AWS SDK. SigV4 PutObject/Delete/HEAD + query-string presigned GET URLs. Temp-file bridge keeps multipart streams off the Node heap.
+- **`.github/workflows/publish.yml`** — ForgeStack publish workflow (Node 20, build, test, `npm publish --provenance`).
+
+### Fixed
+
+- Replaced remaining `@forgestack/harbor` install/docs/CLI/template references with `@forgedevstack/harbor`.
+- `package.json` `repository` / `bugs` / `homepage` now point at `https://github.com/yaghobieh/Harbor`.
+
+### Changed
+
+- README documents built-in Redis WS adapter and S3 storage adapter (no stub-only contracts).
+
 ## [1.6.3] - 2026-07-12
 
 ### Added
@@ -107,7 +124,7 @@ All notable changes to Harbor will be documented in this file.
 - Queue stats: pending, active, completed, failed, delayed, dead, avg duration
 - Pause/resume/drain/clean operations
 - Configurable concurrency (multiple workers)
-- Subpath import: `@forgestack/harbor/queue`
+- Subpath import: `@forgedevstack/harbor/queue`
 
 #### Mail System
 - `Mailer` class with zero-dependency SMTP transport (Node.js `net`/`tls`)
@@ -122,7 +139,7 @@ All notable changes to Harbor will be documented in this file.
 - CC, BCC, Reply-To, custom headers
 - STARTTLS upgrade for secure connections
 - `escapeHtml()` utility for safe template rendering
-- Subpath import: `@forgestack/harbor/mail`
+- Subpath import: `@forgedevstack/harbor/mail`
 
 #### Testing
 - Added `@forgedevstack/crucible` as devDependency for testing
@@ -201,7 +218,7 @@ All notable changes to Harbor will be documented in this file.
 - ForgeStack branding and organization
 
 ### Changed
-- Package renamed to `@forgestack/harbor`
+- Package renamed to `@forgedevstack/harbor`
 - Auto-start now defaults to false
 
 ## [1.3.0] - 2026-01-13

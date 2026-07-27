@@ -1,4 +1,4 @@
-# @forgestack/harbor
+# @forgedevstack/harbor
 
 <p align="center">
   <img src="https://forgedevstack.com/harbor-logo.svg" alt="Harbor Logo" width="120" />
@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@forgestack/harbor"><img src="https://img.shields.io/npm/v/@forgestack/harbor.svg" alt="npm"></a>
-  <a href="https://www.npmjs.com/search?q=%40forgedevstack"><img src="https://img.shields.io/npm/l/@forgestack/harbor.svg" alt="license"></a>
+  <a href="https://www.npmjs.com/package/@forgedevstack/harbor"><img src="https://img.shields.io/npm/v/@forgedevstack/harbor.svg" alt="npm"></a>
+  <a href="https://www.npmjs.com/search?q=%40forgedevstack"><img src="https://img.shields.io/npm/l/@forgedevstack/harbor.svg" alt="license"></a>
 </p>
 
 ---
@@ -37,13 +37,13 @@
 ## Installation
 
 ```bash
-npm install @forgestack/harbor
+npm install @forgedevstack/harbor
 ```
 
 ## Quick Start
 
 ```typescript
-import { createServer, router, route } from '@forgestack/harbor';
+import { createServer, router, route } from '@forgedevstack/harbor';
 
 const server = createServer({ port: 3000 });
 
@@ -62,17 +62,17 @@ server.listen(3000, () => console.log('Server running!'));
 Use **named imports** from the package root (best for tree-shaking):
 
 ```typescript
-import { createServer, connect, router, GET, POST, Schema, model } from '@forgestack/harbor';
+import { createServer, connect, router, GET, POST, Schema, model } from '@forgedevstack/harbor';
 ```
 
-**v1.6.1+** also provides a **default export** object (e.g. `import harbor from '@forgestack/harbor'`) with common APIs for legacy code — but prefer named imports in new apps.
+**v1.6.1+** also provides a **default export** object (e.g. `import harbor from '@forgedevstack/harbor'`) with common APIs for legacy code — but prefer named imports in new apps.
 
 ## MongoDB ODM
 
 Full Mongoose replacement:
 
 ```typescript
-import { Schema, model, connect, extractDbNameFromMongoUri } from '@forgestack/harbor/database';
+import { Schema, model, connect, extractDbNameFromMongoUri } from '@forgedevstack/harbor/database';
 
 await connect('mongodb://localhost:27017/myapp');
 
@@ -103,7 +103,7 @@ await User.deleteOne({ _id: user._id });
 ### JWT
 
 ```typescript
-import { JWT, jwtAuth, requireRole } from '@forgestack/harbor';
+import { JWT, jwtAuth, requireRole } from '@forgedevstack/harbor';
 
 const jwt = new JWT({ 
   secret: process.env.JWT_SECRET!,
@@ -124,7 +124,7 @@ app.get('/api/admin', requireRole('admin'), adminHandler);
 ### API Key
 
 ```typescript
-import { apiKeyAuth, generateApiKey } from '@forgestack/harbor';
+import { apiKeyAuth, generateApiKey } from '@forgedevstack/harbor';
 
 const key = generateApiKey(); // Generate a secure API key
 
@@ -140,7 +140,7 @@ app.use(apiKeyAuth({
 ## WebSocket
 
 ```typescript
-import { createWebSocketServer } from '@forgestack/harbor';
+import { createWebSocketServer } from '@forgedevstack/harbor';
 
 const wss = createWebSocketServer({
   path: '/ws',
@@ -207,25 +207,23 @@ await hub.broadcast('announcement', 'Deploy complete');
 hub.sendTo(connectionId, 'private', { text: 'Just for you' });
 ```
 
-Multi-instance fan-out plugs in through the `WsPubSubAdapter` contract — implement `publish`, `subscribe`, `unsubscribe`, and `close` over Redis (or anything else) and pass it as `adapter`. The default `MemoryPubSubAdapter` keeps everything in-process:
+Multi-instance fan-out uses `WsPubSubAdapter`. The default `MemoryPubSubAdapter` stays in-process; for multi-instance fan-out use the built-in Redis adapter (`ioredis` peer):
 
 ```typescript
-import type { WsPubSubAdapter } from '@forgedevstack/harbor/ws';
+import Redis from 'ioredis';
+import { createWsHub, createRedisPubSubAdapter } from '@forgedevstack/harbor/ws';
 
-class RedisPubSubAdapter implements WsPubSubAdapter {
-  async publish(channel: string, message: string) { /* PUBLISH */ }
-  async subscribe(channel: string, handler: (channel: string, message: string) => void) { /* SUBSCRIBE */ }
-  async unsubscribe(channel: string) { /* UNSUBSCRIBE */ }
-  async close() { /* QUIT */ }
-}
-
-const hub = createWsHub({ adapter: new RedisPubSubAdapter() });
+const redis = new Redis(process.env.REDIS_URL!);
+const adapter = createRedisPubSubAdapter({ client: redis });
+const hub = createWsHub({ adapter });
 ```
+
+`createRedisPubSubAdapter` duplicates the client for subscribe (or accepts an explicit `subscriber`). Optional `channelPrefix` namespaces Redis channels.
 
 ## Scheduler
 
 ```typescript
-import { createScheduler } from '@forgestack/harbor';
+import { createScheduler } from '@forgedevstack/harbor';
 
 const scheduler = createScheduler({
   onJobComplete: (job, duration) => console.log(`${job.name} took ${duration}ms`),
@@ -254,7 +252,7 @@ scheduler.start();
 Event-driven job processing with retries, priorities, and dead letter:
 
 ```typescript
-import { createQueue } from '@forgestack/harbor';
+import { createQueue } from '@forgedevstack/harbor';
 
 const emailQueue = createQueue<{ to: string; subject: string }>('emails', {
   concurrency: 3,
@@ -296,7 +294,7 @@ const stats = emailQueue.stats();
 Zero-dependency email sending with SMTP, templates, and provider presets:
 
 ```typescript
-import { createMailer, createMailerFromProvider, registerTemplate } from '@forgestack/harbor';
+import { createMailer, createMailerFromProvider, registerTemplate } from '@forgedevstack/harbor';
 
 // Quick setup with provider preset (Gmail, Outlook, SendGrid, SES)
 const mailer = createMailerFromProvider('gmail', {
@@ -355,7 +353,7 @@ const customMailer = createMailer({
 ## Rate Limiting
 
 ```typescript
-import { rateLimit, slidingWindowRateLimit, RedisStore } from '@forgestack/harbor';
+import { rateLimit, slidingWindowRateLimit, RedisStore } from '@forgedevstack/harbor';
 
 // Memory store (default)
 app.use(rateLimit({
@@ -374,7 +372,7 @@ app.use(rateLimit({ store: redisStore }));
 ## Caching
 
 ```typescript
-import { cache, cacheResponse, createCache, RedisCache } from '@forgestack/harbor';
+import { cache, cacheResponse, createCache, RedisCache } from '@forgedevstack/harbor';
 
 // Manual caching
 const products = await cache.getOrSet('products', async () => {
@@ -404,7 +402,7 @@ import {
   mongoHealthCheck,
   redisHealthCheck,
   memoryHealthCheck,
-} from '@forgestack/harbor';
+} from '@forgedevstack/harbor';
 
 // Collect metrics
 app.use(metricsMiddleware());
@@ -425,7 +423,7 @@ app.get('/health', healthCheck({
 ## File Uploads
 
 ```typescript
-import { upload } from '@forgestack/harbor';
+import { upload } from '@forgedevstack/harbor';
 
 app.post('/upload', upload({
   dest: './uploads',
@@ -450,10 +448,10 @@ app.post('/process', upload({ storage: 'memory' }), (req, res) => {
 
 ## Streaming Uploads (v1.6.3+)
 
-`streamUpload` parses multipart/form-data as a stream — files never buffer fully in memory. Files flow into a `StorageAdapter` (`save(stream, meta) -> { key, url }`); a local-disk adapter ships built in, and the S3-compatible contract lets a separate package implement cloud storage without pulling AWS SDK into Harbor.
+`streamUpload` parses multipart/form-data as a stream — files never buffer fully in memory. Files flow into a `StorageAdapter` (`save(stream, meta) -> { key, url }`). Built-in adapters: local disk and S3/R2/MinIO (SigV4, zero AWS SDK).
 
 ```typescript
-import { streamUpload, LocalDiskStorageAdapter } from '@forgedevstack/harbor/upload';
+import { streamUpload, LocalDiskStorageAdapter, createS3StorageAdapter } from '@forgedevstack/harbor/upload';
 import type { UploadRequest } from '@forgedevstack/harbor/upload';
 
 const storage = new LocalDiskStorageAdapter({
@@ -475,32 +473,44 @@ app.post(
 );
 ```
 
-Size violations respond with `413`, disallowed mime types with `415`, and form fields are merged into `req.body`. Implement the `S3CompatibleStorageAdapter` interface for S3/R2/MinIO backends:
+Size violations respond with `413`, disallowed mime types with `415`, and form fields are merged into `req.body`. For S3, R2, or MinIO:
 
 ```typescript
-import type { S3CompatibleStorageAdapter } from '@forgedevstack/harbor/upload';
+import { createS3StorageAdapter, streamUpload } from '@forgedevstack/harbor/upload';
 
-class MyS3Adapter implements S3CompatibleStorageAdapter {
-  readonly config = { bucket: 'avatars', region: 'us-east-1', credentials: { accessKeyId: '...', secretAccessKey: '...' } };
-  async save(stream, meta) { /* multipart PUT */ return { key: '...', url: '...' }; }
-  async exists(key) { /* HEAD */ return true; }
-  async getSignedUrl(key, expiresInSeconds) { /* presign */ return '...'; }
-}
+const storage = createS3StorageAdapter({
+  bucket: 'avatars',
+  region: 'auto',
+  endpoint: 'https://<account>.r2.cloudflarestorage.com',
+  forcePathStyle: true,
+  credentials: {
+    accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+  },
+  publicUrlBase: 'https://cdn.example.com',
+  keyPrefix: 'uploads',
+});
+
+app.post('/upload', streamUpload({ storage }), (req, res) => {
+  res.json({ files: (req as UploadRequest).uploads });
+});
 ```
+
+`S3StorageAdapter` streams each file through a temp path, then PutObject with SigV4 (`UNSIGNED-PAYLOAD`). It also implements `remove`, `exists` (HEAD), and `getSignedUrl` (query-string SigV4).
 
 ## CLI
 
 ```bash
 # Initialize new project
-npx @forgestack/harbor init my-api
+npx @forgedevstack/harbor init my-api
 
 # With template
-npx @forgestack/harbor init my-api --template default
+npx @forgedevstack/harbor init my-api --template default
 
 # Generate files
-npx @forgestack/harbor generate model User
-npx @forgestack/harbor generate controller User
-npx @forgestack/harbor generate route users
+npx @forgedevstack/harbor generate model User
+npx @forgedevstack/harbor generate controller User
+npx @forgedevstack/harbor generate route users
 ```
 
 ## Configuration
@@ -533,31 +543,31 @@ Create `harbor.config.json`:
 
 ```typescript
 // Core
-import { createServer, router, route } from '@forgestack/harbor';
+import { createServer, router, route } from '@forgedevstack/harbor';
 
 // Database
-import { Schema, model, connect } from '@forgestack/harbor/database';
+import { Schema, model, connect } from '@forgedevstack/harbor/database';
 
 // Middleware
-import { rateLimit, healthCheck, upload } from '@forgestack/harbor/middleware';
+import { rateLimit, healthCheck, upload } from '@forgedevstack/harbor/middleware';
 
 // Auth
-import { JWT, jwtAuth, apiKeyAuth } from '@forgestack/harbor/auth';
+import { JWT, jwtAuth, apiKeyAuth } from '@forgedevstack/harbor/auth';
 
 // Cache
-import { cache, cacheResponse } from '@forgestack/harbor/cache';
+import { cache, cacheResponse } from '@forgedevstack/harbor/cache';
 
 // Queue
-import { createQueue } from '@forgestack/harbor/queue';
+import { createQueue } from '@forgedevstack/harbor/queue';
 
 // Mail
-import { createMailer, createMailerFromProvider } from '@forgestack/harbor/mail';
+import { createMailer, createMailerFromProvider } from '@forgedevstack/harbor/mail';
 
 // Scheduler
-import { createScheduler } from '@forgestack/harbor/scheduler';
+import { createScheduler } from '@forgedevstack/harbor/scheduler';
 
 // WebSocket
-import { createWebSocketServer } from '@forgestack/harbor/websocket';
+import { createWebSocketServer } from '@forgedevstack/harbor/websocket';
 
 // WebSocket Hub (rooms, auth, pub/sub)
 import { createWsHub, MemoryPubSubAdapter } from '@forgedevstack/harbor/ws';

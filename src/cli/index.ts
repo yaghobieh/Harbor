@@ -331,7 +331,7 @@ function initProject(args: string[]): void {
 
   const serverPath = resolve(serverDir, 'server.ts');
   if (!existsSync(serverPath)) {
-    const serverTemplate = `import { createServer, router, GET } from '@forgestack/harbor';
+    const serverTemplate = `import { createServer, router, GET } from '@forgedevstack/harbor';
 
 const server = createServer({ port: 3000 });
 
@@ -353,7 +353,7 @@ console.log('Server running at http://localhost:3000');
   }
 
   console.log('\nHarbor project initialized!');
-  console.log('Run: npm install @forgestack/harbor');
+  console.log('Run: npm install @forgedevstack/harbor');
   console.log('Then: npm run dev');
   console.log('\nTip: Use --template flag for full boilerplate');
 }
@@ -369,7 +369,7 @@ function generateDocs(): void {
 }
 
 function showVersion(): void {
-  console.log('@forgestack/harbor v1.4.0');
+  console.log('@forgedevstack/harbor v1.6.4');
 }
 
 function showHelp(): void {
@@ -385,7 +385,7 @@ function showHelp(): void {
   console.log('  --template, -t     Use full boilerplate template (for init command)');
 
   console.log('\nExamples:\n');
-  console.log('  npx @forgestack/harbor create my-app    Create new project');
+  console.log('  npx @forgedevstack/harbor create my-app    Create new project');
   console.log('  harbor create my-app                    Create new project');
   console.log('  harbor init                             Initialize config');
   console.log('  harbor init --template                  Initialize with full boilerplate');

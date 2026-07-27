@@ -1507,7 +1507,7 @@ Key features:
         id: 'basic-usage',
         title: 'Basic Usage',
         content: 'Create a queue, register a processor, and start processing:',
-        code: `import { createQueue } from '@forgestack/harbor/queue';
+        code: `import { createQueue } from '@forgedevstack/harbor/queue';
 
 interface EmailJob {
   to: string;
@@ -1596,8 +1596,8 @@ emailQueue.stop();`,
         id: 'with-server',
         title: 'Queue with Harbor Server',
         content: 'Common pattern: trigger queue jobs from API routes:',
-        code: `import { createServer, router, POST, GET } from '@forgestack/harbor';
-import { createQueue } from '@forgestack/harbor/queue';
+        code: `import { createServer, router, POST, GET } from '@forgedevstack/harbor';
+import { createQueue } from '@forgedevstack/harbor/queue';
 
 const invoiceQueue = createQueue<{ orderId: string; userId: string }>('invoices', {
   concurrency: 3,
@@ -1655,7 +1655,7 @@ Key features:
         id: 'basic-usage',
         title: 'Basic Usage',
         content: 'Send a plain text email:',
-        code: `import { createMailer, SmtpTransport } from '@forgestack/harbor/mail';
+        code: `import { createMailer, SmtpTransport } from '@forgedevstack/harbor/mail';
 
 const mailer = createMailer({
   transport: new SmtpTransport({
@@ -1686,7 +1686,7 @@ await mailer.send({
         id: 'providers',
         title: 'Provider Presets',
         content: 'Use pre-configured settings for popular email services:',
-        code: `import { createMailerFromProvider } from '@forgestack/harbor/mail';
+        code: `import { createMailerFromProvider } from '@forgedevstack/harbor/mail';
 
 // Gmail (use App Password, not your main password)
 const gmail = createMailerFromProvider('gmail', {
@@ -1728,7 +1728,7 @@ const ses = createMailerFromProvider('aws_ses', {
   renderTemplate,
   renderNamedTemplate,
   escapeHtml,
-} from '@forgestack/harbor/mail';
+} from '@forgedevstack/harbor/mail';
 
 // Register a single template
 registerTemplate('welcome', \`
@@ -1808,8 +1808,8 @@ const html = renderNamedTemplate('invoice', {
         id: 'queue-integration',
         title: 'Mail + Queue Integration',
         content: 'Combine Mail with Job Queue for reliable email delivery:',
-        code: `import { createQueue } from '@forgestack/harbor/queue';
-import { createMailerFromProvider, registerTemplate } from '@forgestack/harbor/mail';
+        code: `import { createQueue } from '@forgedevstack/harbor/queue';
+import { createMailerFromProvider, registerTemplate } from '@forgedevstack/harbor/mail';
 
 registerTemplate('order-confirmation', \`
   <h1>Order Confirmed!</h1>
@@ -1965,7 +1965,7 @@ describe('External API Client', () => {
         title: 'Testing Queue Jobs',
         content: 'Test your queue processors and job flows:',
         code: `import { describe, it, expect, spy } from '@forgedevstack/crucible';
-import { createQueue } from '@forgestack/harbor/queue';
+import { createQueue } from '@forgedevstack/harbor/queue';
 
 describe('Invoice Queue', () => {
   it('processes jobs and calls handler', async () => {
@@ -2091,11 +2091,11 @@ npx forge add relay`,
         title: 'Full-Stack Example',
         content: 'A real full-stack app using Harbor (backend) + Bear + Relay (frontend):',
         code: `// ── server/index.ts ──
-import { createServer, router, GET, POST } from '@forgestack/harbor';
-import { connect, Schema, model } from '@forgestack/harbor/database';
-import { jwtAuth, JWT } from '@forgestack/harbor/auth';
-import { createQueue } from '@forgestack/harbor/queue';
-import { createMailerFromProvider } from '@forgestack/harbor/mail';
+import { createServer, router, GET, POST } from '@forgedevstack/harbor';
+import { connect, Schema, model } from '@forgedevstack/harbor/database';
+import { jwtAuth, JWT } from '@forgedevstack/harbor/auth';
+import { createQueue } from '@forgedevstack/harbor/queue';
+import { createMailerFromProvider } from '@forgedevstack/harbor/mail';
 
 await connect(process.env.MONGO_URI!);
 
@@ -2206,7 +2206,7 @@ npx create-forge my-app --template fullstack`,
       user.model.ts       # MongoDB schemas
     middleware/
       auth.middleware.ts   # JWT authentication
-  package.json            # With @forgestack/harbor
+  package.json            # With @forgedevstack/harbor
   tsconfig.json
   Dockerfile
   docker-compose.yml

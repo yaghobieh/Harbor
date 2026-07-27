@@ -44,6 +44,21 @@ export interface WsPubSubAdapter {
   close(): Promise<void>;
 }
 
+export interface RedisPubSubClient {
+  publish(channel: string, message: string): Promise<number> | number;
+  subscribe(...channels: string[]): Promise<unknown>;
+  unsubscribe(...channels: string[]): Promise<unknown>;
+  on(event: 'message', listener: (channel: string, message: string) => void): void;
+  quit(): Promise<unknown> | unknown;
+  duplicate(): RedisPubSubClient;
+}
+
+export interface RedisPubSubAdapterOptions {
+  client: RedisPubSubClient;
+  subscriber?: RedisPubSubClient;
+  channelPrefix?: string;
+}
+
 export interface WsHubOptions {
   path?: string;
   maxPayloadBytes?: number;

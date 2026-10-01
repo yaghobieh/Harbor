@@ -18,6 +18,14 @@ const ICONS: Record<FeatureIcon, ReactNode> = {
   settings: <BearIcons.SettingsIcon size="md" color="var(--harbor-accent)" />,
   server: <BearIcons.ServerIcon size="md" color="var(--harbor-accent)" />,
   code: <BearIcons.CodeIcon size="md" color="var(--harbor-accent)" />,
+  database: <BearIcons.DatabaseIcon size="md" color="var(--harbor-accent)" />,
+  stack: <BearIcons.StackedBarIcon size="md" color="var(--harbor-accent)" />,
+  mail: <BearIcons.MailIcon size="md" color="var(--harbor-accent)" />,
+  realtime: <BearIcons.ZapIcon size="md" color="var(--harbor-accent)" />,
+  cache: <BearIcons.FolderIcon size="md" color="var(--harbor-accent)" />,
+  clock: <BearIcons.ClockIcon size="md" color="var(--harbor-accent)" />,
+  check: <BearIcons.CheckCircleIcon size="md" color="var(--harbor-accent)" />,
+  test: <BearIcons.SandboxIcon size="md" color="var(--harbor-accent)" />,
 };
 
 export const FeatureCard: FC<FeatureCardProps> = ({ feature }) => {

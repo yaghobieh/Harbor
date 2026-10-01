@@ -11,6 +11,7 @@ export const en: Record<string, string> = {
   // Router
   'router.registered': 'Registered route: {method} {path}',
   'router.missingRequired': 'Route must have path, method, and handler',
+  'router.markedEmpty': 'Class passed to router() has no @route methods',
 
   // Validation
   'validation.failed': 'Validation failed',

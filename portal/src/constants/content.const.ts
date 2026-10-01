@@ -1,7 +1,7 @@
-import type { Feature, CodeExample, ApiItem } from '@/types';
+import type { Feature, ApiItem } from '@/types';
 
-export const VERSION = '1.6.0';
-export const PORTAL_VERSION = '1.0.1';
+export const VERSION = '1.6.5';
+export const PORTAL_VERSION = '1.2.0';
 export const TITLE = 'Harbor';
 export const TAGLINE = 'The Complete Node.js Backend Framework';
 export const DESCRIPTION = 'Server creation, routing, MongoDB ODM, job queue, mail, caching, auth, WebSocket, scheduling, Docker, and more. Part of the ForgeStack ecosystem.';
@@ -43,7 +43,7 @@ export const FEATURES: Feature[] = [
   {
     id: 'routes',
     title: 'Route Management',
-    description: 'Fluent API with pre/post middleware, validation, timeout handling, and automatic error responses.',
+    description: 'Array routes or @route on a class method. Same router, one ctx argument, and { success, data } responses.',
     icon: 'routes',
   },
   {
@@ -101,6 +101,7 @@ export const FORGESTACK_PACKAGES = [
 
 export const EXAMPLE_TABS = [
   { id: 'routing', label: 'Routing' },
+  { id: 'marked', label: 'Marked' },
   { id: 'database', label: 'Database' },
   { id: 'queue', label: 'Queue' },
   { id: 'mail', label: 'Mail' },
@@ -180,6 +181,29 @@ const userSchema = new Schema({
 
 userSchema.pre('save', async function(next) { /* hash password */ });
 const User = model('User', userSchema);`,
+  },
+  {
+    name: 'router(path, Users) / @route.get',
+    type: 'function',
+    description: 'Mount a class whose methods are marked with @route. The method receives ctx and its return value is the response data.',
+    signature: `import { createServer, router, route, check } from '@forgedevstack/harbor';
+import type { RouteCtx } from '@forgedevstack/harbor';
+
+class Users {
+  @route.get('/')
+  list() {
+    return { users: [] };
+  }
+
+  @route.post('/')
+  @check({ body: { email: { type: 'email', required: true } } })
+  create(ctx: RouteCtx) {
+    return { id: '1', ...(ctx.body as object) };
+  }
+}
+
+const server = createServer({ port: 3000 });
+server.use(router('/api/users', Users));`,
   },
   {
     name: 'GET / POST / PUT / PATCH / DELETE',

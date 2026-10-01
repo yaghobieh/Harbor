@@ -7,6 +7,16 @@ export {
   GET, POST, PUT, PATCH, DELETE, route,
 } from './core/router';
 export type { RouteHandlerFn, SimpleRouteOptions } from './core/router';
+export {
+  pre,
+  after,
+  check,
+  timeout,
+  limit,
+  routeCache,
+  routesFromClass,
+} from './core/marked';
+export type { HarborMethodDecorator, RouteClass } from './core/marked';
 export { loadConfig, defineConfig } from './core/config';
 export { createErrorHandler, HarborError } from './core/errorHandler';
 
@@ -267,6 +277,7 @@ export type {
   RouteGroup,
   RouterConfig,
   RouteValidation,
+  RouteCtx,
   FieldValidation,
   ValidationSchema,
   RateLimitConfig,

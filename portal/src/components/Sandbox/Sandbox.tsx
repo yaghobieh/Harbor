@@ -4,15 +4,10 @@ import {
   Terminal,
   Button,
   Typography,
-  GradientText,
   Flex,
   Card,
   CardBody,
   Badge,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanel,
   Divider,
   BearIcons,
 } from '@forgedevstack/bear';
@@ -23,6 +18,30 @@ import { Logo } from '../Logo/Logo';
 
 // ── Sandbox examples ──────────────────────────────────────────────
 const EXAMPLES: Record<string, { title: string; description: string; code: string }> = {
+  'marked-routes': {
+    title: 'Marked routes',
+    description: 'Class methods marked with @route, mounted by router()',
+    code: `import { createServer, router, route, check } from '@forgedevstack/harbor';
+import type { RouteCtx } from '@forgedevstack/harbor';
+
+class Users {
+  @route.get('/')
+  list() {
+    return { users: [] };
+  }
+
+  @route.post('/')
+  @check({ body: { email: { type: 'email', required: true } } })
+  create(ctx: RouteCtx) {
+    return { id: '1', ...(ctx.body as object) };
+  }
+}
+
+const server = createServer({ port: 3000 });
+server.use(router('/api/users', Users));
+server.listen(3000);
+console.log('Marked routes mounted at /api/users');`,
+  },
   'hello-server': {
     title: 'Hello Server',
     description: 'Basic HTTP server with Harbor',
@@ -238,7 +257,7 @@ function simulateExecution(code: string): TerminalLine[] {
     });
   };
 
-  addLine('system', '🚢 Harbor Sandbox v1.6.0');
+  addLine('system', '🚢 Harbor Sandbox v1.6.5');
   addLine('system', '──────────────────────────────────');
 
   // Extract console.log statements
@@ -325,8 +344,8 @@ function simulateExecution(code: string): TerminalLine[] {
 }
 
 export const Sandbox: FC = () => {
-  const [activeExample, setActiveExample] = useState('hello-server');
-  const [code, setCode] = useState(EXAMPLES['hello-server'].code);
+  const [activeExample, setActiveExample] = useState('marked-routes');
+  const [code, setCode] = useState(EXAMPLES['marked-routes'].code);
   const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([
     { id: '0', type: 'system', content: '🚢 Harbor Sandbox — Click "Run" to execute your code' },
   ]);

@@ -13,6 +13,7 @@ import {
   DELETE,
   route,
 } from './core/router';
+import { pre, after, check, timeout, limit, routeCache, routesFromClass } from './core/marked';
 import { loadConfig, defineConfig } from './core/config';
 import { createErrorHandler, HarborError } from './core/errorHandler';
 import {
@@ -35,6 +36,13 @@ const harbor = {
   createRouter,
   router,
   route,
+  pre,
+  after,
+  check,
+  timeout,
+  limit,
+  routeCache,
+  routesFromClass,
   GET,
   POST,
   PUT,

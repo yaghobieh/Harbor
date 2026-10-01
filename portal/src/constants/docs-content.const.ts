@@ -44,7 +44,7 @@ pnpm add harbor`,
         id: 'first-server',
         title: 'Your First Server',
         content: 'Create a new file called `server.ts` and add the following code:',
-        code: `import { createServer, connect, GET, POST } from 'harbor';
+        code: `import { createServer, connect, GET, POST } from '@forgedevstack/harbor';
 
 // Connect to MongoDB
 await connect('mongodb://localhost:27017/myapp');
@@ -218,7 +218,7 @@ my-api/
         id: 'server-entry',
         title: 'Server Entry Point',
         content: 'The `server.ts` file is pre-configured with Harbor:',
-        code: `import { createServer, connect, httpLogger } from 'harbor';
+        code: `import { createServer, connect, httpLogger } from '@forgedevstack/harbor';
 import { routes } from './routes';
 import { config } from './constants';
 
@@ -258,7 +258,7 @@ bootstrap().catch(console.error);`,
         content: 'Routes are organized in the `routes/` directory with a central index:',
         code: `// routes/user.routes.ts
 import { Router } from 'express';
-import { GET, POST, PUT, DELETE } from 'harbor';
+import { GET, POST, PUT, DELETE } from '@forgedevstack/harbor';
 import { UserController } from '../controllers';
 
 export const userRoutes = Router();
@@ -281,7 +281,7 @@ userRoutes.delete('/:id', DELETE(UserController.delete));`,
         title: 'Model Example',
         content: 'Models use Harbor ODM (Mongoose-compatible):',
         code: `// models/user.model.ts
-import { Schema, model } from 'harbor/database';
+import { Schema, model } from '@forgedevstack/harbor/database';
 
 const userSchema = new Schema({
   email: { type: 'string', required: true, unique: true },
@@ -322,7 +322,7 @@ export const User = model('User', userSchema);`,
         id: 'defining-schema',
         title: 'Defining Your Schema',
         content: `A schema defines the structure of documents in a MongoDB collection. It's similar to Mongoose schemas but uses string types for better clarity:`,
-        code: `import { Schema } from 'harbor';
+        code: `import { Schema } from '@forgedevstack/harbor';
 
 const blogSchema = new Schema({
   title: 'String',                    // Shorthand for { type: 'String' }
@@ -529,7 +529,7 @@ const userSchema = new Schema({
         id: 'basic-connection',
         title: 'Basic Connection',
         content: 'Connect to MongoDB using the `connect` function:',
-        code: `import { connect, connection } from 'harbor';
+        code: `import { connect, connection } from '@forgedevstack/harbor';
 
 // Connect to MongoDB
 await connect('mongodb://localhost:27017/myapp');
@@ -580,7 +580,7 @@ console.log('Connected to:', connection.name);  // 'myapp'`,
         id: 'connection-events',
         title: 'Connection Events',
         content: 'Listen to connection events for monitoring and error handling:',
-        code: `import { connection } from 'harbor';
+        code: `import { connection } from '@forgedevstack/harbor';
 
 // Connected successfully
 connection.on('connected', () => {
@@ -619,7 +619,7 @@ connection.on('close', () => {
 | Connected | 1 | Successfully connected |
 | Connecting | 2 | Connection in progress |
 | Disconnecting | 3 | Disconnection in progress |`,
-        code: `import { connection } from 'harbor';
+        code: `import { connection } from '@forgedevstack/harbor';
 
 // Check connection state
 console.log(connection.readyState);  // 0, 1, 2, or 3
@@ -643,7 +643,7 @@ console.log('Database ping:', isAlive);  // true or false`,
         id: 'disconnect',
         title: 'Disconnecting',
         content: 'Properly close the connection when shutting down:',
-        code: `import { disconnect, connection } from 'harbor';
+        code: `import { disconnect, connection } from '@forgedevstack/harbor';
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
@@ -670,7 +670,7 @@ await connection.close();`,
         id: 'creating-model',
         title: 'Creating a Model',
         content: 'Use the `model` function to compile a schema into a Model:',
-        code: `import { Schema, model } from 'harbor';
+        code: `import { Schema, model } from '@forgedevstack/harbor';
 
 // Define schema
 const userSchema = new Schema({
@@ -1117,7 +1117,7 @@ userSchema.pre('findOneAndUpdate', function(next) {
         id: 'request-validation',
         title: 'Request Validation',
         content: 'Validate incoming request data in routes:',
-        code: `import { POST, GET } from 'harbor';
+        code: `import { POST, GET } from '@forgedevstack/harbor';
 
 // Validate body, params, query, and headers
 const createUser = POST('/api/users', async (req) => {
@@ -1156,13 +1156,55 @@ const listUsers = GET('/api/users', async (req) => {
 
   'routes': {
     title: 'Routes',
-    description: 'Define API routes using Harbor\'s simple route helpers.',
+    description: 'Define API routes with an array, or mark class methods with @route. Both use the same router.',
     sections: [
+      {
+        id: 'marked-routes',
+        title: 'Marked routes',
+        content: 'Put @route.get (or post, put, patch, del) on a class method. The method receives one ctx object and returns data. router() mounts the class on a prefix. @check, @pre, @timeout, @limit, and @route.cache use the validation, middleware, timeout, rate limit, and cache Harbor already has. Delete uses @route.del because delete is a reserved word.',
+        code: `import { createServer, router, route, check, pre } from '@forgedevstack/harbor';
+import type { RouteCtx } from '@forgedevstack/harbor';
+
+class Users {
+  @route.get('/')
+  list() {
+    return { users: [] };
+  }
+
+  @route.post('/')
+  @check({
+    body: {
+      email: { type: 'email', required: true },
+      name: { type: 'string', required: true, min: 2 },
+    },
+  })
+  create(ctx: RouteCtx) {
+    const body = ctx.body as { email: string; name: string };
+    return { id: '1', ...body };
+  }
+
+  @route.del('/:id')
+  @pre((req, res, next) => {
+    if (!req.header('authorization')) {
+      res.status(401).json({ success: false });
+      return;
+    }
+    next();
+  })
+  remove(ctx: RouteCtx) {
+    return { deleted: ctx.params.id };
+  }
+}
+
+const server = createServer({ port: 3000 });
+server.use(router('/api/users', Users));`,
+        filename: 'users.routes.ts',
+      },
       {
         id: 'basic-routes',
         title: 'Basic Routes',
         content: 'Use the route helper functions to create routes:',
-        code: `import { createServer, GET, POST, PUT, DELETE } from 'harbor';
+        code: `import { createServer, GET, POST, PUT, DELETE } from '@forgedevstack/harbor';
 
 const server = createServer({ port: 3000 });
 
@@ -1207,7 +1249,7 @@ server.addRoute(
         id: 'route-options',
         title: 'Route Options',
         content: 'Configure routes with validation, middleware, and more:',
-        code: `import { POST, GET } from 'harbor';
+        code: `import { POST, GET } from '@forgedevstack/harbor';
 
 const createUser = POST('/api/users', async (req) => {
   const { email, name } = req.validated.body;
@@ -1250,7 +1292,7 @@ const createUser = POST('/api/users', async (req) => {
         id: 'harbor-error',
         title: 'HarborError Class',
         content: 'Throw HarborError to return consistent error responses:',
-        code: `import { GET, HarborError } from 'harbor';
+        code: `import { GET, HarborError } from '@forgedevstack/harbor';
 
 const getUser = GET('/api/users/:id', async (req) => {
   const user = await User.findById(req.params.id);
@@ -1323,7 +1365,7 @@ const getUser = GET('/api/users/:id', async (req) => {
         id: 'create-server',
         title: 'createServer',
         content: 'Create a new server instance:',
-        code: `import { createServer } from 'harbor';
+        code: `import { createServer } from '@forgedevstack/harbor';
 
 const server = createServer({
   // Port to listen on
@@ -1386,7 +1428,7 @@ console.log(info);  // { host: 'localhost', port: 3000, status: 'running' }`,
         id: 'docker-manager',
         title: 'Creating Docker Manager',
         content: 'Create and configure a Docker manager:',
-        code: `import { createDockerManager } from 'harbor';
+        code: `import { createDockerManager } from '@forgedevstack/harbor';
 
 const docker = createDockerManager({
   composePath: './docker-compose.yml',
@@ -1430,7 +1472,7 @@ const output = await docker.exec('web', 'npm run migrate');`,
         id: 'set-locale',
         title: 'Setting Locale',
         content: 'Set the language for all Harbor messages:',
-        code: `import { setLocale, getLocale, getAvailableLocales } from 'harbor';
+        code: `import { setLocale, getLocale, getAvailableLocales } from '@forgedevstack/harbor';
 
 // Set to Hebrew
 setLocale('he');
@@ -1446,7 +1488,7 @@ console.log(getAvailableLocales());  // ['en', 'he']`,
         id: 'translations',
         title: 'Using Translations',
         content: 'Use the `t` function to get translated messages:',
-        code: `import { t, setLocale } from 'harbor';
+        code: `import { t, setLocale } from '@forgedevstack/harbor';
 
 setLocale('he');
 
@@ -1463,7 +1505,7 @@ console.log(t('server.started', { host: 'localhost', port: 3000 }));
         id: 'custom-translations',
         title: 'Adding Custom Translations',
         content: 'Add your own translations:',
-        code: `import { addTranslations } from 'harbor';
+        code: `import { addTranslations } from '@forgedevstack/harbor';
 
 // Add English translations
 addTranslations('en', {
@@ -1478,7 +1520,7 @@ addTranslations('he', {
 });
 
 // Use them
-import { t } from 'harbor';
+import { t } from '@forgedevstack/harbor';
 console.log(t('app.goodbye', { name: 'John' }));`,
         filename: 'custom-translations.ts',
       },

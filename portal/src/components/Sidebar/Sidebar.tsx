@@ -9,7 +9,9 @@ import {
   Link as BearLink,
   BearIcons,
 } from '@forgedevstack/bear';
-import type { SidebarItem } from '@forgedevstack/bear';
+import type { SidebarProps as BearSidebarProps } from '@forgedevstack/bear';
+
+type SidebarItem = BearSidebarProps['items'][number];
 import { DOC_NAVIGATION } from '@/constants/docs.const';
 import { Logo } from '../Logo/Logo';
 import { VersionDropdown } from '../VersionDropdown/VersionDropdown';

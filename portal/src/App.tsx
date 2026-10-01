@@ -1,17 +1,18 @@
 import { FC } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 import {
   Navbar,
   Hero,
   Features,
   QuickStart,
-  CodeExamples,
-  ApiReference,
   Footer,
   DocLayout,
   DocPage,
   Sandbox,
 } from '@/components';
+import { SwaggerPage } from '@/components/Swagger/SwaggerPage';
+import { VideoPrompt } from '@/components/VideoPrompt/VideoPrompt';
+import { ChangelogPage } from '@/components/Changelog/ChangelogPage';
 
 const HomePage: FC = () => {
   return (
@@ -20,9 +21,8 @@ const HomePage: FC = () => {
       <main>
         <Hero />
         <Features />
+        <VideoPrompt />
         <QuickStart />
-        <CodeExamples />
-        <ApiReference />
       </main>
       <Footer />
     </div>
@@ -35,8 +35,11 @@ export const App: FC = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/sandbox" element={<Sandbox />} />
+        <Route path="/changelog" element={<ChangelogPage />} />
 
         <Route path="/docs" element={<DocLayout />}>
+          <Route index element={<Navigate to="quick-start" replace />} />
+          <Route path="swagger" element={<SwaggerPage />} />
           <Route path="*" element={<DocPage />} />
         </Route>
       </Routes>

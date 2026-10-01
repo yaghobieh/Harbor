@@ -10,6 +10,49 @@ import { VersionDropdownProps, VersionInfo } from './types';
 
 const VERSIONS: VersionInfo[] = [
   {
+    version: '1.6.5',
+    date: '2026-10-01',
+    highlights: [
+      'Marked routes: @route.get on a class method',
+      'One ctx argument, same router() and { success, data }',
+      '@check, @pre, @timeout, @limit, and @route.cache',
+      'Local lab project for trying this version',
+    ],
+  },
+  {
+    version: '1.6.4',
+    date: '2026-07-27',
+    highlights: [
+      'Redis pub/sub adapter for WsHub',
+      'S3/R2/MinIO storage adapter with SigV4',
+      'Publish workflow for npm',
+    ],
+  },
+  {
+    version: '1.6.3',
+    date: '2026-07-12',
+    highlights: [
+      'WsHub with upgrade auth, rooms, and typed envelopes',
+      'Streaming multipart uploads',
+      'Local disk storage adapter',
+    ],
+  },
+  {
+    version: '1.6.2',
+    date: '2026-02-07',
+    highlights: [
+      'ODM save() inserts when replaceOne matches nothing',
+    ],
+  },
+  {
+    version: '1.6.1',
+    date: '2026-02-07',
+    highlights: [
+      'ODM create/save inserts new documents',
+      'Default export for CommonJS interop',
+    ],
+  },
+  {
     version: '1.6.0',
     date: '2026-02-17',
     highlights: [
@@ -90,7 +133,6 @@ function buildDropdownItems(): DropdownItem[] {
   ];
 
   VERSIONS.forEach((version, index) => {
-    const highlights = version.highlights.map(h => `• ${h}`).join('\n');
     const isLatest = index === 0;
 
     items.push({
@@ -107,11 +149,11 @@ function buildDropdownItems(): DropdownItem[] {
     });
 
     if (index < VERSIONS.length - 1) {
-      items.push({ key: `divider-${index}`, divider: true });
+      items.push({ key: `divider-${index}`, label: '', divider: true });
     }
   });
 
-  items.push({ key: 'divider-bottom', divider: true });
+  items.push({ key: 'divider-bottom', label: '', divider: true });
   items.push({
     key: 'changelog',
     label: 'View full changelog →',
@@ -131,7 +173,13 @@ export const VersionDropdown: FC<VersionDropdownProps> = ({ className = '' }) =>
     <div className={className}>
       <Dropdown
         trigger={
-          <Button variant="ghost" size="xs" rightIcon={<BearIcons.ChevronDownIcon size="xs" />} className="text-xs font-mono">
+          <Button
+            variant="ghost"
+            size="xs"
+            rightIcon={<BearIcons.ChevronDownIcon size="xs" color="var(--text-primary)" />}
+            className="text-xs font-mono"
+            style={{ color: 'var(--text-primary)' }}
+          >
             v{currentVersion.version}
           </Button>
         }

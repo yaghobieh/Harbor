@@ -1,0 +1,17 @@
+{
+  "name": "harbor-lab",
+  "private": true,
+  "version": "1.6.5",
+  "type": "module",
+  "description": "Local lab for @forgedevstack/harbor 1.6.5 marked routes. Linked to the package in the parent directory.",
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "test": "tsx src/lab.test.ts"
+  },
+  "dependencies": {
+    "@forgedevstack/harbor": "file:.."
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  }
+}

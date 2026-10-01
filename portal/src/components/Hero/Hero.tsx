@@ -5,17 +5,15 @@ import {
   Typography,
   Container,
   Flex,
-  Grid,
-  GridItem,
-  Card,
-  CardBody,
   Badge,
   GradientText,
   CodeBlock,
   BearIcons,
 } from '@forgedevstack/bear';
 import { Logo } from '../Logo/Logo';
-import { TITLE, TAGLINE, DESCRIPTION, STATS, FORGESTACK_PACKAGES, QUICK_START_CODE } from '@/constants';
+import { TITLE, TAGLINE, DESCRIPTION, STATS, QUICK_START_CODE } from '@/constants';
+
+const heroButtonStyle = { height: 44, minHeight: 44, boxSizing: 'border-box' as const };
 
 export const Hero: FC = () => {
   return (
@@ -64,28 +62,23 @@ export const Hero: FC = () => {
           ))}
         </Flex>
 
-        <Flex justify="center" gap={4} wrap="wrap" className="mb-12">
-          <Link to="/docs/quick-start">
-            <Button variant="harbor" size="lg" spotlight leftIcon={<BearIcons.BookOpenIcon size="xs" />}>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto mb-12">
+          <Link to="/docs/quick-start" className="block">
+            <Button variant="harbor" size="lg" spotlight leftIcon={<BearIcons.BookOpenIcon size="xs" />} className="w-full" style={heroButtonStyle}>
               Read the Docs
             </Button>
           </Link>
-          <a href="#quickstart">
-            <Button variant="outline" size="lg" leftIcon={<BearIcons.RocketIcon size="xs" />}>
+          <a href="#quickstart" className="block">
+            <Button variant="outline" size="lg" leftIcon={<BearIcons.RocketIcon size="xs" />} className="w-full" style={heroButtonStyle}>
               Quick Start
             </Button>
           </a>
-          <a href="https://forgedevstack.com" target="_blank" rel="noopener noreferrer">
-            <Button variant="forgeGhost" size="lg" leftIcon={<BearIcons.ExternalLinkIcon size="xs" />} className="border">
-              ForgeStack
-            </Button>
-          </a>
-          <Link to="/sandbox">
-            <Button variant="forge" size="lg" spotlight leftIcon={<BearIcons.TerminalIcon size="xs" />}>
+          <Link to="/sandbox" className="block">
+            <Button variant="forge" size="lg" spotlight leftIcon={<BearIcons.TerminalIcon size="xs" />} className="w-full" style={heroButtonStyle}>
               Sandbox
             </Button>
           </Link>
-        </Flex>
+        </div>
 
         <Flex justify="center" className="mb-16">
           <div className="w-full max-w-2xl text-left">
@@ -99,31 +92,6 @@ export const Hero: FC = () => {
           </div>
         </Flex>
 
-        <div className="max-w-4xl mx-auto">
-          <Typography variant="overline" className="mb-6 opacity-50">
-            Works with the ForgeStack Ecosystem
-          </Typography>
-          <Grid cols={{ base: 2, md: 3 }} gap={3}>
-            {FORGESTACK_PACKAGES.map((pkg) => (
-              <GridItem key={pkg.name}>
-                <Card variant="ghost" interactive padding="sm" radius="xl">
-                  <CardBody>
-                    <Flex align="center" gap={2} className="mb-1">
-                      <BearIcons.PackageIcon size="xs" color="var(--harbor-accent)" />
-                      <Typography variant="body2" className="font-semibold">
-                        {pkg.name}
-                      </Typography>
-                    </Flex>
-                    <Typography variant="caption" className="opacity-50 mb-2 block">
-                      {pkg.description}
-                    </Typography>
-                    <code className="text-xs opacity-40 font-mono">{pkg.command}</code>
-                  </CardBody>
-                </Card>
-              </GridItem>
-            ))}
-          </Grid>
-        </div>
       </Container>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">

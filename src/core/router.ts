@@ -13,8 +13,12 @@ import type {
 } from '../types';
 import { validateRequest } from '../validation';
 import { createLogger } from '../utils/logger';
-import { HTTP_STATUS } from '../constants';
+import { DEFAULT_CONFIG, HTTP_STATUS } from '../constants';
 import { t } from '../i18n';
+import { rateLimit as createRateLimit } from '../middleware/rateLimit';
+import { cacheResponse } from '../cache/manager';
+import { markMethod, routesFromClass, pre, after, check, timeout as timeoutMark, limit, routeCache } from './marked';
+import type { HarborMethodDecorator, RouteClass } from './marked';
 
 const logger = createLogger('router');
 
@@ -218,15 +222,29 @@ export interface SimpleRouteOptions {
  * ]);
  * 
  * server.use(userRoutes);
+ *
+ * // Style 3: @route on class methods — same router, one ctx argument
+ * class Users {
+ *   @route.get('/')
+ *   list(ctx: RouteCtx) {
+ *     return { users: [] };
+ *   }
+ * }
+ * server.use(router('/api/users', Users));
  */
-export function router(basePath: string, routes: RouteDefinition[], options?: { middleware?: RequestHandler[] }): Router {
+export function router(
+  basePath: string,
+  routes: RouteDefinition[] | RouteClass,
+  options?: { middleware?: RequestHandler[] }
+): Router {
   const expressRouter = Router();
+  const definitions = Array.isArray(routes) ? routes : routesFromClass(routes);
 
   if (options?.middleware) {
     options.middleware.forEach((mw) => expressRouter.use(mw));
   }
 
-  routes.forEach((routeDef) => {
+  definitions.forEach((routeDef) => {
     const fullPath = routeDef.path === '/' ? '' : routeDef.path;
     const method = routeDef.method.toLowerCase() as keyof Router;
     
@@ -247,10 +265,38 @@ function buildSimpleHandlerChain(routeDef: RouteDefinition): RequestHandler[] {
   const handlers: RequestHandler[] = [];
   const options = routeDef.options ?? {};
 
+  if (options.rateLimit) {
+    handlers.push(createRateLimit({
+      windowMs: options.rateLimit.windowMs,
+      max: options.rateLimit.max,
+      message: options.rateLimit.message,
+    }));
+  }
+
+  if (options.cache) {
+    const cacheKey = options.cache.key;
+    handlers.push(cacheResponse({
+      ttl: options.cache.ttl,
+      keyGenerator: typeof cacheKey === 'function'
+        ? (req) => cacheKey(req as HarborRequest)
+        : cacheKey
+          ? () => cacheKey
+          : undefined,
+    }));
+  }
+
   if (options.pre) {
     options.pre.forEach((preFn) => {
       handlers.push(wrapPreFunction(preFn));
     });
+  }
+
+  if (options.validation) {
+    handlers.push(validationMiddleware(options.validation, DEFAULT_CONFIG));
+  }
+
+  if (options.timeout) {
+    handlers.push(timeoutMiddleware(options.timeout));
   }
 
   handlers.push(wrapSimpleHandler(routeDef.handler, options));
@@ -346,27 +392,39 @@ export function DELETE(path: string, handler: RouteHandlerFn, options?: SimpleRo
  *   route.delete('/:id', async (req) => ({ deleted: true })),
  * ]);
  */
+function routeMethod(method: HttpMethod) {
+  function define(path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition;
+  function define(path: string): HarborMethodDecorator;
+  function define(
+    path: string,
+    handler?: RouteHandlerFn,
+    options?: SimpleRouteOptions
+  ): RouteDefinition | HarborMethodDecorator {
+    if (typeof handler === 'function') {
+      return createRoute(method, path, handler, options);
+    }
+    return markMethod(method, path);
+  }
+  return define;
+}
+
+const deleteRoute = routeMethod('DELETE');
+
 export const route = {
-  get: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
-    createRoute('GET', path, handler, options),
-  
-  post: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
-    createRoute('POST', path, handler, options),
-  
-  put: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
-    createRoute('PUT', path, handler, options),
-  
-  patch: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
-    createRoute('PATCH', path, handler, options),
-  
-  delete: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
-    createRoute('DELETE', path, handler, options),
-  
-  options: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
-    createRoute('OPTIONS', path, handler, options),
-  
-  head: (path: string, handler: RouteHandlerFn, options?: SimpleRouteOptions): RouteDefinition =>
-    createRoute('HEAD', path, handler, options),
+  get: routeMethod('GET'),
+  post: routeMethod('POST'),
+  put: routeMethod('PUT'),
+  patch: routeMethod('PATCH'),
+  delete: deleteRoute,
+  del: deleteRoute,
+  options: routeMethod('OPTIONS'),
+  head: routeMethod('HEAD'),
+  pre,
+  after,
+  check,
+  timeout: timeoutMark,
+  limit,
+  cache: routeCache,
 };
 
 export class RouteBuilder {

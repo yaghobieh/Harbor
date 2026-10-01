@@ -1,0 +1,8 @@
+{
+  "installCommand": "npm install && npm run portal:install",
+  "buildCommand": "npm run portal:build",
+  "outputDirectory": "portal/dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

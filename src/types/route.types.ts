@@ -89,6 +89,15 @@ export interface HarborResponse extends Response {
   error: (message: string, statusCode?: number, details?: unknown) => void;
 }
 
+export interface RouteCtx {
+  query: HarborRequest['query'];
+  body: unknown;
+  params: HarborRequest['params'];
+  headers: HarborRequest['headers'];
+  req: HarborRequest;
+  res: HarborResponse;
+}
+
 export interface RouteGroup {
   prefix: string;
   middleware?: RequestHandler[];

@@ -11,6 +11,7 @@ export const he: Record<string, string> = {
   // Router
   'router.registered': 'נרשם נתיב: {method} {path}',
   'router.missingRequired': 'נתיב חייב לכלול path, method ו-handler',
+  'router.markedEmpty': 'למחלקה שנמסרה ל-router() אין מתודות @route',
 
   // Validation
   'validation.failed': 'האימות נכשל',

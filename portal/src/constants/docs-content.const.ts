@@ -1,3 +1,6 @@
+import { EXTRA_DOCS } from './docs-extra.const';
+import { MORE_DOCS } from './docs-more.const';
+
 // Documentation Content for all pages
 
 interface DocContentSection {
@@ -44,7 +47,7 @@ pnpm add harbor`,
         id: 'first-server',
         title: 'Your First Server',
         content: 'Create a new file called `server.ts` and add the following code:',
-        code: `import { createServer, connect, GET, POST } from 'harbor';
+        code: `import { createServer, connect, GET, POST } from '@forgedevstack/harbor';
 
 // Connect to MongoDB
 await connect('mongodb://localhost:27017/myapp');
@@ -144,172 +147,96 @@ The MongoDB driver is a peer dependency, meaning you can use any compatible vers
 
   'templates': {
     title: 'Project Templates',
-    description: 'Scaffold a complete Node.js backend project with Harbor CLI.',
+    description: 'A ready-to-run Harbor API. Download it from the sandbox, or create it with the CLI.',
     sections: [
       {
-        id: 'create-command',
-        title: 'Creating a Project',
-        content: 'Use the `harbor create` command to scaffold a new project with the full boilerplate:',
-        code: `harbor create my-api
+        id: 'download',
+        title: 'Download',
+        content: 'The sandbox serves the same files that live in `templates/default` in this repo. The zip is named `harbor-starter.zip`. Unzip it, install, and start.',
+        code: `npm install
+npm run dev
 
-# Output:
-# 🚢 Creating Harbor project: my-api
-# 📁 Copying project files...
-# ✅ Project created successfully!
-#
-# 🚀 Next steps:
-#    cd my-api
-#    npm install
-#    cp .env.example .env
-#    npm run dev`,
+# GET http://localhost:3000/api/health
+# GET http://localhost:3000/api/users`,
         filename: 'terminal',
       },
       {
-        id: 'init-template',
-        title: 'Initialize with Template',
-        content: 'You can also initialize an existing directory with the template using `--template` flag:',
-        code: `# Initialize current directory with full template
-harbor init --template
-
-# Or specify a template name (default is the only one currently)
-harbor init --template default`,
+        id: 'create-command',
+        title: 'Create with the CLI',
+        content: '`harbor create` copies that starter into a new folder and writes `harbor.config.json`.',
+        code: `npx @forgedevstack/harbor create my-api
+cd my-api
+npm install
+npm run dev`,
         filename: 'terminal',
       },
       {
         id: 'project-structure',
-        title: 'Project Structure',
-        content: `The template creates a well-organized project with the following structure:
+        title: 'What you get',
+        content: `The starter keeps users in memory, so it runs without MongoDB.
 
 \`\`\`
 my-api/
-├── server.ts           # Application entry point
-├── routes/             # Route definitions
-│   ├── index.ts
-│   └── user.routes.ts
-├── controllers/        # Request handlers
-│   ├── index.ts
-│   └── user.controller.ts
-├── services/           # Business logic
-│   ├── index.ts
-│   └── user.service.ts
-├── models/             # Database models (Harbor ODM)
-│   ├── index.ts
-│   └── user.model.ts
-├── types/              # TypeScript definitions
-│   └── index.ts
-├── utils/              # Utility functions
-│   ├── index.ts
-│   ├── logger.ts
-│   ├── asyncHandler.ts
-│   ├── response.ts
-│   └── validation.ts
-├── constants/          # App constants & config
-│   ├── index.ts
-│   ├── config.ts
-│   └── http.ts
+├── src/server.ts
+├── src/routes/health.ts
+├── src/routes/users.ts
+├── src/controllers/user.controller.ts
+├── src/services/user.service.ts
 ├── package.json
 ├── tsconfig.json
-├── .eslintrc.json
 ├── .env.example
 └── harbor.config.json
-\`\`\``,
+\`\`\`
+
+\`src/routes/users.ts\` only marks the route and calls \`UserController\`. The controller calls \`UserService\`. \`@check\` stays on the route method.`,
       },
       {
-        id: 'server-entry',
-        title: 'Server Entry Point',
-        content: 'The `server.ts` file is pre-configured with Harbor:',
-        code: `import { createServer, connect, httpLogger } from 'harbor';
-import { routes } from './routes';
-import { config } from './constants';
+        id: 'init-template',
+        title: 'Existing folder',
+        content: '`harbor init` writes a one-file server. `harbor init --template` copies the full starter into the current folder.',
+        code: `harbor init
+harbor init --template`,
+        filename: 'terminal',
+      },
+    ],
+  },
 
-async function bootstrap() {
-  // Create server with Harbor
-  const app = createServer({
-    port: config.PORT,
-    cors: true,
-    helmet: true,
-    json: true,
-  });
-
-  // HTTP request logging
-  app.use(httpLogger({ format: 'dev' }));
-
-  // Connect to MongoDB (optional)
-  if (config.MONGODB_URI) {
-    await connect(config.MONGODB_URI, { dbName: config.DB_NAME });
-    console.log('📦 Connected to MongoDB');
-  }
-
-  // Register all routes
-  app.use('/api', routes);
-
-  // Start server
-  app.listen(config.PORT, () => {
-    console.log(\`🚀 Server running on http://localhost:\${config.PORT}\`);
-  });
-}
-
-bootstrap().catch(console.error);`,
-        filename: 'server.ts',
+  'cli': {
+    title: 'CLI',
+    description: 'npx @forgedevstack/harbor create prints the HARBOR wordmark, then writes a project you can run.',
+    sections: [
+      {
+        id: 'create',
+        title: 'Create',
+        content: 'Both forms print the same logo, then copy the starter into a new folder.',
+        code: `npx @forgedevstack/harbor create my-api
+npx @forgedevstack/harbor --create my-api`,
+        filename: 'terminal',
       },
       {
-        id: 'routes-example',
-        title: 'Routes Example',
-        content: 'Routes are organized in the `routes/` directory with a central index:',
-        code: `// routes/user.routes.ts
-import { Router } from 'express';
-import { GET, POST, PUT, DELETE } from 'harbor';
-import { UserController } from '../controllers';
+        id: 'logo',
+        title: 'What you see',
+        content: 'Create, init, version, and help print this wordmark in a fuchsia-to-violet gradient, then the version.',
+        code: `██╗  ██╗ █████╗ ██████╗ ██████╗  ██████╗ ██████╗
+██║  ██║██╔══██╗██╔══██╗██╔══██╗██╔═══██╗██╔══██╗
+███████║███████║██████╔╝██████╔╝██║   ██║██████╔╝
+██╔══██║██╔══██║██╔══██╗██╔══██╗██║   ██║██╔══██╗
+██║  ██║██║  ██║██║  ██║██████╔╝╚██████╔╝██║  ██║
+╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═╝  ╚═╝
 
-export const userRoutes = Router();
-
-// GET /api/users - Get all users
-userRoutes.get('/', GET(UserController.getAll));
-
-// POST /api/users - Create new user
-userRoutes.post('/', POST(UserController.create));
-
-// PUT /api/users/:id - Update user
-userRoutes.put('/:id', PUT(UserController.update));
-
-// DELETE /api/users/:id - Delete user
-userRoutes.delete('/:id', DELETE(UserController.delete));`,
-        filename: 'routes/user.routes.ts',
+  ⚓  Harbor CLI
+  Node.js backends   v1.6.5`,
+        filename: 'terminal',
       },
       {
-        id: 'model-example',
-        title: 'Model Example',
-        content: 'Models use Harbor ODM (Mongoose-compatible):',
-        code: `// models/user.model.ts
-import { Schema, model } from 'harbor/database';
-
-const userSchema = new Schema({
-  email: { type: 'string', required: true, unique: true },
-  name: { type: 'string', required: true },
-  password: { type: 'string', required: true, select: false },
-  role: { type: 'string', enum: ['user', 'admin'], default: 'user' },
-  isActive: { type: 'boolean', default: true },
-}, {
-  timestamps: true,
-  collection: 'users',
-});
-
-export const User = model('User', userSchema);`,
-        filename: 'models/user.model.ts',
-      },
-      {
-        id: 'scripts',
-        title: 'Available Scripts',
-        content: `The template includes pre-configured scripts:
-
-| Script | Description |
-|--------|-------------|
-| \`npm run dev\` | Start development server with hot reload |
-| \`npm run build\` | Build for production |
-| \`npm start\` | Start production server |
-| \`npm run lint\` | Run ESLint |
-| \`npm run lint:fix\` | Fix ESLint errors |
-| \`npm test\` | Run tests with Vitest |`,
+        id: 'commands',
+        title: 'Other commands',
+        content: '`init` writes a one-file server in the current folder. `init --template` copies the full starter, including the controller and the service.',
+        code: `npx @forgedevstack/harbor init
+npx @forgedevstack/harbor init --template
+npx @forgedevstack/harbor version
+npx @forgedevstack/harbor help`,
+        filename: 'terminal',
       },
     ],
   },
@@ -322,7 +249,7 @@ export const User = model('User', userSchema);`,
         id: 'defining-schema',
         title: 'Defining Your Schema',
         content: `A schema defines the structure of documents in a MongoDB collection. It's similar to Mongoose schemas but uses string types for better clarity:`,
-        code: `import { Schema } from 'harbor';
+        code: `import { Schema } from '@forgedevstack/harbor';
 
 const blogSchema = new Schema({
   title: 'String',                    // Shorthand for { type: 'String' }
@@ -529,7 +456,7 @@ const userSchema = new Schema({
         id: 'basic-connection',
         title: 'Basic Connection',
         content: 'Connect to MongoDB using the `connect` function:',
-        code: `import { connect, connection } from 'harbor';
+        code: `import { connect, connection } from '@forgedevstack/harbor';
 
 // Connect to MongoDB
 await connect('mongodb://localhost:27017/myapp');
@@ -580,7 +507,7 @@ console.log('Connected to:', connection.name);  // 'myapp'`,
         id: 'connection-events',
         title: 'Connection Events',
         content: 'Listen to connection events for monitoring and error handling:',
-        code: `import { connection } from 'harbor';
+        code: `import { connection } from '@forgedevstack/harbor';
 
 // Connected successfully
 connection.on('connected', () => {
@@ -619,7 +546,7 @@ connection.on('close', () => {
 | Connected | 1 | Successfully connected |
 | Connecting | 2 | Connection in progress |
 | Disconnecting | 3 | Disconnection in progress |`,
-        code: `import { connection } from 'harbor';
+        code: `import { connection } from '@forgedevstack/harbor';
 
 // Check connection state
 console.log(connection.readyState);  // 0, 1, 2, or 3
@@ -643,7 +570,7 @@ console.log('Database ping:', isAlive);  // true or false`,
         id: 'disconnect',
         title: 'Disconnecting',
         content: 'Properly close the connection when shutting down:',
-        code: `import { disconnect, connection } from 'harbor';
+        code: `import { disconnect, connection } from '@forgedevstack/harbor';
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
@@ -670,7 +597,7 @@ await connection.close();`,
         id: 'creating-model',
         title: 'Creating a Model',
         content: 'Use the `model` function to compile a schema into a Model:',
-        code: `import { Schema, model } from 'harbor';
+        code: `import { Schema, model } from '@forgedevstack/harbor';
 
 // Define schema
 const userSchema = new Schema({
@@ -1117,7 +1044,7 @@ userSchema.pre('findOneAndUpdate', function(next) {
         id: 'request-validation',
         title: 'Request Validation',
         content: 'Validate incoming request data in routes:',
-        code: `import { POST, GET } from 'harbor';
+        code: `import { POST, GET } from '@forgedevstack/harbor';
 
 // Validate body, params, query, and headers
 const createUser = POST('/api/users', async (req) => {
@@ -1156,13 +1083,55 @@ const listUsers = GET('/api/users', async (req) => {
 
   'routes': {
     title: 'Routes',
-    description: 'Define API routes using Harbor\'s simple route helpers.',
+    description: 'Define API routes with an array, or mark class methods with @route. Both use the same router.',
     sections: [
+      {
+        id: 'marked-routes',
+        title: 'Marked routes',
+        content: 'Put @route.get (or post, put, patch, del) on a class method. The method receives one ctx object and returns data. router() mounts the class on a prefix. @check, @pre, @timeout, @limit, and @route.cache use the validation, middleware, timeout, rate limit, and cache Harbor already has. Delete uses @route.del because delete is a reserved word.',
+        code: `import { createServer, router, route, check, pre } from '@forgedevstack/harbor';
+import type { RouteCtx } from '@forgedevstack/harbor';
+
+class Users {
+  @route.get('/')
+  list() {
+    return { users: [] };
+  }
+
+  @route.post('/')
+  @check({
+    body: {
+      email: { type: 'email', required: true },
+      name: { type: 'string', required: true, min: 2 },
+    },
+  })
+  create(ctx: RouteCtx) {
+    const body = ctx.body as { email: string; name: string };
+    return { id: '1', ...body };
+  }
+
+  @route.del('/:id')
+  @pre((req, res, next) => {
+    if (!req.header('authorization')) {
+      res.status(401).json({ success: false });
+      return;
+    }
+    next();
+  })
+  remove(ctx: RouteCtx) {
+    return { deleted: ctx.params.id };
+  }
+}
+
+const server = createServer({ port: 3000 });
+server.use(router('/api/users', Users));`,
+        filename: 'users.routes.ts',
+      },
       {
         id: 'basic-routes',
         title: 'Basic Routes',
         content: 'Use the route helper functions to create routes:',
-        code: `import { createServer, GET, POST, PUT, DELETE } from 'harbor';
+        code: `import { createServer, GET, POST, PUT, DELETE } from '@forgedevstack/harbor';
 
 const server = createServer({ port: 3000 });
 
@@ -1207,7 +1176,7 @@ server.addRoute(
         id: 'route-options',
         title: 'Route Options',
         content: 'Configure routes with validation, middleware, and more:',
-        code: `import { POST, GET } from 'harbor';
+        code: `import { POST, GET } from '@forgedevstack/harbor';
 
 const createUser = POST('/api/users', async (req) => {
   const { email, name } = req.validated.body;
@@ -1250,7 +1219,7 @@ const createUser = POST('/api/users', async (req) => {
         id: 'harbor-error',
         title: 'HarborError Class',
         content: 'Throw HarborError to return consistent error responses:',
-        code: `import { GET, HarborError } from 'harbor';
+        code: `import { GET, HarborError } from '@forgedevstack/harbor';
 
 const getUser = GET('/api/users/:id', async (req) => {
   const user = await User.findById(req.params.id);
@@ -1323,7 +1292,7 @@ const getUser = GET('/api/users/:id', async (req) => {
         id: 'create-server',
         title: 'createServer',
         content: 'Create a new server instance:',
-        code: `import { createServer } from 'harbor';
+        code: `import { createServer } from '@forgedevstack/harbor';
 
 const server = createServer({
   // Port to listen on
@@ -1386,7 +1355,7 @@ console.log(info);  // { host: 'localhost', port: 3000, status: 'running' }`,
         id: 'docker-manager',
         title: 'Creating Docker Manager',
         content: 'Create and configure a Docker manager:',
-        code: `import { createDockerManager } from 'harbor';
+        code: `import { createDockerManager } from '@forgedevstack/harbor';
 
 const docker = createDockerManager({
   composePath: './docker-compose.yml',
@@ -1430,7 +1399,7 @@ const output = await docker.exec('web', 'npm run migrate');`,
         id: 'set-locale',
         title: 'Setting Locale',
         content: 'Set the language for all Harbor messages:',
-        code: `import { setLocale, getLocale, getAvailableLocales } from 'harbor';
+        code: `import { setLocale, getLocale, getAvailableLocales } from '@forgedevstack/harbor';
 
 // Set to Hebrew
 setLocale('he');
@@ -1446,7 +1415,7 @@ console.log(getAvailableLocales());  // ['en', 'he']`,
         id: 'translations',
         title: 'Using Translations',
         content: 'Use the `t` function to get translated messages:',
-        code: `import { t, setLocale } from 'harbor';
+        code: `import { t, setLocale } from '@forgedevstack/harbor';
 
 setLocale('he');
 
@@ -1463,7 +1432,7 @@ console.log(t('server.started', { host: 'localhost', port: 3000 }));
         id: 'custom-translations',
         title: 'Adding Custom Translations',
         content: 'Add your own translations:',
-        code: `import { addTranslations } from 'harbor';
+        code: `import { addTranslations } from '@forgedevstack/harbor';
 
 // Add English translations
 addTranslations('en', {
@@ -1478,7 +1447,7 @@ addTranslations('he', {
 });
 
 // Use them
-import { t } from 'harbor';
+import { t } from '@forgedevstack/harbor';
 console.log(t('app.goodbye', { name: 'John' }));`,
         filename: 'custom-translations.ts',
       },
@@ -2232,4 +2201,6 @@ npx forge add forge-auth`,
       },
     ],
   },
+  ...EXTRA_DOCS,
+  ...MORE_DOCS,
 };

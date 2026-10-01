@@ -2,96 +2,42 @@
 
 {{PROJECT_DESCRIPTION}}
 
-Built with [Harbor](https://forgedevstack.com/harbor) - The pipeline for Node.js backends.
+This project is ready to run. It does not need MongoDB. Users live in memory so you can call the API as soon as the server starts.
 
-## Features
-
-- 🚀 **Express Server** - Fast and minimal web framework
-- 📦 **MongoDB** - Database with Harbor ODM
-- 🔒 **TypeScript** - Type-safe development
-- 📝 **ESLint** - Code linting and formatting
-- 🧪 **Vitest** - Testing framework
-- 📁 **Clean Architecture** - Organized folder structure
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- MongoDB (local or Atlas)
-
-### Installation
+## Start
 
 ```bash
-# Install dependencies
 npm install
-
-# Copy environment variables
-cp .env.example .env
-
-# Start development server
 npm run dev
 ```
 
-### Available Scripts
+Open http://localhost:3000/api/health
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run build` | Build for production |
-| `npm start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run lint:fix` | Fix ESLint errors |
-| `npm test` | Run tests |
+Routes stay thin. `src/routes/users.ts` calls `UserController`, and the controller calls `UserService`.
 
-## Project Structure
+## API
 
-```
-├── server.ts          # Application entry point
-├── routes/            # Route definitions
-│   ├── index.ts       # Route aggregator
-│   └── user.routes.ts # User routes
-├── controllers/       # Request handlers
-│   └── user.controller.ts
-├── services/          # Business logic
-│   └── user.service.ts
-├── models/            # Database models
-│   └── user.model.ts
-├── types/             # TypeScript definitions
-├── utils/             # Utility functions
-├── constants/         # App constants & config
-└── package.json
+| Method | Path | Body |
+| --- | --- | --- |
+| GET | `/api/health` | |
+| GET | `/api/users` | |
+| GET | `/api/users/:id` | |
+| POST | `/api/users` | `{ "name": "Ada", "email": "ada@harbor.dev" }` |
+| DELETE | `/api/users/:id` | |
+
+```bash
+curl http://localhost:3000/api/users
+curl -X POST http://localhost:3000/api/users \
+  -H 'content-type: application/json' \
+  -d '{"name":"Grace","email":"grace@harbor.dev"}'
 ```
 
-## API Endpoints
+## Scripts
 
-### Users
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Start with reload |
+| `npm run build` | Compile TypeScript to `dist/` |
+| `npm start` | Run the compiled server |
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/users` | Get all users |
-| GET | `/api/users/:id` | Get user by ID |
-| POST | `/api/users` | Create new user |
-| PUT | `/api/users/:id` | Update user |
-| DELETE | `/api/users/:id` | Delete user |
-
-### Health Check
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Server health status |
-
-## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Server port | `3000` |
-| `NODE_ENV` | Environment | `development` |
-| `MONGODB_URI` | MongoDB connection string | - |
-| `DB_NAME` | Database name | `harbor_app` |
-| `JWT_SECRET` | JWT signing secret | - |
-
-## License
-
-MIT
-
+Set `PORT` to change the port. The default is `3000`.

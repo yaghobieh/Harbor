@@ -38,6 +38,12 @@ jobs:
         run: npm test -- --run
 
       - name: Publish to npm
-        run: npm publish --access public --provenance
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@forgedevstack/harbor@${VERSION}" version >/dev/null 2>&1; then
+            echo "${VERSION} is already on npm"
+          else
+            npm publish --access public --provenance
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

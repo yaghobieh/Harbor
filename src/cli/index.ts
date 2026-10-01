@@ -2,9 +2,7 @@
 
 import { resolve, join, dirname } from 'path';
 import { existsSync, writeFileSync, mkdirSync, readFileSync, readdirSync, statSync } from 'fs';
-import { createLogger } from '../utils/logger';
-
-const logger = createLogger('cli');
+import { printWelcome, paint } from './logo';
 
 interface CliCommand {
   name: string;
@@ -15,23 +13,13 @@ interface CliCommand {
 const commands: CliCommand[] = [
   {
     name: 'create',
-    description: 'Create a new Harbor project with full boilerplate',
+    description: 'Create a ready-to-run Harbor API',
     action: createProject,
   },
   {
     name: 'init',
-    description: 'Initialize Harbor config in existing project',
+    description: 'Add Harbor to the current folder (--template for the full starter)',
     action: initProject,
-  },
-  {
-    name: 'generate',
-    description: 'Generate server file from config',
-    action: generateServer,
-  },
-  {
-    name: 'docs',
-    description: 'Generate API documentation',
-    action: generateDocs,
   },
   {
     name: 'version',
@@ -40,289 +28,165 @@ const commands: CliCommand[] = [
   },
   {
     name: 'help',
-    description: 'Show help information',
+    description: 'Show help',
     action: showHelp,
   },
 ];
 
-async function main(): Promise<void> {
-  const args = process.argv.slice(2);
-  const commandName = args[0] ?? 'help';
-  const commandArgs = args.slice(1);
-
-  const command = commands.find((c) => c.name === commandName);
-
-  if (!command) {
-    console.error(`Unknown command: ${commandName}`);
-    showHelp();
-    process.exit(1);
-  }
-
+function readVersion(): string {
   try {
-    await command.action(commandArgs);
-  } catch (error) {
-    logger.error('Command failed', error as Error);
-    process.exit(1);
+    const pkgPath = join(__dirname, '../../package.json');
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as { version?: string };
+    return pkg.version ?? '1.6.5';
+  } catch {
+    return '1.6.5';
   }
 }
 
-/**
- * Copy directory recursively
- */
+function packageName(name: string): string {
+  const cleaned = name.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+  return cleaned || 'harbor-app';
+}
+
+function findTemplates(): string {
+  const candidates = [
+    resolve(__dirname, '../../templates/default'),
+    resolve(__dirname, '../../../templates/default'),
+  ];
+  const found = candidates.find((candidate) => existsSync(candidate));
+  if (!found) {
+    console.error('Templates not found. Reinstall @forgedevstack/harbor.');
+    process.exit(1);
+  }
+  return found;
+}
+
 function copyDirectory(src: string, dest: string, replacements: Record<string, string> = {}): void {
   if (!existsSync(dest)) {
     mkdirSync(dest, { recursive: true });
   }
 
-  const entries = readdirSync(src);
-
-  for (const entry of entries) {
+  for (const entry of readdirSync(src)) {
     const srcPath = join(src, entry);
     const destPath = join(dest, entry);
-    const stats = statSync(srcPath);
 
-    if (stats.isDirectory()) {
+    if (statSync(srcPath).isDirectory()) {
       copyDirectory(srcPath, destPath, replacements);
-    } else {
-      // Read file content
-      let content = readFileSync(srcPath, 'utf-8');
-
-      // Apply replacements for template variables
-      for (const [key, value] of Object.entries(replacements)) {
-        content = content.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
-      }
-
-      // Handle env.example -> .env.example rename
-      const finalDestPath = entry === 'env.example' 
-        ? join(dirname(destPath), '.env.example')
-        : destPath;
-
-      writeFileSync(finalDestPath, content, 'utf-8');
+      continue;
     }
+
+    let content = readFileSync(srcPath, 'utf-8');
+    for (const [key, value] of Object.entries(replacements)) {
+      content = content.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
+    }
+
+    const finalDestPath = entry === 'env.example'
+      ? join(dirname(destPath), '.env.example')
+      : destPath;
+
+    writeFileSync(finalDestPath, content, 'utf-8');
   }
 }
 
-/**
- * Create a new project with full boilerplate
- */
-async function createProject(args: string[]): Promise<void> {
-  const projectName = args[0];
-
-  if (!projectName) {
-    console.error('Please provide a project name: harbor create <project-name>');
-    process.exit(1);
-  }
-
-  const projectPath = resolve(process.cwd(), projectName);
-
-  if (existsSync(projectPath)) {
-    console.error(`Directory "${projectName}" already exists`);
-    process.exit(1);
-  }
-
-  console.log(`\n🚢 Creating Harbor project: ${projectName}\n`);
-
-  // Find templates directory
-  // When installed from npm, templates are in the package root
-  // When running locally, they're in the project root
-  let templatesPath = resolve(__dirname, '../../templates/default');
-  
-  if (!existsSync(templatesPath)) {
-    // Try relative to src for development
-    templatesPath = resolve(__dirname, '../../../templates/default');
-  }
-
-  if (!existsSync(templatesPath)) {
-    console.error('Templates not found. Please reinstall Harbor.');
-    process.exit(1);
-  }
-
-  // Template replacements
-  const replacements: Record<string, string> = {
-    PROJECT_NAME: projectName,
-    PROJECT_DESCRIPTION: `A Node.js backend built with Harbor`,
-    CREATED_AT: new Date().toISOString(),
-  };
-
-  // Copy template files
-  console.log('📁 Copying project files...');
-  copyDirectory(templatesPath, projectPath, replacements);
-
-  // Create harbor.config.json
+function writeHarborConfig(projectPath: string): void {
   const harborConfig = {
     server: {
       port: 3000,
       host: 'localhost',
-      cors: {
-        enabled: true,
-        origin: '*',
-      },
+      cors: { enabled: true, origin: '*' },
     },
-    database: {
-      type: 'mongodb',
-      uri: '',
-      name: projectName.toLowerCase().replace(/[^a-z0-9]/g, '_'),
-    },
-    routes: {
-      prefix: '/api',
-      timeout: 30000,
-    },
-    errors: {
-      404: { message: 'Not Found', json: true },
-      500: { message: 'Internal Server Error', json: true, log: true },
-    },
-    logger: {
-      enabled: true,
-      level: 'info',
-      format: 'text',
-    },
+    routes: { prefix: '/api', timeout: 30000 },
+    logger: { enabled: true, level: 'info', format: 'text' },
   };
 
-  writeFileSync(
-    join(projectPath, 'harbor.config.json'),
-    JSON.stringify(harborConfig, null, 2),
-    'utf-8'
-  );
+  writeFileSync(join(projectPath, 'harbor.config.json'), JSON.stringify(harborConfig, null, 2), 'utf-8');
+}
 
-  console.log('✅ Project created successfully!\n');
-  console.log('📂 Project structure:\n');
+function printTree(projectName: string): void {
+  console.log(paint('  Project'));
   console.log(`   ${projectName}/`);
-  console.log('   ├── server.ts           # Application entry point');
-  console.log('   ├── routes/             # Route definitions');
-  console.log('   ├── controllers/        # Request handlers');
-  console.log('   ├── services/           # Business logic');
-  console.log('   ├── models/             # Database models');
-  console.log('   ├── types/              # TypeScript definitions');
-  console.log('   ├── utils/              # Utility functions');
-  console.log('   ├── constants/          # App constants & config');
+  console.log('   ├── src/server.ts');
+  console.log('   ├── src/routes/health.ts');
+  console.log('   ├── src/routes/users.ts');
+  console.log('   ├── src/controllers/user.controller.ts');
+  console.log('   ├── src/services/user.service.ts');
   console.log('   ├── package.json');
   console.log('   ├── tsconfig.json');
-  console.log('   ├── .eslintrc.json');
+  console.log('   ├── .env.example');
   console.log('   └── harbor.config.json');
+}
 
-  console.log('\n🚀 Next steps:\n');
-  console.log(`   cd ${projectName}`);
+function printNextSteps(directory: string): void {
+  console.log();
+  console.log(paint('  Next'));
+  if (directory) {
+    console.log(`   cd ${directory}`);
+  }
   console.log('   npm install');
-  console.log('   cp .env.example .env');
-  console.log('   npm run dev\n');
+  console.log('   npm run dev');
+  console.log();
+  console.log('   http://localhost:3000/api/health');
+  console.log('   http://localhost:3000/api/users');
+  console.log();
+}
 
-  console.log('📚 Documentation: https://forgedevstack.com/harbor\n');
+async function createProject(args: string[]): Promise<void> {
+  const projectName = args[0];
+  printWelcome(readVersion());
+
+  if (!projectName) {
+    console.error('  Give the app a name:  harbor create my-api\n');
+    process.exit(1);
+  }
+
+  const projectPath = resolve(process.cwd(), projectName);
+  if (existsSync(projectPath)) {
+    console.error(`  "${projectName}" already exists.\n`);
+    process.exit(1);
+  }
+
+  const replacements = {
+    PROJECT_NAME: projectName,
+    PROJECT_PACKAGE: packageName(projectName),
+    PROJECT_DESCRIPTION: 'A Node.js API built with Harbor',
+  };
+
+  copyDirectory(findTemplates(), projectPath, replacements);
+  writeHarborConfig(projectPath);
+
+  console.log(paint(`  Created ${projectName}`));
+  console.log();
+  printTree(projectName);
+  printNextSteps(projectName);
 }
 
 function initProject(args: string[]): void {
   const cwd = process.cwd();
   const useTemplate = args.includes('--template') || args.includes('-t');
-  const projectName = cwd.split('/').pop() || 'my-app';
-  
+  const projectName = cwd.split('/').pop() || 'harbor-app';
+
+  printWelcome(readVersion());
+
   if (useTemplate) {
-    console.log('\n🚢 Initializing with template...\n');
-    
-    // Find templates directory
-    let templatesPath = resolve(__dirname, '../../templates/default');
-    if (!existsSync(templatesPath)) {
-      templatesPath = resolve(__dirname, '../../../templates/default');
-    }
-
-    if (!existsSync(templatesPath)) {
-      console.error('Templates not found. Please reinstall Harbor.');
-      process.exit(1);
-    }
-
-    // Template replacements
-    const replacements: Record<string, string> = {
+    const replacements = {
       PROJECT_NAME: projectName,
-      PROJECT_DESCRIPTION: `A Node.js backend built with Harbor`,
+      PROJECT_PACKAGE: packageName(projectName),
+      PROJECT_DESCRIPTION: 'A Node.js API built with Harbor',
     };
-
-    // Copy template files
-    console.log('📁 Copying project files...');
-    copyDirectory(templatesPath, cwd, replacements);
-
-    // Create harbor.config.json
-    const harborConfig = {
-      server: {
-        port: 3000,
-        host: 'localhost',
-        cors: { enabled: true, origin: '*' },
-      },
-      database: {
-        type: 'mongodb',
-        uri: '',
-        name: projectName.toLowerCase().replace(/[^a-z0-9]/g, '_'),
-      },
-      routes: { prefix: '/api', timeout: 30000 },
-      errors: {
-        404: { message: 'Not Found', json: true },
-        500: { message: 'Internal Server Error', json: true, log: true },
-      },
-      logger: { enabled: true, level: 'info', format: 'text' },
-    };
-
-    writeFileSync(
-      join(cwd, 'harbor.config.json'),
-      JSON.stringify(harborConfig, null, 2),
-      'utf-8'
-    );
-
-    console.log('✅ Project initialized with template!\n');
-    console.log('🚀 Next steps:\n');
-    console.log('   npm install');
-    console.log('   cp .env.example .env');
-    console.log('   npm run dev\n');
+    copyDirectory(findTemplates(), cwd, replacements);
+    writeHarborConfig(cwd);
+    console.log(paint('  Starter copied into this folder'));
+    console.log();
+    printTree(projectName);
+    printNextSteps('');
     return;
   }
 
-  // Simple init without template
   const configPath = resolve(cwd, 'harbor.config.json');
-  if (existsSync(configPath)) {
-    console.log('harbor.config.json already exists');
-    return;
+  if (!existsSync(configPath)) {
+    writeHarborConfig(cwd);
+    console.log(paint('  Wrote harbor.config.json'));
   }
-
-  const defaultConfig = {
-    server: {
-      port: 3000,
-      host: 'localhost',
-      cors: {
-        enabled: true,
-        origin: '*',
-      },
-      bodyParser: {
-        json: true,
-        urlencoded: true,
-        limit: '10mb',
-      },
-    },
-    routes: {
-      prefix: '/api',
-      timeout: 30000,
-    },
-    validation: {
-      adapter: 'mongoose',
-      strictMode: true,
-      sanitize: true,
-    },
-    errors: {
-      404: {
-        message: 'Not Found',
-        json: true,
-      },
-      500: {
-        message: 'Internal Server Error',
-        json: true,
-        log: true,
-      },
-    },
-    logger: {
-      enabled: true,
-      level: 'info',
-      format: 'text',
-      output: 'console',
-    },
-  };
-
-  writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2), 'utf-8');
-  console.log('Created harbor.config.json');
 
   const serverDir = resolve(cwd, 'src');
   if (!existsSync(serverDir)) {
@@ -331,66 +195,76 @@ function initProject(args: string[]): void {
 
   const serverPath = resolve(serverDir, 'server.ts');
   if (!existsSync(serverPath)) {
-    const serverTemplate = `import { createServer, router, GET } from '@forgedevstack/harbor';
+    writeFileSync(serverPath, `import { createServer, router, route } from '@forgedevstack/harbor';
+
+class Health {
+  @route.get('/')
+  check() {
+    return { status: 'ok' };
+  }
+}
 
 const server = createServer({ port: 3000 });
-
-// Define routes
-const healthRoutes = router('/health', [
-  GET('/', async () => ({ 
-    status: 'ok', 
-    timestamp: new Date().toISOString() 
-  })),
-]);
-
-server.use(healthRoutes);
-
-console.log('Server running at http://localhost:3000');
-`;
-
-    writeFileSync(serverPath, serverTemplate, 'utf-8');
-    console.log('Created src/server.ts');
+server.use(router('/api/health', Health));
+server.listen(3000, () => {
+  console.log('http://localhost:3000/api/health');
+});
+`, 'utf-8');
+    console.log(paint('  Wrote src/server.ts'));
   }
 
-  console.log('\nHarbor project initialized!');
-  console.log('Run: npm install @forgedevstack/harbor');
-  console.log('Then: npm run dev');
-  console.log('\nTip: Use --template flag for full boilerplate');
-}
-
-function generateServer(): void {
-  console.log('Generating server from config...');
-  console.log('This feature is coming soon!');
-}
-
-function generateDocs(): void {
-  console.log('Generating API documentation...');
-  console.log('This feature is coming soon!');
+  console.log();
+  console.log('   npm install @forgedevstack/harbor tsx');
+  console.log('   npx tsx src/server.ts');
+  console.log();
+  console.log('   Full starter:  harbor init --template');
+  console.log();
 }
 
 function showVersion(): void {
-  console.log('@forgedevstack/harbor v1.6.4');
+  printWelcome(readVersion());
 }
 
 function showHelp(): void {
-  console.log('\n🚢 ForgeStack Harbor - Node.js Backend Framework\n');
-  console.log('Usage: harbor <command> [options]\n');
-  console.log('Commands:\n');
-
+  printWelcome(readVersion());
+  console.log('  harbor <command>\n');
   for (const command of commands) {
-    console.log(`  ${command.name.padEnd(12)} ${command.description}`);
+    console.log(`  ${command.name.padEnd(10)} ${command.description}`);
   }
-
-  console.log('\nOptions:\n');
-  console.log('  --template, -t     Use full boilerplate template (for init command)');
-
-  console.log('\nExamples:\n');
-  console.log('  npx @forgedevstack/harbor create my-app    Create new project');
-  console.log('  harbor create my-app                    Create new project');
-  console.log('  harbor init                             Initialize config');
-  console.log('  harbor init --template                  Initialize with full boilerplate');
-  console.log('  harbor version                          Show version');
-  console.log('\nDocumentation: https://forgedevstack.com/harbor');
+  console.log();
+  console.log('  npx @forgedevstack/harbor create my-api');
+  console.log('  npx @forgedevstack/harbor --create my-api');
+  console.log('  harbor init');
+  console.log('  harbor init --template');
+  console.log();
+  console.log('  https://www.npmjs.com/package/@forgedevstack/harbor');
+  console.log();
 }
 
-main();
+async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  const createFlag = args.indexOf('--create');
+  if (createFlag !== -1) {
+    const name = args[createFlag + 1];
+    await createProject(name && !name.startsWith('-') ? [name] : []);
+    return;
+  }
+
+  const commandName = args[0] ?? 'help';
+  const commandArgs = args.slice(1);
+  const command = commands.find((item) => item.name === commandName);
+
+  if (!command) {
+    console.error(`\n  Unknown command: ${commandName}\n`);
+    showHelp();
+    process.exit(1);
+  }
+
+  await command.action(commandArgs);
+}
+
+main().catch((error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(`\n  ${message}\n`);
+  process.exit(1);
+});

@@ -13,7 +13,7 @@ import { EXAMPLE_TABS } from '@/constants';
 const EXAMPLES: Record<string, { filename: string; code: string }> = {
   routing: {
     filename: 'routes/users.ts',
-    code: `import { GET, POST, DELETE } from 'harbor';
+    code: `import { GET, POST, DELETE } from '@forgedevstack/harbor';
 
 // GET /api/users - List all users (No .build() needed!)
 export const listUsers = GET('/api/users', async (req) => {
@@ -50,9 +50,49 @@ export const deleteUser = DELETE('/api/users/:id', async (req) => {
   timeout: 5000
 });`,
   },
+  marked: {
+    filename: 'routes/Users.ts',
+    code: `import { createServer, router, route, check, pre } from '@forgedevstack/harbor';
+import type { RouteCtx } from '@forgedevstack/harbor';
+
+class Users {
+  @route.get('/')
+  list() {
+    return { users: [] };
+  }
+
+  @route.post('/')
+  @check({
+    body: {
+      email: { type: 'email', required: true },
+      name: { type: 'string', required: true, min: 2 },
+    },
+  })
+  create(ctx: RouteCtx) {
+    const body = ctx.body as { email: string; name: string };
+    return { id: '1', email: body.email, name: body.name };
+  }
+
+  @route.del('/:id')
+  @pre((req, res, next) => {
+    if (!req.header('authorization')) {
+      res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+      return;
+    }
+    next();
+  })
+  remove(ctx: RouteCtx) {
+    return { deleted: ctx.params.id };
+  }
+}
+
+const server = createServer({ port: 3000 });
+server.use(router('/api/users', Users));
+server.listen(3000);`,
+  },
   database: {
     filename: 'models/User.ts',
-    code: `import { Schema, model, connect } from 'harbor';
+    code: `import { Schema, model, connect } from '@forgedevstack/harbor';
 
 // Connect to MongoDB (like mongoose.connect)
 await connect('mongodb://localhost:27017/myapp');
@@ -91,7 +131,7 @@ await User.deleteOne({ email: 'john@example.com' });`,
   },
   validation: {
     filename: 'validation/userSchema.ts',
-    code: `import { createMongoSchema, validators } from 'harbor';
+    code: `import { createMongoSchema, validators } from '@forgedevstack/harbor';
 
 // MongoDB-style schema validation
 export const userSchema = createMongoSchema({
@@ -129,7 +169,7 @@ const roleValidator = validators.enum(['user', 'admin']).default('user');`,
   },
   error: {
     filename: 'routes/protected.ts',
-    code: `import { GET, HarborError } from 'harbor';
+    code: `import { GET, HarborError } from '@forgedevstack/harbor';
 
 export const protectedRoute = GET('/api/admin/dashboard', async (req) => {
   // Check authentication
@@ -153,8 +193,8 @@ export const protectedRoute = GET('/api/admin/dashboard', async (req) => {
   },
   middleware: {
     filename: 'middleware/auth.ts',
-    code: `import { GET, HarborError } from 'harbor';
-import type { PreFunction, PostFunction } from 'harbor';
+    code: `import { GET, HarborError } from '@forgedevstack/harbor';
+import type { PreFunction, PostFunction } from '@forgedevstack/harbor';
 
 // Pre-function: Runs BEFORE the handler
 const authMiddleware: PreFunction = async (req, res, next) => {
@@ -188,7 +228,7 @@ const protectedRoute = GET('/api/profile', async (req) => {
   },
   docker: {
     filename: 'scripts/deploy.ts',
-    code: `import { createDockerManager } from 'harbor';
+    code: `import { createDockerManager } from '@forgedevstack/harbor';
 
 const docker = createDockerManager({
   composePath: './docker-compose.yml',
@@ -216,11 +256,11 @@ const output = await docker.exec('web', 'npm run migrate');`,
   },
 };
 
-export const CodeExamples: FC = () => {
+export const CodeExamples: FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   return (
-    <section id="examples" className="py-32 relative">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
+    <section id="examples" className={embedded ? 'mt-10' : 'py-32 relative'}>
+      <div className={embedded ? '' : 'max-w-7xl mx-auto px-6'}>
+        <div className={embedded ? 'mb-6' : 'text-center mb-16'}>
           <Typography variant="h2" className="text-4xl md:text-5xl font-bold mb-4">
             <GradientText preset="ocean" className="text-4xl md:text-5xl font-bold">
               Code Examples
@@ -232,7 +272,7 @@ export const CodeExamples: FC = () => {
         </div>
 
         <Tabs defaultTab="routing" variant="pills">
-          <TabList className="flex flex-wrap justify-center gap-3 mb-10">
+          <TabList className="flex gap-2 overflow-x-auto pb-2 mb-8 md:flex-wrap md:justify-center">
             {EXAMPLE_TABS.map((tab) => (
               <Tab key={tab.id} id={tab.id}>
                 {tab.label}

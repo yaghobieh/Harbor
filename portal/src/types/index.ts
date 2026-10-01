@@ -12,7 +12,21 @@ export interface Feature {
   icon: FeatureIcon;
 }
 
-export type FeatureIcon = 'bolt' | 'routes' | 'shield' | 'settings' | 'server' | 'code';
+export type FeatureIcon =
+  | 'bolt'
+  | 'routes'
+  | 'shield'
+  | 'settings'
+  | 'server'
+  | 'code'
+  | 'database'
+  | 'stack'
+  | 'mail'
+  | 'realtime'
+  | 'cache'
+  | 'clock'
+  | 'check'
+  | 'test';
 
 export interface CodeExample {
   id: string;
@@ -23,6 +37,8 @@ export interface CodeExample {
 }
 
 export interface ApiItem {
+  id: string;
+  tab: string;
   name: string;
   type: 'function' | 'class' | 'object' | 'type';
   description: string;

@@ -12,6 +12,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@forgedevstack/harbor"><img src="https://img.shields.io/npm/v/@forgedevstack/harbor.svg" alt="npm"></a>
   <a href="https://www.npmjs.com/search?q=%40forgedevstack"><img src="https://img.shields.io/npm/l/@forgedevstack/harbor.svg" alt="license"></a>
+  <a href="https://harbotjs.com">harbotjs.com</a>
 </p>
 
 ---
@@ -20,6 +21,7 @@
 
 | Feature | Description |
 |---------|-------------|
+| **Marked routes** | `@route.get` on a class method, mounted with `router()` |
 | **Zero-Config Server** | Create servers in seconds with Express under the hood |
 | **MongoDB ODM** | Full Mongoose replacement with Schema, Model, Query |
 | **Authentication** | JWT, API Key, RBAC, request signing |
@@ -55,6 +57,57 @@ const users = router('/api/users', [
 
 server.use(users);
 server.listen(3000, () => console.log('Server running!'));
+```
+
+### Marked routes (v1.6.5)
+
+Same router, written on the function. A class method marked with `@route.get` receives one `ctx` and returns data. Harbor still writes `{ success, data }`. `GET()` / `route.get()` arrays stay as they are.
+
+```typescript
+import { createServer, router, route, check, pre } from '@forgedevstack/harbor';
+import type { RouteCtx } from '@forgedevstack/harbor';
+
+class Users {
+  @route.get('/')
+  list() {
+    return { users: [] };
+  }
+
+  @route.post('/')
+  @check({
+    body: {
+      email: { type: 'email', required: true },
+      name: { type: 'string', required: true, min: 2 },
+    },
+  })
+  create(ctx: RouteCtx) {
+    const body = ctx.body as { email: string; name: string };
+    return { id: '1', email: body.email, name: body.name };
+  }
+
+  @route.del('/:id')
+  @pre((req, res, next) => {
+    if (!req.header('authorization')) {
+      res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+      return;
+    }
+    next();
+  })
+  remove(ctx: RouteCtx) {
+    return { deleted: ctx.params.id };
+  }
+}
+
+const server = createServer({ port: 3000 });
+server.use(router('/api/users', Users));
+```
+
+`@check` is request validation, `@pre` is middleware, `@timeout(ms)` and `@limit({ windowMs, max })` use the existing timeout and rate limit. `@route.cache({ ttl })` stores the JSON response. The cache manager itself stays `cache`, so the mark is `@route.cache`. Delete is `@route.del` so the mark parses in TypeScript and in esbuild (`delete` is a reserved word). `route.delete(path, handler)` is unchanged for route arrays.
+
+Try it in `lab/` (linked to this repo with `file:..`):
+
+```bash
+npm run lab
 ```
 
 ### Imports (ESM)
@@ -501,16 +554,15 @@ app.post('/upload', streamUpload({ storage }), (req, res) => {
 ## CLI
 
 ```bash
-# Initialize new project
-npx @forgedevstack/harbor init my-api
+# Ready-to-run API in a new folder
+npx @forgedevstack/harbor create my-api
+cd my-api
+npm install
+npm run dev
 
-# With template
-npx @forgedevstack/harbor init my-api --template default
-
-# Generate files
-npx @forgedevstack/harbor generate model User
-npx @forgedevstack/harbor generate controller User
-npx @forgedevstack/harbor generate route users
+# Current folder: one-file server, or the full starter
+npx @forgedevstack/harbor init
+npx @forgedevstack/harbor init --template
 ```
 
 ## Configuration

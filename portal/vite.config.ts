@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { harborStarterPlugin } from './starter-plugin';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), harborStarterPlugin(resolve(__dirname, '../templates/default'))],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -13,6 +14,12 @@ export default defineConfig({
       '@hooks': resolve(__dirname, 'src/hooks'),
       '@utils': resolve(__dirname, 'src/utils'),
       '@pages': resolve(__dirname, 'src/pages'),
+      vue: resolve(__dirname, 'src/vue-stub.ts'),
+    },
+  },
+  server: {
+    fs: {
+      allow: [resolve(__dirname, '..')],
     },
   },
   build: {

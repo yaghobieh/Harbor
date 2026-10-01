@@ -46,7 +46,7 @@ export const DocPage: FC = () => {
   }
 
   return (
-    <article className="max-w-4xl mx-auto py-12 px-6">
+    <article className="max-w-4xl mx-auto py-8 md:py-12 px-4 sm:px-6">
       <Breadcrumbs
         items={[
           { label: 'Home', href: '/' },
@@ -57,8 +57,8 @@ export const DocPage: FC = () => {
       />
 
       <header className="mb-12">
-        <Typography variant="h1" className="text-4xl md:text-5xl font-bold mb-4">
-          <GradientText preset="ocean" className="text-4xl md:text-5xl font-bold">
+        <Typography variant="h1" className="text-3xl md:text-5xl font-bold mb-4">
+          <GradientText preset="ocean" className="text-3xl md:text-5xl font-bold">
             {content.title}
           </GradientText>
         </Typography>
@@ -165,7 +165,7 @@ export const DocPage: FC = () => {
 
       <Divider className="opacity-10 mt-16 mb-8" />
 
-      <Flex justify="between">
+      <Flex justify="between" wrap="wrap" gap={4}>
         {prevPage ? (
           <Link to={prevPage.path} className="group">
             <Typography variant="caption" className="opacity-50 mb-1">Previous</Typography>
@@ -195,7 +195,7 @@ export const DocPage: FC = () => {
 // Helper function to format inline code
 function formatInlineCode(text: string): string {
   return text
-    .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded text-sm font-mono" style="background:rgba(255,255,255,0.08);color:var(--harbor-accent)">$1</code>')
+    .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded text-sm font-mono" style="background:var(--bg-tertiary);color:var(--harbor-accent)">$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold" style="color:var(--text-primary)">$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em>$1</em>');
 }

@@ -173,7 +173,13 @@ export const VersionDropdown: FC<VersionDropdownProps> = ({ className = '' }) =>
     <div className={className}>
       <Dropdown
         trigger={
-          <Button variant="ghost" size="xs" rightIcon={<BearIcons.ChevronDownIcon size="xs" />} className="text-xs font-mono">
+          <Button
+            variant="ghost"
+            size="xs"
+            rightIcon={<BearIcons.ChevronDownIcon size="xs" color="var(--text-primary)" />}
+            className="text-xs font-mono"
+            style={{ color: 'var(--text-primary)' }}
+          >
             v{currentVersion.version}
           </Button>
         }

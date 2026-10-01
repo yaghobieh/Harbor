@@ -12,39 +12,39 @@ interface FeatureCardProps {
 }
 
 const ICONS: Record<FeatureIcon, ReactNode> = {
-  bolt: <BearIcons.ZapIcon size="md" color="var(--harbor-accent)" />,
-  routes: <BearIcons.MapIcon size="md" color="var(--harbor-accent)" />,
-  shield: <BearIcons.ShieldCheckIcon size="md" color="var(--harbor-accent)" />,
-  settings: <BearIcons.SettingsIcon size="md" color="var(--harbor-accent)" />,
-  server: <BearIcons.ServerIcon size="md" color="var(--harbor-accent)" />,
-  code: <BearIcons.CodeIcon size="md" color="var(--harbor-accent)" />,
-  database: <BearIcons.DatabaseIcon size="md" color="var(--harbor-accent)" />,
-  stack: <BearIcons.StackedBarIcon size="md" color="var(--harbor-accent)" />,
-  mail: <BearIcons.MailIcon size="md" color="var(--harbor-accent)" />,
-  realtime: <BearIcons.ZapIcon size="md" color="var(--harbor-accent)" />,
-  cache: <BearIcons.FolderIcon size="md" color="var(--harbor-accent)" />,
-  clock: <BearIcons.ClockIcon size="md" color="var(--harbor-accent)" />,
-  check: <BearIcons.CheckCircleIcon size="md" color="var(--harbor-accent)" />,
-  test: <BearIcons.SandboxIcon size="md" color="var(--harbor-accent)" />,
+  bolt: <BearIcons.ZapIcon size="sm" color="var(--harbor-accent)" />,
+  routes: <BearIcons.MapIcon size="sm" color="var(--harbor-accent)" />,
+  shield: <BearIcons.ShieldCheckIcon size="sm" color="var(--harbor-accent)" />,
+  settings: <BearIcons.SettingsIcon size="sm" color="var(--harbor-accent)" />,
+  server: <BearIcons.ServerIcon size="sm" color="var(--harbor-accent)" />,
+  code: <BearIcons.CodeIcon size="sm" color="var(--harbor-accent)" />,
+  database: <BearIcons.DatabaseIcon size="sm" color="var(--harbor-accent)" />,
+  stack: <BearIcons.StackedBarIcon size="sm" color="var(--harbor-accent)" />,
+  mail: <BearIcons.MailIcon size="sm" color="var(--harbor-accent)" />,
+  realtime: <BearIcons.ZapIcon size="sm" color="var(--harbor-accent)" />,
+  cache: <BearIcons.FolderIcon size="sm" color="var(--harbor-accent)" />,
+  clock: <BearIcons.ClockIcon size="sm" color="var(--harbor-accent)" />,
+  check: <BearIcons.CheckCircleIcon size="sm" color="var(--harbor-accent)" />,
+  test: <BearIcons.SandboxIcon size="sm" color="var(--harbor-accent)" />,
 };
 
 export const FeatureCard: FC<FeatureCardProps> = ({ feature }) => {
   return (
-    <Card variant="ghost" interactive padding="lg" radius="2xl" className="h-full">
+    <Card variant="ghost" interactive padding="sm" radius="xl">
       <CardBody>
         <div
-          className="w-14 h-14 rounded-xl p-[2px] mb-6"
+          className="w-10 h-10 rounded-lg p-[2px] mb-3"
           style={{ background: 'linear-gradient(135deg, var(--harbor-accent), var(--forge-accent))' }}
         >
           <div
-            className="w-full h-full rounded-[10px] flex items-center justify-center"
+            className="w-full h-full rounded-[6px] flex items-center justify-center"
             style={{ backgroundColor: 'var(--bg-primary)' }}
           >
             {ICONS[feature.icon]}
           </div>
         </div>
-        <Typography variant="h4" className="font-bold mb-3">{feature.title}</Typography>
-        <Typography className="opacity-60 leading-relaxed">{feature.description}</Typography>
+        <Typography variant="h5" className="font-bold mb-1">{feature.title}</Typography>
+        <Typography variant="body2" className="opacity-60 leading-snug">{feature.description}</Typography>
       </CardBody>
     </Card>
   );

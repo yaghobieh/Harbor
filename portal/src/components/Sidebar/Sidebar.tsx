@@ -1,20 +1,14 @@
 import { FC, useState, useMemo } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Sidebar as BearSidebar,
   Input,
   Typography,
-  Flex,
-  Divider,
-  Link as BearLink,
-  BearIcons,
 } from '@forgedevstack/bear';
 import type { SidebarProps as BearSidebarProps } from '@forgedevstack/bear';
 
 type SidebarItem = BearSidebarProps['items'][number];
 import { DOC_NAVIGATION } from '@/constants/docs.const';
-import { Logo } from '../Logo/Logo';
-import { VersionDropdown } from '../VersionDropdown/VersionDropdown';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -67,24 +61,19 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
 
   return (
     <div
-      className={`fixed left-0 top-0 h-screen w-72 z-50 transition-transform ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0`}
+      className={`harbor-docs-sidebar fixed top-14 h-[calc(100vh-3.5rem)] w-72 z-40 ${
+        isOpen ? 'left-0' : '-left-72'
+      } lg:left-0`}
     >
       <BearSidebar
         items={sidebarItems}
         activeItemId={activeItemId}
         onItemClick={handleItemClick}
         activeVariant="fill"
-        variant="bordered"
+        variant="default"
         fullHeight
         header={
           <div className="w-full">
-            <Link to="/" className="flex items-center gap-3 mb-3">
-              <Logo size="sm" />
-              <Typography variant="h5" className="font-bold">Harbor</Typography>
-              <VersionDropdown />
-            </Link>
             <Input
               placeholder="Search docs..."
               value={searchTerm}
@@ -94,26 +83,9 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
           </div>
         }
         footer={
-          <Flex direction="column" gap={3} className="w-full">
-            <BearLink href="https://forgedevstack.com" external className="text-sm">
-              <Flex align="center" gap={2}>
-                <BearIcons.ZapIcon size="xs" />
-                ForgeStack Ecosystem
-              </Flex>
-            </BearLink>
-            <BearLink href="https://www.npmjs.com/search?q=%40forgedevstack" external className="text-sm opacity-60">
-              <Flex align="center" gap={2}>
-                <BearIcons.PackageIcon size="xs" />
-                View on npm
-              </Flex>
-            </BearLink>
-
-            <Divider className="opacity-10" />
-
-            <Typography variant="caption" className="opacity-40">
-              Scaffold: <code className="font-mono" style={{ color: 'var(--harbor-accent)' }}>npx create-forge my-app</code>
-            </Typography>
-          </Flex>
+          <Typography variant="caption" className="opacity-40">
+            Scaffold: <code className="font-mono" style={{ color: 'var(--harbor-accent)' }}>npx create-forge my-app</code>
+          </Typography>
         }
         className="h-full"
         style={{ width: '100%' }}

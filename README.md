@@ -12,6 +12,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@forgedevstack/harbor"><img src="https://img.shields.io/npm/v/@forgedevstack/harbor.svg" alt="npm"></a>
   <a href="https://www.npmjs.com/search?q=%40forgedevstack"><img src="https://img.shields.io/npm/l/@forgedevstack/harbor.svg" alt="license"></a>
+  <a href="https://harbotjs.com">harbotjs.com</a>
 </p>
 
 ---
@@ -553,16 +554,15 @@ app.post('/upload', streamUpload({ storage }), (req, res) => {
 ## CLI
 
 ```bash
-# Initialize new project
-npx @forgedevstack/harbor init my-api
+# Ready-to-run API in a new folder
+npx @forgedevstack/harbor create my-api
+cd my-api
+npm install
+npm run dev
 
-# With template
-npx @forgedevstack/harbor init my-api --template default
-
-# Generate files
-npx @forgedevstack/harbor generate model User
-npx @forgedevstack/harbor generate controller User
-npx @forgedevstack/harbor generate route users
+# Current folder: one-file server, or the full starter
+npx @forgedevstack/harbor init
+npx @forgedevstack/harbor init --template
 ```
 
 ## Configuration

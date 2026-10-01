@@ -103,14 +103,16 @@ export const EXAMPLE_TABS = [
   { id: 'routing', label: 'Routing' },
   { id: 'marked', label: 'Marked' },
   { id: 'database', label: 'Database' },
-  { id: 'queue', label: 'Queue' },
-  { id: 'mail', label: 'Mail' },
-  { id: 'auth', label: 'Auth' },
-  { id: 'testing', label: 'Testing' },
+  { id: 'validation', label: 'Validation' },
+  { id: 'error', label: 'Errors' },
+  { id: 'middleware', label: 'Middleware' },
+  { id: 'docker', label: 'Docker' },
 ];
 
 export const API_ITEMS: ApiItem[] = [
   {
+    id: 'create-server',
+    tab: 'createServer',
     name: 'createServer(options)',
     type: 'function',
     description: 'Creates a new Harbor server instance with Express under the hood.',
@@ -124,6 +126,8 @@ export const API_ITEMS: ApiItem[] = [
 });`,
   },
   {
+    id: 'create-queue',
+    tab: 'createQueue',
     name: 'createQueue(name, options, events)',
     type: 'function',
     description: 'Creates a new job queue with priority processing, retries, and dead letter queue.',
@@ -147,6 +151,8 @@ queue.add({ to: 'user@test.com' }, { priority: 'high' });
 queue.start();`,
   },
   {
+    id: 'create-mailer',
+    tab: 'createMailer',
     name: 'createMailer(options) / createMailerFromProvider(provider, auth)',
     type: 'function',
     description: 'Creates a mailer for sending emails via SMTP. Use provider presets for Gmail, Outlook, SendGrid, SES.',
@@ -168,6 +174,8 @@ await mailer.sendTemplate('welcome', { name: 'John', app: 'MyApp' }, {
 });`,
   },
   {
+    id: 'schema',
+    tab: 'Schema',
     name: 'Schema(definition, options)',
     type: 'class',
     description: 'Define the structure of your documents with Mongoose-compatible schema syntax.',
@@ -183,6 +191,8 @@ userSchema.pre('save', async function(next) { /* hash password */ });
 const User = model('User', userSchema);`,
   },
   {
+    id: 'marked-routes',
+    tab: '@route',
     name: 'router(path, Users) / @route.get',
     type: 'function',
     description: 'Mount a class whose methods are marked with @route. The method receives ctx and its return value is the response data.',
@@ -206,6 +216,8 @@ const server = createServer({ port: 3000 });
 server.use(router('/api/users', Users));`,
   },
   {
+    id: 'http-helpers',
+    tab: 'GET / POST',
     name: 'GET / POST / PUT / PATCH / DELETE',
     type: 'function',
     description: 'Simple route definition functions.',
@@ -220,6 +232,8 @@ const route = POST('/api/users', handler, {
 });`,
   },
   {
+    id: 'harbor-error',
+    tab: 'HarborError',
     name: 'HarborError',
     type: 'class',
     description: 'Custom error class for consistent API error responses.',
@@ -280,13 +294,16 @@ const users = router('/api/users', [
 server.use(users);
 server.listen(3000, () => console.log('Server running!'));`;
 
+export const NPM_URL = 'https://www.npmjs.com/package/@forgedevstack/harbor';
+
+export const WALKTHROUGH_VIDEO = '/harbor.mp4';
+
 export const NAV_ITEMS = [
   { id: 'docs', label: 'Docs', href: '/docs/quick-start', isLink: true },
-  { id: 'features', label: 'Features', href: '#features' },
-  { id: 'examples', label: 'Examples', href: '#examples' },
-  { id: 'api', label: 'API', href: '#api' },
+  { id: 'changelog', label: 'Changelog', href: '/changelog', isLink: true },
+  { id: 'examples', label: 'Examples', href: '/sandbox', isLink: true },
+  { id: 'swagger', label: 'Swagger', href: '/docs/swagger', isLink: true },
   { id: 'forgestack', label: 'ForgeStack', href: 'https://forgedevstack.com', external: true },
-  { id: 'npm', label: 'npm', href: 'https://www.npmjs.com/search?q=%40forgedevstack', external: true },
 ];
 
 export const FOOTER_LINKS = [

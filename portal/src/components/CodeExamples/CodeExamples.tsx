@@ -256,11 +256,11 @@ const output = await docker.exec('web', 'npm run migrate');`,
   },
 };
 
-export const CodeExamples: FC = () => {
+export const CodeExamples: FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   return (
-    <section id="examples" className="py-32 relative">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
+    <section id="examples" className={embedded ? 'mt-10' : 'py-32 relative'}>
+      <div className={embedded ? '' : 'max-w-7xl mx-auto px-6'}>
+        <div className={embedded ? 'mb-6' : 'text-center mb-16'}>
           <Typography variant="h2" className="text-4xl md:text-5xl font-bold mb-4">
             <GradientText preset="ocean" className="text-4xl md:text-5xl font-bold">
               Code Examples
@@ -272,7 +272,7 @@ export const CodeExamples: FC = () => {
         </div>
 
         <Tabs defaultTab="routing" variant="pills">
-          <TabList className="flex flex-wrap justify-center gap-3 mb-10">
+          <TabList className="flex gap-2 overflow-x-auto pb-2 mb-8 md:flex-wrap md:justify-center">
             {EXAMPLE_TABS.map((tab) => (
               <Tab key={tab.id} id={tab.id}>
                 {tab.label}

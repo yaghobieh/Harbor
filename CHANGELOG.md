@@ -9,6 +9,8 @@ All notable changes to Harbor will be documented in this file.
 - **Marked routes** — `@route.get` / `@route.post` / `@route.put` / `@route.patch` / `@route.del` / `@route.head` / `@route.options` on a class method. `router('/api/users', Users)` mounts that class. The method takes one `ctx` (`query`, `body`, `params`, `headers`, `req`, `res`) and a returned value is still `{ success, data }`. `@route.del` is the delete mark (`delete` is a reserved word). `route.delete(path, handler)` still builds an array route.
 - **`@check`**, **`@pre`**, **`@after`**, **`@timeout`**, **`@limit`**, **`@route.cache`** — validation, middleware, timeout, rate limit, and response cache on a marked method. Also available as `route.check`, `route.pre`, `route.after`, `route.timeout`, `route.limit`, and `route.cache`. `route.get(path, handler)` arrays are unchanged.
 - **`lab/`** — local project linked with `file:..` for trying this version (`npm run lab`).
+- **CLI** — `harbor create` and `harbor init --template` copy `templates/default`, a starter that runs after `npm install` (in-memory users, marked routes). The command prints a gradient HARBOR wordmark.
+- **Portal sandbox** — file browser for that starter, in-browser API tryout, and a zip download of the same project.
 
 ### Portal
 

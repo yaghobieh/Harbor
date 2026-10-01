@@ -1,3 +1,6 @@
+import { EXTRA_DOCS } from './docs-extra.const';
+import { MORE_DOCS } from './docs-more.const';
+
 // Documentation Content for all pages
 
 interface DocContentSection {
@@ -144,172 +147,96 @@ The MongoDB driver is a peer dependency, meaning you can use any compatible vers
 
   'templates': {
     title: 'Project Templates',
-    description: 'Scaffold a complete Node.js backend project with Harbor CLI.',
+    description: 'A ready-to-run Harbor API. Download it from the sandbox, or create it with the CLI.',
     sections: [
       {
-        id: 'create-command',
-        title: 'Creating a Project',
-        content: 'Use the `harbor create` command to scaffold a new project with the full boilerplate:',
-        code: `harbor create my-api
+        id: 'download',
+        title: 'Download',
+        content: 'The sandbox serves the same files that live in `templates/default` in this repo. The zip is named `harbor-starter.zip`. Unzip it, install, and start.',
+        code: `npm install
+npm run dev
 
-# Output:
-# 🚢 Creating Harbor project: my-api
-# 📁 Copying project files...
-# ✅ Project created successfully!
-#
-# 🚀 Next steps:
-#    cd my-api
-#    npm install
-#    cp .env.example .env
-#    npm run dev`,
+# GET http://localhost:3000/api/health
+# GET http://localhost:3000/api/users`,
         filename: 'terminal',
       },
       {
-        id: 'init-template',
-        title: 'Initialize with Template',
-        content: 'You can also initialize an existing directory with the template using `--template` flag:',
-        code: `# Initialize current directory with full template
-harbor init --template
-
-# Or specify a template name (default is the only one currently)
-harbor init --template default`,
+        id: 'create-command',
+        title: 'Create with the CLI',
+        content: '`harbor create` copies that starter into a new folder and writes `harbor.config.json`.',
+        code: `npx @forgedevstack/harbor create my-api
+cd my-api
+npm install
+npm run dev`,
         filename: 'terminal',
       },
       {
         id: 'project-structure',
-        title: 'Project Structure',
-        content: `The template creates a well-organized project with the following structure:
+        title: 'What you get',
+        content: `The starter keeps users in memory, so it runs without MongoDB.
 
 \`\`\`
 my-api/
-├── server.ts           # Application entry point
-├── routes/             # Route definitions
-│   ├── index.ts
-│   └── user.routes.ts
-├── controllers/        # Request handlers
-│   ├── index.ts
-│   └── user.controller.ts
-├── services/           # Business logic
-│   ├── index.ts
-│   └── user.service.ts
-├── models/             # Database models (Harbor ODM)
-│   ├── index.ts
-│   └── user.model.ts
-├── types/              # TypeScript definitions
-│   └── index.ts
-├── utils/              # Utility functions
-│   ├── index.ts
-│   ├── logger.ts
-│   ├── asyncHandler.ts
-│   ├── response.ts
-│   └── validation.ts
-├── constants/          # App constants & config
-│   ├── index.ts
-│   ├── config.ts
-│   └── http.ts
+├── src/server.ts
+├── src/routes/health.ts
+├── src/routes/users.ts
+├── src/controllers/user.controller.ts
+├── src/services/user.service.ts
 ├── package.json
 ├── tsconfig.json
-├── .eslintrc.json
 ├── .env.example
 └── harbor.config.json
-\`\`\``,
+\`\`\`
+
+\`src/routes/users.ts\` only marks the route and calls \`UserController\`. The controller calls \`UserService\`. \`@check\` stays on the route method.`,
       },
       {
-        id: 'server-entry',
-        title: 'Server Entry Point',
-        content: 'The `server.ts` file is pre-configured with Harbor:',
-        code: `import { createServer, connect, httpLogger } from '@forgedevstack/harbor';
-import { routes } from './routes';
-import { config } from './constants';
+        id: 'init-template',
+        title: 'Existing folder',
+        content: '`harbor init` writes a one-file server. `harbor init --template` copies the full starter into the current folder.',
+        code: `harbor init
+harbor init --template`,
+        filename: 'terminal',
+      },
+    ],
+  },
 
-async function bootstrap() {
-  // Create server with Harbor
-  const app = createServer({
-    port: config.PORT,
-    cors: true,
-    helmet: true,
-    json: true,
-  });
-
-  // HTTP request logging
-  app.use(httpLogger({ format: 'dev' }));
-
-  // Connect to MongoDB (optional)
-  if (config.MONGODB_URI) {
-    await connect(config.MONGODB_URI, { dbName: config.DB_NAME });
-    console.log('📦 Connected to MongoDB');
-  }
-
-  // Register all routes
-  app.use('/api', routes);
-
-  // Start server
-  app.listen(config.PORT, () => {
-    console.log(\`🚀 Server running on http://localhost:\${config.PORT}\`);
-  });
-}
-
-bootstrap().catch(console.error);`,
-        filename: 'server.ts',
+  'cli': {
+    title: 'CLI',
+    description: 'npx @forgedevstack/harbor create prints the HARBOR wordmark, then writes a project you can run.',
+    sections: [
+      {
+        id: 'create',
+        title: 'Create',
+        content: 'Both forms print the same logo, then copy the starter into a new folder.',
+        code: `npx @forgedevstack/harbor create my-api
+npx @forgedevstack/harbor --create my-api`,
+        filename: 'terminal',
       },
       {
-        id: 'routes-example',
-        title: 'Routes Example',
-        content: 'Routes are organized in the `routes/` directory with a central index:',
-        code: `// routes/user.routes.ts
-import { Router } from 'express';
-import { GET, POST, PUT, DELETE } from '@forgedevstack/harbor';
-import { UserController } from '../controllers';
+        id: 'logo',
+        title: 'What you see',
+        content: 'Create, init, version, and help print this wordmark in a fuchsia-to-violet gradient, then the version.',
+        code: `██╗  ██╗ █████╗ ██████╗ ██████╗  ██████╗ ██████╗
+██║  ██║██╔══██╗██╔══██╗██╔══██╗██╔═══██╗██╔══██╗
+███████║███████║██████╔╝██████╔╝██║   ██║██████╔╝
+██╔══██║██╔══██║██╔══██╗██╔══██╗██║   ██║██╔══██╗
+██║  ██║██║  ██║██║  ██║██████╔╝╚██████╔╝██║  ██║
+╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═╝  ╚═╝
 
-export const userRoutes = Router();
-
-// GET /api/users - Get all users
-userRoutes.get('/', GET(UserController.getAll));
-
-// POST /api/users - Create new user
-userRoutes.post('/', POST(UserController.create));
-
-// PUT /api/users/:id - Update user
-userRoutes.put('/:id', PUT(UserController.update));
-
-// DELETE /api/users/:id - Delete user
-userRoutes.delete('/:id', DELETE(UserController.delete));`,
-        filename: 'routes/user.routes.ts',
+  ⚓  Harbor CLI
+  Node.js backends   v1.6.5`,
+        filename: 'terminal',
       },
       {
-        id: 'model-example',
-        title: 'Model Example',
-        content: 'Models use Harbor ODM (Mongoose-compatible):',
-        code: `// models/user.model.ts
-import { Schema, model } from '@forgedevstack/harbor/database';
-
-const userSchema = new Schema({
-  email: { type: 'string', required: true, unique: true },
-  name: { type: 'string', required: true },
-  password: { type: 'string', required: true, select: false },
-  role: { type: 'string', enum: ['user', 'admin'], default: 'user' },
-  isActive: { type: 'boolean', default: true },
-}, {
-  timestamps: true,
-  collection: 'users',
-});
-
-export const User = model('User', userSchema);`,
-        filename: 'models/user.model.ts',
-      },
-      {
-        id: 'scripts',
-        title: 'Available Scripts',
-        content: `The template includes pre-configured scripts:
-
-| Script | Description |
-|--------|-------------|
-| \`npm run dev\` | Start development server with hot reload |
-| \`npm run build\` | Build for production |
-| \`npm start\` | Start production server |
-| \`npm run lint\` | Run ESLint |
-| \`npm run lint:fix\` | Fix ESLint errors |
-| \`npm test\` | Run tests with Vitest |`,
+        id: 'commands',
+        title: 'Other commands',
+        content: '`init` writes a one-file server in the current folder. `init --template` copies the full starter, including the controller and the service.',
+        code: `npx @forgedevstack/harbor init
+npx @forgedevstack/harbor init --template
+npx @forgedevstack/harbor version
+npx @forgedevstack/harbor help`,
+        filename: 'terminal',
       },
     ],
   },
@@ -2274,4 +2201,6 @@ npx forge add forge-auth`,
       },
     ],
   },
+  ...EXTRA_DOCS,
+  ...MORE_DOCS,
 };

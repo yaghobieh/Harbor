@@ -78,7 +78,7 @@
     }
   },
   "bin": {
-    "harbor": "./dist/cli/index.js"
+    "harbor": "dist/cli/index.js"
   },
   "files": [
     "dist",
@@ -94,6 +94,8 @@
     "lint": "eslint src --ext .ts",
     "test": "vitest",
     "lab": "npm run build && npm install --prefix lab && npm test --prefix lab",
+    "portal:install": "cd portal && npm install",
+    "portal:build": "cd portal && npm run build",
     "prepublishOnly": "npm run build",
     "release": "npm run build && npm publish --access public",
     "release:patch": "npm version patch && npm run release",

@@ -37,6 +37,8 @@ export interface CodeExample {
 }
 
 export interface ApiItem {
+  id: string;
+  tab: string;
   name: string;
   type: 'function' | 'class' | 'object' | 'type';
   description: string;

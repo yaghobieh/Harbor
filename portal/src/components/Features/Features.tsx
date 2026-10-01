@@ -3,8 +3,7 @@ import {
   Typography,
   Container,
   Flex,
-  Grid,
-  GridItem,
+  Masonry,
   GradientText,
 } from '@forgedevstack/bear';
 import { FeatureCard } from '../FeatureCard/FeatureCard';
@@ -12,9 +11,9 @@ import { FEATURES } from '@/constants';
 
 export const Features: FC = () => {
   return (
-    <section id="features" className="py-32 relative">
-      <Container style={{ maxWidth: '72rem' }}>
-        <Flex direction="column" align="center" className="mb-20">
+    <section id="features" className="py-16 md:py-20 relative">
+      <Container style={{ maxWidth: '76rem' }}>
+        <Flex direction="column" align="center" className="mb-8">
           <Typography variant="h2" className="text-4xl md:text-5xl font-bold mb-4">
             <GradientText preset="ocean" className="text-4xl md:text-5xl font-bold">
               Everything You Need
@@ -25,13 +24,11 @@ export const Features: FC = () => {
           </Typography>
         </Flex>
 
-        <Grid cols={{ base: 1, md: 2, lg: 3 }} gap={6}>
+        <Masonry columns={{ base: 1, sm: 2, lg: 3, xl: 4 }} gap={12}>
           {FEATURES.map((feature) => (
-            <GridItem key={feature.id}>
-              <FeatureCard feature={feature} />
-            </GridItem>
+            <FeatureCard key={feature.id} feature={feature} />
           ))}
-        </Grid>
+        </Masonry>
       </Container>
     </section>
   );

@@ -32,7 +32,10 @@ export {
   disconnect,
   Types,
   extractDbNameFromMongoUri,
+  connectToMongo,
+  buildMongoUri,
 } from './database';
+export type { MongoConnectObject, MongoConnectInput } from './database';
 export type {
   SchemaType,
   SchemaFieldDefinition,
@@ -246,7 +249,25 @@ export { ChangelogManager, createChangelogManager } from './changelog';
 export { t, setLocale, getLocale, getAvailableLocales, addTranslations, registerLocale } from './i18n';
 export type { Locale, TranslationParams } from './i18n';
 
-// Utils exports
+export {
+  connectToPostgres,
+  connectToSql,
+  sqlTable,
+  defineSqlModel,
+  transaction,
+} from './sql';
+export type {
+  PostgresConnectOptions,
+  SqlConnectOptions,
+  SqlExecutor,
+  SqlIndexInfo,
+  SqlIndexOptions,
+  SqlPool,
+  SqlQueryResult,
+  SqlRow,
+  SqlTx,
+} from './sql';
+
 export { createLogger, setGlobalLogLevel } from './utils/logger';
 export { deepMerge, pick, omit } from './utils/object';
 export { generateId, formatDate, sleep } from './utils/helpers';

@@ -6,13 +6,13 @@
 
 <p align="center">
   <strong>Complete Node.js backend framework</strong><br/>
-  MongoDB ODM • WebSocket • Scheduling • Queue • Mail • Caching • Auth • Metrics
+  MongoDB ODM • Postgres • WebSocket • Scheduling • Queue • Mail • Caching • Auth • Metrics
 </p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@forgedevstack/harbor"><img src="https://img.shields.io/npm/v/@forgedevstack/harbor.svg" alt="npm"></a>
   <a href="https://www.npmjs.com/search?q=%40forgedevstack"><img src="https://img.shields.io/npm/l/@forgedevstack/harbor.svg" alt="license"></a>
-  <a href="https://harbotjs.com">harbotjs.com</a>
+  <a href="https://harborjs.com">harborjs.com</a>
 </p>
 
 ---
@@ -24,6 +24,8 @@
 | **Marked routes** | `@route.get` on a class method, mounted with `router()` |
 | **Zero-Config Server** | Create servers in seconds with Express under the hood |
 | **MongoDB ODM** | Full Mongoose replacement with Schema, Model, Query |
+| **Postgres** | Parameterized `sqlTable` queries, upserts, indexes, and transactions |
+| **Fluent setup** | Chain Mongo, HTTP logs, errors, and Postgres on one server |
 | **Authentication** | JWT, API Key, RBAC, request signing |
 | **WebSocket** | Real-time with rooms and broadcasting |
 | **Scheduler** | Cron expressions and interval-based jobs |
@@ -47,19 +49,42 @@ npm install @forgedevstack/harbor
 ```typescript
 import { createServer, router, route } from '@forgedevstack/harbor';
 
-const server = createServer({ port: 3000 });
-
 const users = router('/api/users', [
   route.get('/', async () => ({ users: [] })),
   route.post('/', async (req) => ({ id: '123', ...req.body })),
   route.delete('/:id', async (req) => ({ deleted: req.params.id })),
 ]);
 
+const server = createServer({ port: 3000, host: '0.0.0.0' });
 server.use(users);
-server.listen(3000, () => console.log('Server running!'));
+
+server
+  .connectToMongo('mongodb://localhost:27017/app')
+  .httpLogger('dev')
+  .errorHandler()
+  .connectToPostgres('postgres://user:pass@localhost:5432/app')
+  .listen();
 ```
 
-### Marked routes (v1.6.5)
+`connectToMongo` also accepts an object. `isSrv: true` builds a `mongodb+srv` URI and leaves `port` out:
+
+```typescript
+server.connectToMongo({
+  user: 'app',
+  password: 'secret',
+  host: 'cluster.example.net',
+  port: 27017,
+  db: 'app',
+  authSource: 'admin',
+  isSrv: true,
+});
+```
+
+`httpLogger` registers the built-in request log (`tiny`, `short`, `dev`, `combined`, `common`, or `custom`; default `dev`). Call `errorHandler()` after your routes. If you skip it, `listen()` and `start()` mount the default handler once.
+
+`connectToMongo`, `httpLogger`, `errorHandler`, `connectToPostgres`, and `connectToSql` return the same server, so the calls can be split around `use()` the way the sample does. Put `errorHandler()` after routes so it can see them.
+
+### Marked routes
 
 Same router, written on the function. A class method marked with `@route.get` receives one `ctx` and returns data. Harbor still writes `{ success, data }`. `GET()` / `route.get()` arrays stay as they are.
 
@@ -118,7 +143,7 @@ Use **named imports** from the package root (best for tree-shaking):
 import { createServer, connect, router, GET, POST, Schema, model } from '@forgedevstack/harbor';
 ```
 
-**v1.6.1+** also provides a **default export** object (e.g. `import harbor from '@forgedevstack/harbor'`) with common APIs for legacy code — but prefer named imports in new apps.
+A default export object (`import harbor from '@forgedevstack/harbor'`) exposes the common APIs for older code. Prefer named imports in new apps.
 
 ## MongoDB ODM
 
@@ -149,7 +174,37 @@ await User.deleteOne({ _id: user._id });
 
 **Atlas / connection string:** The database name is taken from the path in your URI (e.g. `mongodb+srv://...@cluster.net/mydb?...` → `mydb`). Use **`extractDbNameFromMongoUri(uri)`** if you need the resolved name in logs or health checks.
 
-**v1.6.1+ fixes:** Earlier versions could leave collections empty because new documents used **`replaceOne`** instead of **`insertOne`** on first save, or **`replaceOne`** matched zero documents and no insert ran. Use **1.6.2** if you still see empty collections after registering users.
+## Postgres
+
+`pg` is an optional peer. Install it in the app that opens a pool:
+
+```bash
+npm install pg
+```
+
+```typescript
+import { connectToPostgres, sqlTable } from '@forgedevstack/harbor/sql';
+
+await connectToPostgres({
+  host: 'localhost',
+  port: 5432,
+  user: 'user',
+  password: 'pass',
+  database: 'app',
+});
+
+const users = sqlTable('users');
+const created = await users.create({ email: 'ada@example.com', name: 'Ada' });
+const found = await users.where('email', String(created.email)).findOne();
+
+await users.transaction(async (tx) => {
+  await tx.table('accounts').updateOne({ id: 1 }, { balance: 90 });
+});
+```
+
+`connectToSql({ driver: 'postgres', host, port, user, password, database, ssl })` opens the same pool. Table and column names must match `[A-Za-z_][A-Za-z0-9_]*` and are quoted. Values stay in query parameters. Inserts, updates, and deletes that return rows use `RETURNING *`. The same helpers are `defineSqlModel` and `server.connectToPostgres()` / `server.connectToSql()`.
+
+New documents insert on the first save. If a replace matches nothing, Harbor inserts the row so the collection is not left empty.
 
 ## Authentication
 
@@ -218,7 +273,7 @@ wss.broadcastToRoom('lobby', { type: 'chat', text: 'Hello lobby!' });
 wss.send(clientId, { type: 'private', text: 'Just for you' });
 ```
 
-## WebSocket Hub (v1.6.3+)
+## WebSocket Hub
 
 `WsHub` builds on the same HTTP server with upgrade-level auth, typed message envelopes (`{ event, payload }`), rooms, per-connection context, heartbeat cleanup, and a pluggable pub/sub adapter for multi-instance fan-out (in-memory by default, Redis-compatible contract).
 
@@ -499,7 +554,7 @@ app.post('/process', upload({ storage: 'memory' }), (req, res) => {
 });
 ```
 
-## Streaming Uploads (v1.6.3+)
+## Streaming Uploads
 
 `streamUpload` parses multipart/form-data as a stream — files never buffer fully in memory. Files flow into a `StorageAdapter` (`save(stream, meta) -> { key, url }`). Built-in adapters: local disk and S3/R2/MinIO (SigV4, zero AWS SDK).
 

@@ -1,4 +1,4 @@
-import express, { Express, RequestHandler } from 'express';
+import express, { Express, RequestHandler, ErrorRequestHandler } from 'express';
 import { createServer as createHttpServer, Server as HttpServer } from 'http';
 import type {
   HarborServer,
@@ -13,7 +13,14 @@ import { loadConfig } from './config';
 import { createRouter } from './router';
 import { createErrorHandler } from './errorHandler';
 import { createLogger } from '../utils/logger';
+import { httpLogger as createHttpLogger } from '../utils/httpLogger';
+import type { HttpLogFormat, HttpLoggerOptions } from '../utils/httpLogger';
 import { GRACEFUL_SHUTDOWN_TIMEOUT } from '../constants/defaults.const';
+import { connectToMongo as openMongo } from '../database/connectToMongo';
+import type { MongoConnectInput } from '../database/mongoUri';
+import { connectToPostgres as openPostgres, connectToSql as openSql } from '../sql';
+import type { PostgresConnectOptions, SqlConnectOptions } from '../sql';
+import { createConnectionQueue } from './connectionQueue';
 
 const logger = createLogger('server');
 
@@ -24,8 +31,16 @@ export function createServer(options: CreateServerOptions = {}): HarborServer {
   let status: ServerStatus = 'stopped';
   let startedAt: Date | null = null;
   const routes: RouteDefinition[] = [];
+  let errorHandlerMounted = false;
+  const connections = createConnectionQueue(logger);
 
   applyMiddleware(app, config);
+
+  function ensureErrorHandler(): void {
+    if (!errorHandlerMounted) {
+      harborServer.errorHandler();
+    }
+  }
 
   const harborServer: HarborServer = {
     app,
@@ -34,11 +49,19 @@ export function createServer(options: CreateServerOptions = {}): HarborServer {
 
     async start(): Promise<ServerInfo> {
       if (status === 'running') {
+        ensureErrorHandler();
         logger.warn('Server is already running');
         return harborServer.getInfo();
       }
 
       status = 'starting';
+      try {
+        await connections.awaitAll();
+      } catch (error) {
+        status = 'error';
+        throw error;
+      }
+      ensureErrorHandler();
       const port = options.port ?? config.server.port;
       const host = options.host ?? config.server.host ?? 'localhost';
 
@@ -151,21 +174,65 @@ export function createServer(options: CreateServerOptions = {}): HarborServer {
       app.delete(path, ...handlers);
     },
 
-    listen(port?: number, callback?: () => void): void {
-      const serverPort = port ?? options.port ?? config.server.port;
-      const host = options.host ?? config.server.host ?? 'localhost';
-      
-      server = createHttpServer(app);
-      harborServer.server = server;
-      
-      server.listen(serverPort, host, () => {
-        status = 'running';
-        startedAt = new Date();
-        logger.info(`Server started on http://${host}:${serverPort}`);
-        callback?.();
-      });
+    connectToMongo(input: MongoConnectInput): HarborServer {
+      connections.enqueue(() => openMongo(input));
+      return harborServer;
+    },
 
-      setupGracefulShutdown(harborServer);
+    httpLogger(formatOrOptions?: HttpLogFormat | HttpLoggerOptions): HarborServer {
+      const optionsForLogger: HttpLoggerOptions = typeof formatOrOptions === 'string'
+        ? { format: formatOrOptions }
+        : { format: 'dev', ...(formatOrOptions ?? {}) };
+      app.use(createHttpLogger(optionsForLogger));
+      return harborServer;
+    },
+
+    errorHandler(handler?: ErrorRequestHandler): HarborServer {
+      if (errorHandlerMounted) return harborServer;
+      app.use(handler ?? createErrorHandler(config));
+      errorHandlerMounted = true;
+      return harborServer;
+    },
+
+    connectToPostgres(input: string | PostgresConnectOptions): HarborServer {
+      connections.enqueue(() => openPostgres(input));
+      return harborServer;
+    },
+
+    connectToSql(sqlOptions: SqlConnectOptions): HarborServer {
+      connections.enqueue(() => openSql(sqlOptions));
+      return harborServer;
+    },
+
+    listen(port?: number, callback?: () => void): void {
+      ensureErrorHandler();
+      const open = () => {
+        const serverPort = port ?? options.port ?? config.server.port;
+        const host = options.host ?? config.server.host ?? 'localhost';
+
+        server = createHttpServer(app);
+        harborServer.server = server;
+
+        server.listen(serverPort, host, () => {
+          status = 'running';
+          startedAt = new Date();
+          logger.info(`Server started on http://${host}:${serverPort}`);
+          callback?.();
+        });
+
+        setupGracefulShutdown(harborServer);
+      };
+
+      if (!connections.hasPending()) {
+        open();
+        return;
+      }
+
+      void connections.awaitAll().then(open).catch((error: Error) => {
+        status = 'error';
+        logger.error('Server failed to start', error);
+        options.onError?.(error);
+      });
     },
 
     getInfo(): ServerInfo {
@@ -214,9 +281,6 @@ function applyMiddleware(app: Express, config: HarborConfig): void {
   }
 
   app.use(requestEnhancer());
-
-  const errorHandler = createErrorHandler(config);
-  app.use(errorHandler);
 }
 
 function corsMiddleware(corsConfig: NonNullable<HarborConfig['server']['cors']>): RequestHandler {

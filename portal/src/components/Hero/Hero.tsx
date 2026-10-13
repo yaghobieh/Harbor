@@ -8,10 +8,14 @@ import {
   Badge,
   GradientText,
   CodeBlock,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanel,
   BearIcons,
 } from '@forgedevstack/bear';
 import { Logo } from '../Logo/Logo';
-import { TITLE, TAGLINE, DESCRIPTION, STATS, QUICK_START_CODE } from '@/constants';
+import { TITLE, TAGLINE, DESCRIPTION, STATS, SERVER_V1_CODE, SERVER_V2_CODE, SERVER_SQL_CODE } from '@/constants';
 
 const heroButtonStyle = { height: 44, minHeight: 44, boxSizing: 'border-box' as const };
 
@@ -82,13 +86,22 @@ export const Hero: FC = () => {
 
         <Flex justify="center" className="mb-16">
           <div className="w-full max-w-2xl text-left">
-            <CodeBlock
-              code={QUICK_START_CODE}
-              title="server.ts"
-              language="typescript"
-              copyable
-              showLineNumbers
-            />
+            <Tabs defaultTab="v2" variant="pills">
+              <TabList className="flex gap-2 mb-4">
+                <Tab id="v1">V1</Tab>
+                <Tab id="v2">V2</Tab>
+                <Tab id="sql">Postgres</Tab>
+              </TabList>
+              <TabPanel tabId="v1">
+                <CodeBlock code={SERVER_V1_CODE} title="server.ts" language="typescript" copyable showLineNumbers />
+              </TabPanel>
+              <TabPanel tabId="v2">
+                <CodeBlock code={SERVER_V2_CODE} title="server.ts" language="typescript" copyable showLineNumbers />
+              </TabPanel>
+              <TabPanel tabId="sql">
+                <CodeBlock code={SERVER_SQL_CODE} title="sql.ts" language="typescript" copyable showLineNumbers />
+              </TabPanel>
+            </Tabs>
           </div>
         </Flex>
 

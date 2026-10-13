@@ -36,6 +36,7 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
             id: section.path,
             label: section.title,
             href: section.path,
+            badge: section.isNew ? 'New' : undefined,
           })),
         } as SidebarItem;
       })

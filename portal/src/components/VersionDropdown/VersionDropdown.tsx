@@ -10,6 +10,15 @@ import { VersionDropdownProps, VersionInfo } from './types';
 
 const VERSIONS: VersionInfo[] = [
   {
+    version: '1.6.6',
+    date: '2026-10-13',
+    highlights: [
+      'Fluent server chain for Mongo, logs, errors, and Postgres',
+      'sqlTable queries, upserts, indexes, and transactions',
+      'Homepage harborjs.com',
+    ],
+  },
+  {
     version: '1.6.5',
     date: '2026-10-01',
     highlights: [

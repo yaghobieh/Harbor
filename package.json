@@ -1,6 +1,6 @@
 {
   "name": "@forgedevstack/harbor",
-  "version": "1.6.5",
+  "version": "1.6.6",
   "description": "ForgeStack Harbor - Complete Node.js backend framework with MongoDB ODM, WebSocket, scheduling, caching, auth, queue, mail, and more",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
@@ -15,6 +15,11 @@
       "types": "./dist/database/index.d.ts",
       "import": "./dist/database/index.js",
       "require": "./dist/database/index.js"
+    },
+    "./sql": {
+      "types": "./dist/sql/index.d.ts",
+      "import": "./dist/sql/index.js",
+      "require": "./dist/sql/index.js"
     },
     "./validation": {
       "types": "./dist/validation/index.d.ts",
@@ -136,7 +141,7 @@
     "type": "git",
     "url": "https://github.com/yaghobieh/Harbor.git"
   },
-  "homepage": "https://github.com/yaghobieh/Harbor#readme",
+  "homepage": "https://harborjs.com",
   "bugs": {
     "url": "https://github.com/yaghobieh/Harbor/issues"
   },
@@ -150,10 +155,14 @@
     "express": ">=4.18.0",
     "ioredis": ">=5.0.0",
     "mongodb": ">=6.0.0",
+    "pg": ">=8.0.0",
     "ws": ">=8.0.0"
   },
   "peerDependenciesMeta": {
     "mongodb": {
+      "optional": true
+    },
+    "pg": {
       "optional": true
     },
     "ws": {

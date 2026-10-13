@@ -1,6 +1,7 @@
 export interface DocSection {
   title: string;
   path: string;
+  isNew?: boolean;
   children?: DocSection[];
 }
 
@@ -23,7 +24,7 @@ export const DOC_NAVIGATION: DocNavigation[] = [
   {
     title: 'Core',
     sections: [
-      { title: 'Creating a Server', path: '/docs/server' },
+      { title: 'Creating a Server', path: '/docs/server', isNew: true },
       { title: 'Routes', path: '/docs/routes' },
       { title: 'Marked Routes', path: '/docs/marked-routes' },
       { title: 'Controllers & Services', path: '/docs/layers' },
@@ -41,6 +42,7 @@ export const DOC_NAVIGATION: DocNavigation[] = [
     title: 'Database',
     sections: [
       { title: 'MongoDB ODM', path: '/docs/database' },
+      { title: 'Postgres and SQL', path: '/docs/sql', isNew: true },
       { title: 'Schemas', path: '/docs/schemas' },
       { title: 'Models & Queries', path: '/docs/queries' },
       { title: 'Indexes', path: '/docs/indexes' },
@@ -80,7 +82,7 @@ export const DOC_NAVIGATION: DocNavigation[] = [
     sections: [
       { title: 'Health Checks', path: '/docs/health' },
       { title: 'Metrics', path: '/docs/metrics' },
-      { title: 'HTTP Logger', path: '/docs/http-logger' },
+      { title: 'HTTP Logger', path: '/docs/http-logger', isNew: true },
       { title: 'Logger', path: '/docs/logger' },
     ],
   },

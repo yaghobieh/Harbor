@@ -10,6 +10,9 @@ export {
   HarborConnection,
   extractDbNameFromMongoUri,
 } from './connection';
+export { buildMongoUri } from './mongoUri';
+export type { MongoConnectObject, MongoConnectInput } from './mongoUri';
+export { connectToMongo } from './connectToMongo';
 
 // Re-export types
 export type {
@@ -42,6 +45,8 @@ export const Types = {
 
 // Default export mimics Mongoose's API
 import { connection, connect, disconnect } from './connection';
+import { connectToMongo } from './connectToMongo';
+import { buildMongoUri } from './mongoUri';
 import { Schema } from './schema';
 import { Model, model } from './model';
 
@@ -49,6 +54,8 @@ const harbor = {
   // Connection
   connection,
   connect,
+  connectToMongo,
+  buildMongoUri,
   disconnect,
   
   // Schema & Model

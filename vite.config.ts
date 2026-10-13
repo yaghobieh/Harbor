@@ -15,6 +15,7 @@ export default defineConfig({
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
         'database/index': resolve(__dirname, 'src/database/index.ts'),
+        'sql/index': resolve(__dirname, 'src/sql/index.ts'),
         'validation/index': resolve(__dirname, 'src/validation/index.ts'),
         'docker/index': resolve(__dirname, 'src/docker/index.ts'),
         'middleware/index': resolve(__dirname, 'src/middleware/index.ts'),
@@ -66,6 +67,7 @@ export default defineConfig({
         'express',
         'mongoose',
         'mongodb',
+        'pg',
         'ws',
         'ioredis',
         'check-disk-space',

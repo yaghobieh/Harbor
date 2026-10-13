@@ -455,4 +455,31 @@ const storage = createS3StorageAdapter({
       },
     ],
   },
+  sql: {
+    title: 'Postgres and SQL',
+    description: 'Connect Postgres from the server chain or from @forgedevstack/harbor/sql. Install pg in the app first. Queries stay parameterized.',
+    sections: [
+      {
+        id: 'connect',
+        title: 'Connect',
+        content: 'connectToPostgres accepts a URI or a host object. connectToSql uses driver postgres.',
+        code: `import { createServer } from '@forgedevstack/harbor';
+import { sqlTable, transaction } from '@forgedevstack/harbor/sql';
+
+createServer({ port: 3000 })
+  .connectToPostgres('postgres://user:pass@localhost:5432/app')
+  .errorHandler()
+  .listen();
+
+const users = sqlTable('users');
+const admins = await users.where('role', 'admin').orderBy('created_at', 'desc').limit(20).find();
+await users.upsert({ email: 'ada@example.com', name: 'Ada' }, 'email');
+
+await transaction(async (tx) => {
+  await tx.table('accounts').updateOne({ id: 1 }, { balance: 10 });
+});`,
+        filename: 'sql.ts',
+      },
+    ],
+  },
 };

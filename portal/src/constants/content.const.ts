@@ -1,10 +1,10 @@
 import type { Feature, ApiItem } from '@/types';
 
-export const VERSION = '1.6.5';
+export const VERSION = '1.6.6';
 export const PORTAL_VERSION = '1.2.0';
 export const TITLE = 'Harbor';
 export const TAGLINE = 'The Complete Node.js Backend Framework';
-export const DESCRIPTION = 'Server creation, routing, MongoDB ODM, job queue, mail, caching, auth, WebSocket, scheduling, Docker, and more. Part of the ForgeStack ecosystem.';
+export const DESCRIPTION = 'Server creation, routing, MongoDB, Postgres, job queue, mail, caching, auth, WebSocket, and scheduling. Part of the ForgeStack ecosystem.';
 
 export const FORGESTACK_TAGLINE = 'Part of the ForgeStack Ecosystem';
 export const FORGESTACK_DESCRIPTION = 'Harbor works seamlessly with Bear UI, Synapse state, Compass routing, Relay HTTP, Crucible testing, and Forge CLI.';
@@ -246,6 +246,45 @@ HarborError.tooManyRequests(message?)         // 429
 HarborError.internal(message?)                // 500`,
   },
 ];
+
+export const SERVER_V1_CODE = `import { createServer, router, route } from '@forgedevstack/harbor';
+import { connect } from '@forgedevstack/harbor/database';
+
+await connect('mongodb://localhost:27017/myapp');
+
+const users = router('/api/users', [
+  route.get('/', async () => ({ users: [] })),
+]);
+
+const server = createServer({ port: 3000 });
+server.use(users);
+server.listen(3000);`;
+
+export const SERVER_V2_CODE = `import { createServer, router, route } from '@forgedevstack/harbor';
+
+const users = router('/api/users', [
+  route.get('/', async () => ({ users: [] })),
+]);
+
+const server = createServer({ port: 3000, host: '0.0.0.0' });
+server.use(users);
+
+server
+  .connectToMongo({ user, password, host, db, isSrv: true })
+  .httpLogger('dev')
+  .errorHandler()
+  .connectToPostgres('postgres://user:pass@localhost:5432/app')
+  .listen();`;
+
+export const SERVER_SQL_CODE = `import { sqlTable, transaction } from '@forgedevstack/harbor/sql';
+
+const users = sqlTable('users');
+const rows = await users.where('role', 'admin').limit(20).find();
+await users.create({ email: 'ada@example.com', name: 'Ada' });
+
+await transaction(async (tx) => {
+  await tx.table('accounts').updateOne({ id: 1 }, { balance: 10 });
+});`;
 
 export const QUICK_START_CODE = `import { createServer, router, GET, POST } from '@forgedevstack/harbor';
 import { connect, Schema, model } from '@forgedevstack/harbor/database';

@@ -29,6 +29,9 @@ import {
   extractDbNameFromMongoUri,
 } from './database';
 import { validateRequest } from './validation';
+import { connectToMongo } from './database/connectToMongo';
+import { buildMongoUri } from './database/mongoUri';
+import { connectToPostgres, connectToSql, defineSqlModel, sqlTable, transaction } from './sql';
 import { httpLogger } from './utils/httpLogger';
 
 const harbor = {
@@ -59,6 +62,13 @@ const harbor = {
   HarborDocument,
   connection,
   connect,
+  connectToMongo,
+  buildMongoUri,
+  connectToPostgres,
+  connectToSql,
+  sqlTable,
+  defineSqlModel,
+  transaction,
   disconnect,
   Types,
   extractDbNameFromMongoUri,

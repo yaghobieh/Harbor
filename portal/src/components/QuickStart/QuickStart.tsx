@@ -5,8 +5,12 @@ import {
   CodeBlock,
   Badge,
   Flex,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanel,
 } from '@forgedevstack/bear';
-import { QUICK_START_CODE } from '@/constants';
+import { QUICK_START_CODE, SERVER_V1_CODE, SERVER_V2_CODE } from '@/constants';
 
 const STEPS = [
   {
@@ -74,13 +78,22 @@ export const QuickStart: FC = () => {
             </Badge>
             <Typography variant="h3" className="text-2xl font-bold">Create Your Server</Typography>
           </Flex>
-          <CodeBlock
-            code={QUICK_START_CODE}
-            title="src/server.ts"
-            language="typescript"
-            copyable
-            showLineNumbers
-          />
+          <Tabs defaultTab="v2" variant="pills">
+            <TabList className="flex gap-2 mb-4">
+              <Tab id="v1">V1</Tab>
+              <Tab id="v2">V2</Tab>
+              <Tab id="full">Queue and mail</Tab>
+            </TabList>
+            <TabPanel tabId="v1">
+              <CodeBlock code={SERVER_V1_CODE} title="server.ts" language="typescript" copyable showLineNumbers />
+            </TabPanel>
+            <TabPanel tabId="v2">
+              <CodeBlock code={SERVER_V2_CODE} title="server.ts" language="typescript" copyable showLineNumbers />
+            </TabPanel>
+            <TabPanel tabId="full">
+              <CodeBlock code={QUICK_START_CODE} title="server.ts" language="typescript" copyable showLineNumbers />
+            </TabPanel>
+          </Tabs>
         </div>
 
         <div>

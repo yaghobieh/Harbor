@@ -1,7 +1,10 @@
-import type { Express, RequestHandler } from 'express';
+import type { ErrorRequestHandler, Express, RequestHandler } from 'express';
 import type { Server as HttpServer } from 'http';
 import type { HarborConfig } from './config.types';
 import type { RouteDefinition, RouteGroup } from './route.types';
+import type { MongoConnectInput } from '../database/mongoUri';
+import type { PostgresConnectOptions, SqlConnectOptions } from '../sql/types';
+import type { HttpLogFormat, HttpLoggerOptions } from '../utils/httpLogger';
 
 export interface HarborServer {
   app: Express;
@@ -22,6 +25,11 @@ export interface HarborServer {
   put: (path: string, ...handlers: RequestHandler[]) => void;
   patch: (path: string, ...handlers: RequestHandler[]) => void;
   delete: (path: string, ...handlers: RequestHandler[]) => void;
+  connectToMongo: (input: MongoConnectInput) => HarborServer;
+  httpLogger: (formatOrOptions?: HttpLogFormat | HttpLoggerOptions) => HarborServer;
+  errorHandler: (handler?: ErrorRequestHandler) => HarborServer;
+  connectToPostgres: (input: string | PostgresConnectOptions) => HarborServer;
+  connectToSql: (options: SqlConnectOptions) => HarborServer;
   listen: (port?: number, callback?: () => void) => void;
 }
 

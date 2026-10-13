@@ -2,6 +2,27 @@
 
 All notable changes to Harbor will be documented in this file.
 
+## [1.6.6] - 2026-10-13
+
+### Added
+
+- Product homepage is [https://harborjs.com](https://harborjs.com).
+- Fluent server chain. `connectToMongo`, `httpLogger`, `errorHandler`, `connectToPostgres`, and `connectToSql` return the same server from `createServer()`.
+- `connectToMongo` accepts a URI or `{ user, password, host, port, db, authSource, isSrv }` and opens the existing Mongo connection. `isSrv` builds a `mongodb+srv` URI.
+- `server.httpLogger(format | options)` registers the built-in HTTP logger. Default format is `dev`.
+- `server.errorHandler(handler?)` mounts the error handler where you place it. `listen()` and `start()` mount it once when you never called it.
+- Subpath `@forgedevstack/harbor/sql`: `connectToPostgres`, `connectToSql`, `sqlTable` / `defineSqlModel`, query builder, aggregates, indexes, raw `query`, and `transaction` (rollback when the callback throws). `pg` is an optional peer.
+
+### Changed
+
+- The error handler is no longer mounted before routes.
+- SQL and Mongo helpers keep query text, identifiers, and limits in const files. The Mongo object flag is `isSrv`.
+
+### Portal
+
+- Sidebar marks Creating a Server, Postgres and SQL, and HTTP Logger with a New tag.
+- The home page uses tabs for the V1 server, the V2 chain, and a Postgres sample.
+
 ## [1.6.5] - 2026-10-01
 
 ### Added
